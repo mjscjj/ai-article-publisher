@@ -142,5 +142,29 @@
     "crawl_time": "2026-02-24 00:01:10",
     "crawl_date": "2026-02-24",
     "pub_time": null
+  },
+  {
+    "id": "05ed73d14663",
+    "title": "The human work behind humanoid robots is being hidden",
+    "url": "https://www.technologyreview.com/2026/02/23/1133508/the-human-work-behind-humanoid-robots-is-being-hidden/",
+    "source_id": "mit_tech",
+    "source_name": "MIT科技评论",
+    "platform": "MIT",
+    "category": "科技",
+    "crawl_time": "2026-02-24 03:01:02",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "ddb4d7073aff",
+    "title": "Peptides are everywhere. Here’s what you need to know.",
+    "url": "https://www.technologyreview.com/2026/02/23/1133522/peptides-are-everywhere-heres-what-you-need-to-know/",
+    "source_id": "mit_tech",
+    "source_name": "MIT科技评论",
+    "platform": "MIT",
+    "category": "科技",
+    "crawl_time": "2026-02-24 06:01:13",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
   }
 ]

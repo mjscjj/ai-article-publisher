@@ -262,5 +262,17 @@
     "crawl_time": "2026-02-23 09:00:54",
     "crawl_date": "2026-02-23",
     "pub_time": null
+  },
+  {
+    "id": "5d1c15ec2363",
+    "title": "The US Had a Big Battery Boom Last Year",
+    "url": "https://www.wired.com/story/the-us-had-a-big-battery-boom-last-year/",
+    "source_id": "wired_science",
+    "source_name": "Wired科学",
+    "platform": "Wired",
+    "category": "科技",
+    "crawl_time": "2026-02-24 03:01:06",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
   }
 ]

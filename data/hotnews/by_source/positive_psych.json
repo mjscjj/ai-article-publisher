@@ -118,5 +118,29 @@
     "crawl_time": "2026-02-21 19:51:53",
     "crawl_date": "2026-02-21",
     "pub_time": null
+  },
+  {
+    "id": "55c0e748820a",
+    "title": "Existential Anxiety About Artificial Intelligence",
+    "url": "https://positivepsychology.com/existential-anxiety/?utm_source=rss&#038;utm_medium=rss&#038;utm_campaign=existential-anxiety",
+    "source_id": "positive_psych",
+    "source_name": "积极心理学",
+    "platform": "PositivePsychology",
+    "category": "心理学",
+    "crawl_time": "2026-02-24 03:01:01",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "5b68176b10f1",
+    "title": "Understanding AI Anxiety and Its Societal Impact",
+    "url": "https://positivepsychology.com/ai-anxiety/?utm_source=rss&#038;utm_medium=rss&#038;utm_campaign=ai-anxiety",
+    "source_id": "positive_psych",
+    "source_name": "积极心理学",
+    "platform": "PositivePsychology",
+    "category": "心理学",
+    "crawl_time": "2026-02-24 03:01:01",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
   }
 ]

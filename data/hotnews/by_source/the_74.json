@@ -358,5 +358,29 @@
     "crawl_time": "2026-02-24 00:01:04",
     "crawl_date": "2026-02-24",
     "pub_time": null
+  },
+  {
+    "id": "8a776018e64f",
+    "title": "Singing to Your Baby May Matter More Than You Think",
+    "url": "https://www.the74million.org/article/singing-to-your-baby-may-matter-more-than-you-think/",
+    "source_id": "the_74",
+    "source_name": "The 74 Million",
+    "platform": "The 74",
+    "category": "教育",
+    "crawl_time": "2026-02-24 03:00:55",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "3f26fd0fe191",
+    "title": "Opinion: For the Sake of Their Students, Districts Need to Do Their Job in Labor Talks",
+    "url": "https://www.the74million.org/article/for-the-sake-of-their-students-districts-need-to-do-their-job-in-labor-talks/",
+    "source_id": "the_74",
+    "source_name": "The 74 Million",
+    "platform": "The 74",
+    "category": "教育",
+    "crawl_time": "2026-02-24 06:01:07",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
   }
 ]

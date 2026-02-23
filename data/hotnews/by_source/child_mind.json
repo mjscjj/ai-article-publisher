@@ -358,5 +358,29 @@
     "crawl_time": "2026-02-21 19:51:52",
     "crawl_date": "2026-02-21",
     "pub_time": null
+  },
+  {
+    "id": "111b602d11ec",
+    "title": "Hechinger Report: Biting, kicking, wandering the classroom: Teachers say there’s a rise in misbehavior even among the littlest kids",
+    "url": "https://childmind.org/blog/hechinger-report-teachers-say-theres-a-rise-in-misbehavior-even-among-the-littlest-kids/",
+    "source_id": "child_mind",
+    "source_name": "Child Mind Institute",
+    "platform": "Child Mind",
+    "category": "青少年心理",
+    "crawl_time": "2026-02-24 06:01:12",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "235be6e475ca",
+    "title": "PureWow: Is Alexa My Kid’s New Best Friend?",
+    "url": "https://childmind.org/blog/purewow-is-alexa-my-kids-new-best-friend/",
+    "source_id": "child_mind",
+    "source_name": "Child Mind Institute",
+    "platform": "Child Mind",
+    "category": "青少年心理",
+    "crawl_time": "2026-02-24 06:01:12",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
   }
 ]

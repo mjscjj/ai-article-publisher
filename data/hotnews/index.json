@@ -1,141 +1,141 @@
 {
-  "last_update": "2026-02-24 00:01:30",
-  "total_items": 13490,
+  "last_update": "2026-02-24 06:01:37",
+  "total_items": 14710,
   "sources": {
     "weibo": {
       "name": "微博热搜",
-      "count": 1131
+      "count": 1234
     },
     "zhihu": {
       "name": "知乎热榜",
-      "count": 660
+      "count": 720
     },
     "hackernews": {
       "name": "Hacker News",
-      "count": 630
+      "count": 690
     },
     "cls": {
       "name": "财联社",
-      "count": 400
+      "count": 440
     },
     "wallstreetcn": {
       "name": "华尔街见闻",
-      "count": 652
+      "count": 738
     },
     "thepaper": {
       "name": "澎湃新闻",
-      "count": 362
+      "count": 404
     },
     "bbc_education": {
       "name": "BBC教育新闻",
-      "count": 279
+      "count": 307
     },
     "inside_higher_ed": {
       "name": "Inside Higher Ed",
-      "count": 200
+      "count": 220
     },
     "mit_tech": {
       "name": "MIT科技评论",
-      "count": 200
+      "count": 220
     },
     "wired_science": {
       "name": "Wired科学",
-      "count": 400
+      "count": 440
     },
     "ifanr": {
       "name": "爱范儿",
-      "count": 400
+      "count": 440
     },
     "techcrunch": {
       "name": "TechCrunch",
-      "count": 400
+      "count": 440
     },
     "science_daily_mind": {
       "name": "ScienceDaily心智",
-      "count": 600
+      "count": 660
     },
     "phys_org": {
       "name": "Phys.org科学",
-      "count": 600
+      "count": 660
     },
     "zhihu_daily": {
       "name": "知乎日报",
-      "count": 570
+      "count": 630
     },
     "v2ex": {
       "name": "V2EX",
-      "count": 183
+      "count": 201
     },
     "sspai": {
       "name": "少数派",
-      "count": 190
+      "count": 210
     },
     "ithome": {
       "name": "IT之家",
-      "count": 228
+      "count": 252
     },
     "juejin": {
       "name": "掘金",
-      "count": 380
+      "count": 420
     },
     "36kr": {
       "name": "36氪",
-      "count": 570
+      "count": 630
     },
     "the_74": {
       "name": "The 74 Million",
-      "count": 450
+      "count": 500
     },
     "stanford_edu": {
       "name": "斯坦福教育学院",
-      "count": 180
+      "count": 200
     },
     "child_dev_institute": {
       "name": "儿童发展研究所",
-      "count": 288
+      "count": 320
     },
     "child_mind": {
       "name": "Child Mind Institute",
-      "count": 540
+      "count": 600
     },
     "positive_psych": {
       "name": "积极心理学",
-      "count": 180
+      "count": 200
     },
     "tiny_buddha": {
       "name": "Tiny Buddha",
-      "count": 180
+      "count": 200
     },
     "mark_manson": {
       "name": "Mark Manson",
-      "count": 180
+      "count": 200
     },
     "james_clear": {
       "name": "James Clear",
-      "count": 180
+      "count": 200
     },
     "douban_psychology": {
       "name": "豆瓣心理学",
-      "count": 406
+      "count": 464
     }
   },
   "categories": {
-    "综合": 1791,
-    "科技": 3581,
-    "财经": 1052,
-    "新闻": 362,
-    "教育": 1109,
-    "科学研究": 660,
-    "精选": 570,
-    "心理学": 1414,
-    "青少年心理": 540,
-    "个人成长": 540
+    "综合": 1954,
+    "科技": 3943,
+    "财经": 1178,
+    "新闻": 404,
+    "教育": 1227,
+    "科学研究": 720,
+    "精选": 630,
+    "心理学": 1584,
+    "青少年心理": 600,
+    "个人成长": 600
   },
   "dates": {
     "2026-02-21": 2088,
     "2026-02-22": 4720,
     "2026-02-23": 4202,
-    "2026-02-24": 609
+    "2026-02-24": 1830
   },
   "extended": {
     "2026-02-23": {
@@ -152,19 +152,19 @@
       "crawl_time": "2026-02-23 23:00:01"
     },
     "2026-02-24": {
-      "total_items": 1776,
-      "platforms": 51,
-      "success_rate": "51/54",
-      "crawl_time": "2026-02-24 00:00:01"
+      "total_items": 1758,
+      "platforms": 50,
+      "success_rate": "50/54",
+      "crawl_time": "2026-02-24 06:00:01"
     }
   },
   "unified": {
     "2026-02-24": {
-      "total_items": 1871,
-      "platforms": 62,
-      "dailyhot_items": 1776,
+      "total_items": 1870,
+      "platforms": 61,
+      "dailyhot_items": 1758,
       "rsshub_items": 260,
-      "crawl_time": "2026-02-24 00:01:30"
+      "crawl_time": "2026-02-24 06:01:37"
     }
   }
 }

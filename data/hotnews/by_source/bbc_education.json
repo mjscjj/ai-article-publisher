@@ -262,5 +262,41 @@
     "crawl_time": "2026-02-23 21:01:02",
     "crawl_date": "2026-02-23",
     "pub_time": null
+  },
+  {
+    "id": "f0a1a86ba44f",
+    "title": "Special educational needs system to be overhauled in England",
+    "url": "https://www.bbc.com/news/articles/c309zp49zdno?at_medium=RSS&amp;at_campaign=rss",
+    "source_id": "bbc_education",
+    "source_name": "BBC教育新闻",
+    "platform": "BBC",
+    "category": "教育",
+    "crawl_time": "2026-02-24 03:00:54",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "56884fe79ada",
+    "title": "I'm a doctor but will never be able to pay off my ever-growing student debt",
+    "url": "https://www.bbc.com/news/articles/cm21d8r111go?at_medium=RSS&amp;at_campaign=rss",
+    "source_id": "bbc_education",
+    "source_name": "BBC教育新闻",
+    "platform": "BBC",
+    "category": "教育",
+    "crawl_time": "2026-02-24 03:00:54",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "02f71bf5f44a",
+    "title": "Violence against teachers still 'widespread and harmful'",
+    "url": "https://www.bbc.com/news/articles/c043eq7q9kvo?at_medium=RSS&amp;at_campaign=rss",
+    "source_id": "bbc_education",
+    "source_name": "BBC教育新闻",
+    "platform": "BBC",
+    "category": "教育",
+    "crawl_time": "2026-02-24 03:00:54",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
   }
 ]

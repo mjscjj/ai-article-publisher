@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-24T00:34:23.167952",
+  "timestamp": "2026-02-24T00:38:27.535177",
   "checks": {
     "pipeline.py": true,
     "pipeline_config.json": true,
@@ -9,11 +9,11 @@
     "api_server.py": true,
     "tests/api/test_pipeline_api.py": true,
     "tests/e2e/test_ui_e2e.py": true,
-    "database": false,
+    "database": true,
     "pipeline_syntax": true,
     "api_server": false,
     "api_test_cases": 36,
     "e2e_test_cases": 47,
-    "output_files": 16
+    "output_files": 17
   }
 }

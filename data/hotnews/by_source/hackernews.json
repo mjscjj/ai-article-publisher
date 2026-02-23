@@ -1006,5 +1006,101 @@
     "crawl_time": "2026-02-24 00:00:12",
     "crawl_date": "2026-02-24",
     "pub_time": null
+  },
+  {
+    "id": "b5bcdbeb1095",
+    "title": "The Age Verification Trap: Verifying age undermines everyone&#39;s data protection",
+    "url": "https://spectrum.ieee.org/age-verification",
+    "source_id": "hackernews",
+    "source_name": "Hacker News",
+    "platform": "Hacker News",
+    "category": "科技",
+    "crawl_time": "2026-02-24 03:00:12",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "a577dbeacc4b",
+    "title": "Magical Mushroom – Europe&#39;s first industrial-scale mycelium packaging producer",
+    "url": "https://magicalmushroom.com/index",
+    "source_id": "hackernews",
+    "source_name": "Hacker News",
+    "platform": "Hacker News",
+    "category": "科技",
+    "crawl_time": "2026-02-24 03:00:12",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "c5902bd5c09a",
+    "title": "Show HN: Local-First Linux MicroVMs for macOS",
+    "url": "https://shuru.run/",
+    "source_id": "hackernews",
+    "source_name": "Hacker News",
+    "platform": "Hacker News",
+    "category": "科技",
+    "crawl_time": "2026-02-24 03:00:12",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "810f307eba87",
+    "title": "Ladybird adopts Rust",
+    "url": "https://ladybird.org/posts/adopting-rust/",
+    "source_id": "hackernews",
+    "source_name": "Hacker News",
+    "platform": "Hacker News",
+    "category": "科技",
+    "crawl_time": "2026-02-24 06:00:11",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "8c9b5592d956",
+    "title": "Americans are destroying Flock surveillance cameras",
+    "url": "https://techcrunch.com/2026/02/23/americans-are-destroying-flock-surveillance-cameras/",
+    "source_id": "hackernews",
+    "source_name": "Hacker News",
+    "platform": "Hacker News",
+    "category": "科技",
+    "crawl_time": "2026-02-24 06:00:11",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "d0f077b8345c",
+    "title": "Binance fired employees who found $1.7B in crypto was sent to Iran",
+    "url": "https://www.nytimes.com/2026/02/23/technology/binance-employees-iran-firings.html",
+    "source_id": "hackernews",
+    "source_name": "Hacker News",
+    "platform": "Hacker News",
+    "category": "科技",
+    "crawl_time": "2026-02-24 06:00:11",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "62bac872e640",
+    "title": "The peculiar case of Japanese web design (2022)",
+    "url": "https://sabrinas.space/",
+    "source_id": "hackernews",
+    "source_name": "Hacker News",
+    "platform": "Hacker News",
+    "category": "科技",
+    "crawl_time": "2026-02-24 06:00:11",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "96cd3b322199",
+    "title": "Hacker News.love – 22 projects Hacker News didn&#39;t love",
+    "url": "https://hackernews.love/",
+    "source_id": "hackernews",
+    "source_name": "Hacker News",
+    "platform": "Hacker News",
+    "category": "科技",
+    "crawl_time": "2026-02-24 06:00:11",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
   }
 ]

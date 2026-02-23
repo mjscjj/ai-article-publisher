@@ -250,5 +250,17 @@
     "crawl_time": "2026-02-23 18:00:54",
     "crawl_date": "2026-02-23",
     "pub_time": null
+  },
+  {
+    "id": "df3de78cd676",
+    "title": "Einstein Is Here",
+    "url": "https://www.insidehighered.com/opinion/columns/just-visiting/2026/02/23/student-ai-use-demand-side-problem",
+    "source_id": "inside_higher_ed",
+    "source_name": "Inside Higher Ed",
+    "platform": "IHE",
+    "category": "教育",
+    "crawl_time": "2026-02-24 06:01:05",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
   }
 ]
