@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-02-24T00:34:23.167952",
+  "checks": {
+    "pipeline.py": true,
+    "pipeline_config.json": true,
+    "data_store.py": true,
+    "deep_research.py": true,
+    "feishu_integration.py": true,
+    "api_server.py": true,
+    "tests/api/test_pipeline_api.py": true,
+    "tests/e2e/test_ui_e2e.py": true,
+    "database": false,
+    "pipeline_syntax": true,
+    "api_server": false,
+    "api_test_cases": 36,
+    "e2e_test_cases": 47,
+    "output_files": 16
+  }
+}

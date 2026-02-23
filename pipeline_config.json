@@ -1,0 +1,23 @@
+{
+  "modules": {
+    "deep_research": true,
+    "multi_agent_review": false,
+    "auto_illustration": false,
+    "human_in_the_loop": true,
+    "rag_clone": false,
+    "matrix_publisher": false,
+    "title_optimizer": false
+  },
+  "settings": {
+    "feishu": {
+      "folder_token": "",
+      "notify_user_id": "all"
+    },
+    "deep_research": {
+      "max_sources": 5
+    },
+    "matrix": {
+      "platforms": ["xiaohongshu", "twitter", "zhihu"]
+    }
+  }
+}

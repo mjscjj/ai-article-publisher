@@ -1,0 +1,322 @@
+[
+  {
+    "title": "前方无厕所无烤肠无茶叶蛋",
+    "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%E5%89%8D%E6%96%B9%E6%97%A0%E5%8E%95%E6%89%80%E6%97%A0%E7%83%A4%E8%82%A0%E6%97%A0%E8%8C%B6%E5%8F%B6%E8%9B%8B",
+    "source": "",
+    "category": "综合",
+    "final_score": 64.0,
+    "recommendation": "可以考虑",
+    "scores": {
+      "base": 50.0,
+      "trend": 50.0,
+      "llm": 85
+    },
+    "trend": {
+      "direction": "平稳",
+      "lifecycle": "衰退期 (热点已过)",
+      "best_timing": "不建议发布"
+    },
+    "llm_analysis": {
+      "overall_score": 85,
+      "dimensions": {
+        "news_value": 8,
+        "user_match": 9,
+        "competition": 7,
+        "difficulty": 8,
+        "expected_impact": 7
+      },
+      "analysis": "该选题以幽默网络梗切入，实则关联职场环境缺失、社会基础服务痛点及科技人文关怀等深层议题，易引发职场人群共鸣，具备跨学科深度挖掘潜力。",
+      "writing_angles": [
+        {
+          "angle": "职场环境心理学：从‘三无’现象看现代职场的隐性压力与归属感缺失",
+          "title": "你的办公区有‘厕所、烤肠、茶叶蛋’吗？——解码职场基础关怀的隐形战争"
+        },
+        {
+          "angle": "社会基础设施批判：公共服务‘三无’背后的治理逻辑与民生期待",
+          "title": "当基础服务成为‘奢侈品’：从服务区‘三无’看公共空间的情感荒漠"
+        },
+        {
+          "angle": "科技伦理反思：AI与自动化时代，为何人类基本需求反被忽视？",
+          "title": "技术狂奔下，谁在关心你的‘茶叶蛋’？——论效率至上社会中的基础需求悖论"
+        }
+      ],
+      "risks": [
+        "话题易流于表面吐槽，需警惕缺乏深度分析导致内容同质化",
+        "涉及公共服务或企业福利批评时可能触发争议，需平衡批判性与建设性"
+      ],
+      "recommendation": "推荐",
+      "topic": "前方无厕所无烤肠无茶叶蛋",
+      "source": "",
+      "model": "step-3.5-flash-free",
+      "cost": "$0 (免费)"
+    },
+    "raw": {
+      "id": "bdd632d937e2",
+      "title": "前方无厕所无烤肠无茶叶蛋",
+      "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%E5%89%8D%E6%96%B9%E6%97%A0%E5%8E%95%E6%89%80%E6%97%A0%E7%83%A4%E8%82%A0%E6%97%A0%E8%8C%B6%E5%8F%B6%E8%9B%8B",
+      "source_id": "weibo",
+      "source_name": "微博热搜",
+      "platform": "微博",
+      "category": "综合",
+      "crawl_time": "2026-02-22 09:00:05",
+      "crawl_date": "2026-02-22",
+      "pub_time": null
+    }
+  },
+  {
+    "title": "热气腾腾的中国年",
+    "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%E7%83%AD%E6%B0%94%E8%85%BE%E8%85%BE%E7%9A%84%E4%B8%AD%E5%9B%BD%E5%B9%B4",
+    "source": "",
+    "category": "综合",
+    "final_score": 64.0,
+    "recommendation": "可以考虑",
+    "scores": {
+      "base": 50.0,
+      "trend": 50.0,
+      "llm": 85
+    },
+    "trend": {
+      "direction": "平稳",
+      "lifecycle": "衰退期 (热点已过)",
+      "best_timing": "不建议发布"
+    },
+    "llm_analysis": {
+      "overall_score": 85,
+      "dimensions": {
+        "news_value": 8,
+        "user_match": 9,
+        "competition": 7,
+        "difficulty": 8,
+        "expected_impact": 7
+      },
+      "analysis": "选题具有强文化共鸣与时效性，通过跨学科（教育、心理、科技）视角切入春节，能精准覆盖职场人群的深度内容需求，差异化空间显著，但对作者整合能力要求高。",
+      "writing_angles": [
+        {
+          "angle": "从心理学与教育学视角，剖析春节家庭互动（如催婚、攀比、代际沟通）对职场人心理状态的影响，并提供基于认知行为疗法或家庭系统理论的应对与重构策略。",
+          "title": "春节家庭‘压力测试’：解码职场人心理修复与代际对话的底层逻辑"
+        },
+        {
+          "angle": "从科技与AI视角，探讨数字化、智能化如何重塑‘年味’（如线上拜年、智能年货、元宇宙春节），及其对人际关系、传统文化传承的深层影响。",
+          "title": "当春节遇上AI：科技如何解构与重建我们的‘年味’与社交网络？"
+        },
+        {
+          "angle": "从社会文化分析视角，解读后疫情时代‘新年俗’（如反向春运、旅行过年、预制菜年夜饭）的兴起，关联消费升级、个体化生存与全球化下的文化认同变迁。",
+          "title": "热气腾腾的‘新年俗’：解码后疫情时代中国年的文化转型与消费新哲学"
+        }
+      ],
+      "risks": [
+        "敏感点：对传统家庭结构或习俗的批判性分析可能引发争议，需平衡文化尊重与理性批判。",
+        "时效风险：内容必须在春节前1-2周发布以获取最大流量，节后关注度骤降。"
+      ],
+      "recommendation": "强烈推荐",
+      "topic": "热气腾腾的中国年",
+      "source": "",
+      "model": "step-3.5-flash-free",
+      "cost": "$0 (免费)"
+    },
+    "raw": {
+      "id": "3497886b8379",
+      "title": "热气腾腾的中国年",
+      "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%E7%83%AD%E6%B0%94%E8%85%BE%E8%85%BE%E7%9A%84%E4%B8%AD%E5%9B%BD%E5%B9%B4",
+      "source_id": "weibo",
+      "source_name": "微博热搜",
+      "platform": "微博",
+      "category": "综合",
+      "crawl_time": "2026-02-22 09:00:05",
+      "crawl_date": "2026-02-22",
+      "pub_time": null
+    }
+  },
+  {
+    "title": "游客挤到悔不当初不如在家刷手机",
+    "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%E6%B8%B8%E5%AE%A2%E6%8C%A4%E5%88%B0%E6%82%94%E4%B8%8D%E5%BD%93%E5%88%9D%E4%B8%8D%E5%A6%82%E5%9C%A8%E5%AE%B6%E5%88%B7%E6%89%8B%E6%9C%BA",
+    "source": "",
+    "category": "综合",
+    "final_score": 64.0,
+    "recommendation": "可以考虑",
+    "scores": {
+      "base": 50.0,
+      "trend": 50.0,
+      "llm": 85
+    },
+    "trend": {
+      "direction": "平稳",
+      "lifecycle": "衰退期 (热点已过)",
+      "best_timing": "不建议发布"
+    },
+    "llm_analysis": {
+      "overall_score": 85,
+      "dimensions": {
+        "news_value": 8,
+        "user_match": 9,
+        "competition": 7,
+        "difficulty": 8,
+        "expected_impact": 7
+      },
+      "analysis": "选题虽常见，但结合心理学与科技视角可深度挖掘，对职场人群有强共鸣与启发。",
+      "writing_angles": [
+        {
+          "angle": "从心理学剖析‘错失恐惧症’与社交压力：为何明知拥堵仍要出行？探讨非理性休闲选择的心理根源。",
+          "title": "别让FOMO绑架你的假期：从‘人从众’看现代人的焦虑循环"
+        },
+        {
+          "angle": "科技与体验的悖论：当VR/AR旅行日益成熟，拥堵的‘真实体验’是否还值得？探讨未来休闲方式的范式转移。",
+          "title": "当元宇宙旅行成为可能：拥堵的景区，还是数字 screens 的囚徒？"
+        },
+        {
+          "angle": "社会学与经济学视角：分析‘报复性旅游’背后的消费主义、基础设施瓶颈与个人理性选择。",
+          "title": "‘报复性旅游’后的反思：我们是在休闲，还是在完成一场消费仪式？"
+        }
+      ],
+      "risks": [
+        "话题易滑向对景区管理或公共政策的简单批评，需保持客观中立，侧重个人心理与社会结构分析。",
+        "话题具有强季节性（节假日），非节假期间关注度可能骤降，需挖掘更具普适性的长期话题切入点。"
+      ],
+      "recommendation": "推荐",
+      "topic": "游客挤到悔不当初不如在家刷手机",
+      "source": "",
+      "model": "step-3.5-flash-free",
+      "cost": "$0 (免费)"
+    },
+    "raw": {
+      "id": "7c8e506e4b57",
+      "title": "游客挤到悔不当初不如在家刷手机",
+      "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%E6%B8%B8%E5%AE%A2%E6%8C%A4%E5%88%B0%E6%82%94%E4%B8%8D%E5%BD%93%E5%88%9D%E4%B8%8D%E5%A6%82%E5%9C%A8%E5%AE%B6%E5%88%B7%E6%89%8B%E6%9C%BA",
+      "source_id": "weibo",
+      "source_name": "微博热搜",
+      "platform": "微博",
+      "category": "综合",
+      "crawl_time": "2026-02-22 09:00:05",
+      "crawl_date": "2026-02-22",
+      "pub_time": null
+    }
+  },
+  {
+    "title": "辽宁春晚最大黑马小品以貌取人",
+    "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%E8%BE%BD%E5%AE%81%E6%98%A5%E6%99%9A%E6%9C%80%E5%A4%A7%E9%BB%91%E9%A9%AC%E5%B0%8F%E5%93%81%E4%BB%A5%E8%B2%8C%E5%8F%96%E4%BA%BA",
+    "source": "",
+    "category": "综合",
+    "final_score": 64.0,
+    "recommendation": "可以考虑",
+    "scores": {
+      "base": 50.0,
+      "trend": 50.0,
+      "llm": 85
+    },
+    "trend": {
+      "direction": "平稳",
+      "lifecycle": "衰退期 (热点已过)",
+      "best_timing": "不建议发布"
+    },
+    "llm_analysis": {
+      "overall_score": 85,
+      "dimensions": {
+        "news_value": 7,
+        "user_match": 9,
+        "competition": 7,
+        "difficulty": 6,
+        "expected_impact": 8
+      },
+      "analysis": "选题以具体小品为引子，核心落脚于‘以貌取人’这一普遍社会与职场现象，具备心理学、教育学及科技伦理的跨领域深度挖掘空间，与目标用户画像高度契合。",
+      "writing_angles": [
+        {
+          "angle": "心理学深度解析：从小品人物行为到职场‘首因效应’与‘刻板印象’的真相",
+          "title": "《从辽宁春晚小品看职场“以貌取人”：心理学揭示的3大偏见陷阱》"
+        },
+        {
+          "angle": "科技伦理视角：当AI招聘与大数据“以貌取人”，小品是未来的预言吗？",
+          "title": "《当算法也“以貌取人”：从小品看科技时代偏见的隐形升级》"
+        },
+        {
+          "angle": "教育与自我成长：如何从小品反思，在职场中建立“去标签化”的评估体系？",
+          "title": "《小品“以貌取人”给职场人的启示：破除偏见，从重构评估逻辑开始》"
+        }
+      ],
+      "risks": [
+        "话题敏感性：对‘以貌取人’现象的批判可能触及部分行业或群体的敏感神经，需注意论述的客观与建设性。",
+        "时效性衰减：春晚热点已过，需快速切入或找到将小品案例与长效社会议题（如职场公平、算法伦理）强绑定的角度，避免流量快速下滑。"
+      ],
+      "recommendation": "强烈推荐",
+      "topic": "辽宁春晚最大黑马小品以貌取人",
+      "source": "",
+      "model": "step-3.5-flash-free",
+      "cost": "$0 (免费)"
+    },
+    "raw": {
+      "id": "abd2bc2743e1",
+      "title": "辽宁春晚最大黑马小品以貌取人",
+      "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%E8%BE%BD%E5%AE%81%E6%98%A5%E6%99%9A%E6%9C%80%E5%A4%A7%E9%BB%91%E9%A9%AC%E5%B0%8F%E5%93%81%E4%BB%A5%E8%B2%8C%E5%8F%96%E4%BA%BA",
+      "source_id": "weibo",
+      "source_name": "微博热搜",
+      "platform": "微博",
+      "category": "综合",
+      "crawl_time": "2026-02-22 09:00:05",
+      "crawl_date": "2026-02-22",
+      "pub_time": null
+    }
+  },
+  {
+    "title": "菜市场的白月光过年七天乐",
+    "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%E8%8F%9C%E5%B8%82%E5%9C%BA%E7%9A%84%E7%99%BD%E6%9C%88%E5%85%89%E8%BF%87%E5%B9%B4%E4%B8%83%E5%A4%A9%E4%B9%90",
+    "source": "",
+    "category": "综合",
+    "final_score": 62.0,
+    "recommendation": "可以考虑",
+    "scores": {
+      "base": 50.0,
+      "trend": 50.0,
+      "llm": 80
+    },
+    "trend": {
+      "direction": "平稳",
+      "lifecycle": "衰退期 (热点已过)",
+      "best_timing": "不建议发布"
+    },
+    "llm_analysis": {
+      "overall_score": 80,
+      "dimensions": {
+        "news_value": 7,
+        "user_match": 8,
+        "competition": 6,
+        "difficulty": 7,
+        "expected_impact": 7
+      },
+      "analysis": "选题表面为文化情感类，但可通过心理学、社会学深度解读，贴合职场人士对传统年味与精神慰藉的潜在需求，具备差异化空间。",
+      "writing_angles": [
+        {
+          "angle": "心理学视角：分析'白月光'现象背后的情感依恋与怀旧心理，探讨菜市场作为'情感锚点'如何缓解现代人的存在焦虑。",
+          "title": "菜市场的'白月光'效应：为什么我们总在怀念过去的年味？"
+        },
+        {
+          "angle": "社会学视角：对比菜市场的'烟火社交'与线上购物的'原子化生存'，讨论年节期间传统市集对社区纽带重建的价值。",
+          "title": "从'菜市场社交'到'快递柜孤独'：过年七天乐背后的社区消亡史"
+        },
+        {
+          "angle": "跨学科视角（教育+科技）：以菜市场为'生活教育学'现场，探讨其对职场人士生活技能、子女教育及数字时代人性化连接的启示。",
+          "title": "菜市场里的'生活教育学'：职场父母如何借年味给孩子上一课？"
+        }
+      ],
+      "risks": [
+        "易陷入单纯怀旧抒情，缺乏学术或数据支撑，降低深度分析质感",
+        "可能过度美化传统、贬抑科技便利，引发读者对立争论"
+      ],
+      "recommendation": "可以考虑",
+      "topic": "菜市场的白月光过年七天乐",
+      "source": "",
+      "model": "step-3.5-flash-free",
+      "cost": "$0 (免费)"
+    },
+    "raw": {
+      "id": "d95a9cc379a1",
+      "title": "菜市场的白月光过年七天乐",
+      "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%E8%8F%9C%E5%B8%82%E5%9C%BA%E7%9A%84%E7%99%BD%E6%9C%88%E5%85%89%E8%BF%87%E5%B9%B4%E4%B8%83%E5%A4%A9%E4%B9%90",
+      "source_id": "weibo",
+      "source_name": "微博热搜",
+      "platform": "微博",
+      "category": "综合",
+      "crawl_time": "2026-02-22 00:00:05",
+      "crawl_date": "2026-02-22",
+      "pub_time": null
+    }
+  }
+]

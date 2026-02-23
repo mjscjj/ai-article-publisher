@@ -1,0 +1,170 @@
+{
+  "last_update": "2026-02-24 00:01:30",
+  "total_items": 13490,
+  "sources": {
+    "weibo": {
+      "name": "微博热搜",
+      "count": 1131
+    },
+    "zhihu": {
+      "name": "知乎热榜",
+      "count": 660
+    },
+    "hackernews": {
+      "name": "Hacker News",
+      "count": 630
+    },
+    "cls": {
+      "name": "财联社",
+      "count": 400
+    },
+    "wallstreetcn": {
+      "name": "华尔街见闻",
+      "count": 652
+    },
+    "thepaper": {
+      "name": "澎湃新闻",
+      "count": 362
+    },
+    "bbc_education": {
+      "name": "BBC教育新闻",
+      "count": 279
+    },
+    "inside_higher_ed": {
+      "name": "Inside Higher Ed",
+      "count": 200
+    },
+    "mit_tech": {
+      "name": "MIT科技评论",
+      "count": 200
+    },
+    "wired_science": {
+      "name": "Wired科学",
+      "count": 400
+    },
+    "ifanr": {
+      "name": "爱范儿",
+      "count": 400
+    },
+    "techcrunch": {
+      "name": "TechCrunch",
+      "count": 400
+    },
+    "science_daily_mind": {
+      "name": "ScienceDaily心智",
+      "count": 600
+    },
+    "phys_org": {
+      "name": "Phys.org科学",
+      "count": 600
+    },
+    "zhihu_daily": {
+      "name": "知乎日报",
+      "count": 570
+    },
+    "v2ex": {
+      "name": "V2EX",
+      "count": 183
+    },
+    "sspai": {
+      "name": "少数派",
+      "count": 190
+    },
+    "ithome": {
+      "name": "IT之家",
+      "count": 228
+    },
+    "juejin": {
+      "name": "掘金",
+      "count": 380
+    },
+    "36kr": {
+      "name": "36氪",
+      "count": 570
+    },
+    "the_74": {
+      "name": "The 74 Million",
+      "count": 450
+    },
+    "stanford_edu": {
+      "name": "斯坦福教育学院",
+      "count": 180
+    },
+    "child_dev_institute": {
+      "name": "儿童发展研究所",
+      "count": 288
+    },
+    "child_mind": {
+      "name": "Child Mind Institute",
+      "count": 540
+    },
+    "positive_psych": {
+      "name": "积极心理学",
+      "count": 180
+    },
+    "tiny_buddha": {
+      "name": "Tiny Buddha",
+      "count": 180
+    },
+    "mark_manson": {
+      "name": "Mark Manson",
+      "count": 180
+    },
+    "james_clear": {
+      "name": "James Clear",
+      "count": 180
+    },
+    "douban_psychology": {
+      "name": "豆瓣心理学",
+      "count": 406
+    }
+  },
+  "categories": {
+    "综合": 1791,
+    "科技": 3581,
+    "财经": 1052,
+    "新闻": 362,
+    "教育": 1109,
+    "科学研究": 660,
+    "精选": 570,
+    "心理学": 1414,
+    "青少年心理": 540,
+    "个人成长": 540
+  },
+  "dates": {
+    "2026-02-21": 2088,
+    "2026-02-22": 4720,
+    "2026-02-23": 4202,
+    "2026-02-24": 609
+  },
+  "extended": {
+    "2026-02-23": {
+      "total_items": 250,
+      "sources": 11,
+      "crawl_time": "2026-02-23 08:33:30"
+    }
+  },
+  "dailyhot": {
+    "2026-02-23": {
+      "total_items": 1736,
+      "platforms": 50,
+      "success_rate": "50/54",
+      "crawl_time": "2026-02-23 23:00:01"
+    },
+    "2026-02-24": {
+      "total_items": 1776,
+      "platforms": 51,
+      "success_rate": "51/54",
+      "crawl_time": "2026-02-24 00:00:01"
+    }
+  },
+  "unified": {
+    "2026-02-24": {
+      "total_items": 1871,
+      "platforms": 62,
+      "dailyhot_items": 1776,
+      "rsshub_items": 260,
+      "crawl_time": "2026-02-24 00:01:30"
+    }
+  }
+}

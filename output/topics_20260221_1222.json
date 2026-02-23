@@ -1,0 +1,107 @@
+[
+  {
+    "title": "Ggml.ai joins Hugging Face to ensure the long-term progress of Local AI",
+    "url": "https://github.com/ggml-org/llama.cpp/discussions/19759",
+    "source": "Hacker News",
+    "scores": {
+      "热度": 60.0,
+      "时效": 50.0,
+      "受众匹配": 70.0,
+      "竞争": 75.0,
+      "难度": 60.0
+    },
+    "weights": {
+      "热度": 0.3,
+      "时效": 0.2,
+      "受众匹配": 0.25,
+      "竞争": 0.15,
+      "难度": 0.1
+    },
+    "total": 62.8,
+    "recommendation": "可以考虑"
+  },
+  {
+    "title": "Cord: Coordinating Trees of AI Agents",
+    "url": "https://www.june.kim/cord",
+    "source": "Hacker News",
+    "scores": {
+      "热度": 50.0,
+      "时效": 50.0,
+      "受众匹配": 70.0,
+      "竞争": 75.0,
+      "难度": 60.0
+    },
+    "weights": {
+      "热度": 0.3,
+      "时效": 0.2,
+      "受众匹配": 0.25,
+      "竞争": 0.15,
+      "难度": 0.1
+    },
+    "total": 59.8,
+    "recommendation": "一般"
+  },
+  {
+    "title": "HailToDodongo/pyrite64",
+    "url": "https://github.com/HailToDodongo/pyrite64",
+    "source": "GitHub Trending",
+    "scores": {
+      "热度": 50.0,
+      "时效": 50.0,
+      "受众匹配": 70.0,
+      "竞争": 60.0,
+      "难度": 60.0
+    },
+    "weights": {
+      "热度": 0.3,
+      "时效": 0.2,
+      "受众匹配": 0.25,
+      "竞争": 0.15,
+      "难度": 0.1
+    },
+    "total": 57.5,
+    "recommendation": "一般"
+  },
+  {
+    "title": "Keep Android Open",
+    "url": "https://f-droid.org/2026/02/20/twif.html",
+    "source": "Hacker News",
+    "scores": {
+      "热度": 70.0,
+      "时效": 50.0,
+      "受众匹配": 40.0,
+      "竞争": 60.0,
+      "难度": 60.0
+    },
+    "weights": {
+      "热度": 0.3,
+      "时效": 0.2,
+      "受众匹配": 0.25,
+      "竞争": 0.15,
+      "难度": 0.1
+    },
+    "total": 56.0,
+    "recommendation": "一般"
+  },
+  {
+    "title": "Turn Dependabot Off",
+    "url": "https://words.filippo.io/dependabot/",
+    "source": "Hacker News",
+    "scores": {
+      "热度": 60.0,
+      "时效": 50.0,
+      "受众匹配": 40.0,
+      "竞争": 60.0,
+      "难度": 60.0
+    },
+    "weights": {
+      "热度": 0.3,
+      "时效": 0.2,
+      "受众匹配": 0.25,
+      "竞争": 0.15,
+      "难度": 0.1
+    },
+    "total": 53.0,
+    "recommendation": "一般"
+  }
+]

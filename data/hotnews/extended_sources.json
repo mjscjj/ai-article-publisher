@@ -1,0 +1,118 @@
+{
+  "last_check": "2026-02-21 19:50:14",
+  "working_sources": {
+    "bbc_education": {
+      "name": "BBC教育新闻",
+      "platform": "BBC",
+      "url": "https://feeds.bbci.co.uk/news/education/rss.xml",
+      "category": "教育",
+      "type": "rss"
+    },
+    "inside_higher_ed": {
+      "name": "Inside Higher Ed",
+      "platform": "IHE",
+      "url": "https://www.insidehighered.com/rss.xml",
+      "category": "教育",
+      "type": "rss"
+    },
+    "the_74": {
+      "name": "The 74 Million",
+      "platform": "The 74",
+      "url": "https://www.the74million.org/feed/",
+      "category": "教育",
+      "type": "rss"
+    },
+    "stanford_edu": {
+      "name": "斯坦福教育学院",
+      "platform": "Stanford",
+      "url": "https://ed.stanford.edu/rss.xml",
+      "category": "教育",
+      "type": "rss"
+    },
+    "science_daily_mind": {
+      "name": "ScienceDaily心智",
+      "platform": "ScienceDaily",
+      "url": "https://www.sciencedaily.com/rss/mind_brain.xml",
+      "category": "心理学",
+      "type": "rss"
+    },
+    "child_dev_institute": {
+      "name": "儿童发展研究所",
+      "platform": "CDI",
+      "url": "https://childdevelopmentinfo.com/feed/",
+      "category": "心理学",
+      "type": "rss"
+    },
+    "child_mind": {
+      "name": "Child Mind Institute",
+      "platform": "Child Mind",
+      "url": "https://childmind.org/feed/",
+      "category": "青少年心理",
+      "type": "rss"
+    },
+    "positive_psych": {
+      "name": "积极心理学",
+      "platform": "PositivePsychology",
+      "url": "https://positivepsychology.com/feed/",
+      "category": "心理学",
+      "type": "rss"
+    },
+    "tiny_buddha": {
+      "name": "Tiny Buddha",
+      "platform": "Tiny Buddha",
+      "url": "https://tinybuddha.com/feed/",
+      "category": "个人成长",
+      "type": "rss"
+    },
+    "mark_manson": {
+      "name": "Mark Manson",
+      "platform": "Mark Manson",
+      "url": "https://markmanson.net/feed",
+      "category": "个人成长",
+      "type": "rss"
+    },
+    "james_clear": {
+      "name": "James Clear",
+      "platform": "James Clear",
+      "url": "https://jamesclear.com/feed",
+      "category": "个人成长",
+      "type": "rss"
+    },
+    "mit_tech": {
+      "name": "MIT科技评论",
+      "platform": "MIT",
+      "url": "https://www.technologyreview.com/feed/",
+      "category": "科技",
+      "type": "rss"
+    },
+    "wired_science": {
+      "name": "Wired科学",
+      "platform": "Wired",
+      "url": "https://www.wired.com/feed/science/rss",
+      "category": "科技",
+      "type": "rss"
+    },
+    "ifanr": {
+      "name": "爱范儿",
+      "platform": "爱范儿",
+      "url": "https://www.ifanr.com/feed",
+      "category": "科技",
+      "type": "rss"
+    },
+    "techcrunch": {
+      "name": "TechCrunch",
+      "platform": "TechCrunch",
+      "url": "https://techcrunch.com/feed/",
+      "category": "科技",
+      "type": "rss"
+    },
+    "phys_org": {
+      "name": "Phys.org科学",
+      "platform": "Phys.org",
+      "url": "https://phys.org/rss-feed/",
+      "category": "科学研究",
+      "type": "rss"
+    }
+  },
+  "total_working": 16
+}

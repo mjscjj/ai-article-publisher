@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "items_collected": 30,
+  "topics_selected": 3,
+  "article_length": 492,
+  "quality_score": 100,
+  "publish_ready": true,
+  "publish_file": "/root/.openclaw/workspace-writer/ai-article-publisher/output/publish_20260221_130815.json"
+}
