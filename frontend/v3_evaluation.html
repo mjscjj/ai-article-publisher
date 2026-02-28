@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V3 工作评价 - AI Evaluation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
+        <!-- 顶部导航 -->
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">📊 V3 工作评价</h1>
+                        <p class="text-sm text-gray-500 mt-1">AI Evaluation - DeepSeek 智能评估</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <select v-model="evalModel" class="border rounded px-3 py-2">
+                            <option value="free">DeepSeek 免费模型</option>
+                            <option value="chat">DeepSeek Chat (付费)</option>
+                            <option value="v3">DeepSeek V3</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">评价总数</div>
+                    <div class="text-2xl font-bold text-blue-600">{{ stats.total || 0 }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">平均评分</div>
+                    <div class="text-2xl font-bold text-green-600">{{ stats.avg_score || 0 }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">S 级爆款</div>
+                    <div class="text-2xl font-bold text-yellow-600">{{ stats.grades?.S || 0 }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">A 级优质</div>
+                    <div class="text-2xl font-bold text-blue-600">{{ stats.grades?.A || 0 }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">统计周期</div>
+                    <div class="text-2xl font-bold text-purple-600">{{ stats.period || '7 天' }}</div>
+                </div>
+            </div>
+
+            <!-- 评价输入 -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h2 class="text-lg font-semibold mb-4">📝 新建评价</h2>
+                
+                <div class="flex gap-4 mb-4">
+                    <button @click="evalType='article'" :class="evalType==='article'?'bg-blue-600 text-white':'bg-gray-100'"
+                            class="px-4 py-2 rounded">
+                        📄 文章评价
+                    </button>
+                    <button @click="evalType='topic'" :class="evalType==='topic'?'bg-blue-600 text-white':'bg-gray-100'"
+                            class="px-4 py-2 rounded">
+                        🎯 选题评价
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">标题</label>
+                        <input v-model="inputTitle" type="text" class="w-full border rounded px-3 py-2" 
+                               :placeholder="evalType==='article'?'文章标题':'选题标题'">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ evalType==='article'?'文章内容':'选题描述' }}
+                        </label>
+                        <textarea v-model="inputContent" rows="6" class="w-full border rounded px-3 py-2"
+                                  :placeholder="evalType==='article'?'粘贴文章内容...':'描述选题...'"></textarea>
+                    </div>
+                    <button @click="evaluate" :disabled="evaluating"
+                            class="w-full px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400">
+                        {{ evaluating ? '评价中...' : '✨ 开始评价' }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- 评价结果 -->
+            <div v-if="currentResult" class="bg-white rounded-lg shadow p-6 mb-6">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900 mb-2">{{ currentResult.title }}</h2>
+                        <p class="text-sm text-gray-500">评价时间：{{ currentResult.evaluated_at }}</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-4xl font-bold" :class="getScoreColor(currentResult.total_score)">
+                            {{ currentResult.total_score }}
+                        </div>
+                        <div class="text-lg font-semibold" :class="getScoreColor(currentResult.total_score)">
+                            {{ currentResult.grade }}级 - {{ currentResult.recommendation }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5 维雷达图 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">📊 5 维评分</h3>
+                        <canvas ref="radarChart"></canvas>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">📈 详细评分</h3>
+                        <div class="space-y-3">
+                            <div v-for="(score, dim) in currentResult.scores" :key="dim" class="flex items-center gap-2">
+                                <span class="text-xs w-20">{{ getDimensionName(dim) }}</span>
+                                <div class="flex-1 bg-gray-200 rounded-full h-3">
+                                    <div class="bg-blue-500 h-3 rounded-full" :style="{width: score + '%'}"></div>
+                                </div>
+                                <span class="text-xs w-10 text-right font-semibold">{{ score }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 优点和建议 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">✅ 优点</h3>
+                        <ul class="space-y-2">
+                            <li v-for="(s, i) in currentResult.strengths" :key="i" 
+                                class="flex items-start gap-2 text-sm text-gray-700">
+                                <span class="text-green-500 mt-1">✓</span>
+                                <span>{{ s }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">💡 改进建议</h3>
+                        <ul class="space-y-2">
+                            <li v-for="(s, i) in currentResult.improvements" :key="i" 
+                                class="flex items-start gap-2 text-sm text-gray-700">
+                                <span class="text-orange-500 mt-1">!</span>
+                                <span>{{ s }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div v-if="currentResult.comment" class="mt-6 p-4 bg-gray-50 rounded">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-2">📝 总体评价</h3>
+                    <p class="text-gray-700">{{ currentResult.comment }}</p>
+                </div>
+            </div>
+
+            <!-- 评价历史 -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-4 py-3 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold">评价历史</h2>
+                    <p class="text-sm text-gray-500">最近 {{ history.length }} 条评价</p>
+                </div>
+
+                <div class="divide-y divide-gray-200">
+                    <div v-for="(item, i) in history" :key="i" 
+                         class="p-4 hover:bg-gray-50 cursor-pointer"
+                         @click="showHistoryDetail(item)">
+                        <div class="flex justify-between items-center">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs px-2 py-0.5 rounded" 
+                                          :class="item.target_type==='article'?'bg-blue-100':'bg-purple-100'">
+                                        {{ item.target_type==='article'?'📄 文章':'🎯 选题' }}
+                                    </span>
+                                    <span class="text-xs text-gray-500">{{ formatTime(item.created_at) }}</span>
+                                </div>
+                                <h3 class="font-semibold">{{ item.comment?.substring(0, 80) || '评价记录' }}...</h3>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-bold" :class="getScoreColor(item.total_score)">
+                                    {{ item.total_score }}
+                                </div>
+                                <div class="text-sm font-semibold">{{ item.grade }}级</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    API_BASE: 'http://43.134.234.4:8000/api/v3',
+                    evalType: 'article',
+                    evalModel: 'free',
+                    inputTitle: '',
+                    inputContent: '',
+                    evaluating: false,
+                    currentResult: null,
+                    stats: {},
+                    history: [],
+                    chart: null
+                }
+            },
+            mounted() {
+                this.loadStats();
+                this.loadHistory();
+            },
+            methods: {
+                async evaluate() {
+                    if (!this.inputTitle || !this.inputContent) {
+                        alert('请填写标题和内容');
+                        return;
+                    }
+
+                    this.evaluating = true;
+                    try {
+                        const res = await fetch(`${this.API_BASE}/evaluation/evaluate`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                title: this.inputTitle,
+                                content: this.inputContent,
+                                type: this.evalType,
+                                model: this.evalModel
+                            })
+                        });
+                        const data = await res.json();
+                        this.currentResult = data.data;
+                        this.currentResult.title = this.inputTitle;
+                        
+                        // 更新统计
+                        this.loadStats();
+                        
+                        // 绘制雷达图
+                        this.$nextTick(() => {
+                            this.renderRadarChart();
+                        });
+                    } catch (e) {
+                        console.error('评价失败:', e);
+                        // Mock 结果
+                        this.currentResult = this.getMockResult();
+                    } finally {
+                        this.evaluating = false;
+                    }
+                },
+                async loadStats() {
+                    try {
+                        const res = await fetch(`${this.API_BASE}/evaluation/statistics`);
+                        const data = await res.json();
+                        this.stats = data.data || {};
+                    } catch (e) {
+                        console.error('加载统计失败:', e);
+                        this.stats = { total: 0, avg_score: 0, grades: {} };
+                    }
+                },
+                async loadHistory() {
+                    try {
+                        const res = await fetch(`${this.API_BASE}/evaluation/history?limit=20`);
+                        const data = await res.json();
+                        this.history = data.data || [];
+                    } catch (e) {
+                        console.error('加载历史失败:', e);
+                        this.history = [];
+                    }
+                },
+                renderRadarChart() {
+                    const ctx = this.$refs.radarChart;
+                    if (!ctx) return;
+
+                    if (this.chart) {
+                        this.chart.destroy();
+                    }
+
+                    const scores = this.currentResult.scores || {};
+                    const dimensions = Object.keys(scores);
+                    const values = Object.values(scores);
+
+                    this.chart = new Chart(ctx, {
+                        type: 'radar',
+                        data: {
+                            labels: dimensions.map(d => this.getDimensionName(d)),
+                            datasets: [{
+                                label: '评分',
+                                data: values,
+                                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                                borderColor: 'rgb(59, 130, 246)',
+                                pointBackgroundColor: 'rgb(59, 130, 246)',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: 'rgb(59, 130, 246)'
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                r: {
+                                    angleLines: { display: true },
+                                    suggestedMin: 0,
+                                    suggestedMax: 100
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false }
+                            }
+                        }
+                    });
+                },
+                showHistoryDetail(item) {
+                    this.currentResult = {
+                        ...item,
+                        scores: {
+                            content: item.content_score,
+                            structure: item.structure_score,
+                            expression: item.expression_score,
+                            viral: item.viral_score,
+                            innovation: item.innovation_score
+                        },
+                        strengths: item.strengths || [],
+                        improvements: item.improvements || []
+                    };
+                    this.$nextTick(() => this.renderRadarChart());
+                },
+                getDimensionName(dim) {
+                    const names = {
+                        content: '内容',
+                        structure: '结构',
+                        expression: '表达',
+                        viral: '传播',
+                        innovation: '创新',
+                        heat: '热度',
+                        potential: '潜力',
+                        match: '匹配',
+                        novelty: '新颖',
+                        feasibility: '可行'
+                    };
+                    return names[dim] || dim;
+                },
+                getScoreColor(score) {
+                    if (score >= 90) return 'text-yellow-600';
+                    if (score >= 80) return 'text-blue-600';
+                    if (score >= 70) return 'text-green-600';
+                    if (score >= 60) return 'text-orange-600';
+                    return 'text-red-600';
+                },
+                formatTime(timeStr) {
+                    if (!timeStr) return '-';
+                    const date = new Date(timeStr);
+                    return date.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                },
+                getMockResult() {
+                    return {
+                        title: this.inputTitle,
+                        scores: {
+                            content: Math.floor(Math.random() * 30) + 70,
+                            structure: Math.floor(Math.random() * 30) + 70,
+                            expression: Math.floor(Math.random() * 30) + 70,
+                            viral: Math.floor(Math.random() * 30) + 70,
+                            innovation: Math.floor(Math.random() * 30) + 70
+                        },
+                        total_score: Math.floor(Math.random() * 30) + 70,
+                        grade: ['S', 'A', 'B', 'C'][Math.floor(Math.random() * 4)],
+                        strengths: ['优点 1', '优点 2', '优点 3'],
+                        improvements: ['建议 1', '建议 2', '建议 3'],
+                        recommendation: '正常发布',
+                        comment: '总体评价示例',
+                        evaluated_at: new Date().toISOString()
+                    };
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

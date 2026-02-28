@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V3 智能选题 - Topic Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        .score-s { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b; }
+        .score-a { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 4px solid #3b82f6; }
+        .score-b { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left: 4px solid #10b981; }
+        .score-c { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b; }
+        .score-d { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-left: 4px solid #ef4444; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
+        <!-- 顶部导航 -->
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">🎯 V3 智能选题</h1>
+                        <p class="text-sm text-gray-500 mt-1">Topic Intelligence - 多行业多角度批量生成</p>
+                    </div>
+                    <button @click="generateTopics" :disabled="generating" 
+                            class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400">
+                        {{ generating ? '生成中...' : '✨ 批量生成' }}
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-6">
+            <!-- 配置面板 -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h2 class="text-lg font-semibold mb-4">📋 生成配置</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- 行业选择 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            🏭 选择行业 <span class="text-xs text-gray-500">(可多选)</span>
+                        </label>
+                        <div class="space-y-2">
+                            <label v-for="ind in industries" :key="ind.id" 
+                                   class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" v-model="selectedIndustries" :value="ind.id"
+                                       class="rounded border-gray-300 text-blue-600">
+                                <span class="text-sm">{{ ind.name }}</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 角度选择 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            📐 切入角度 <span class="text-xs text-gray-500">(可多选)</span>
+                        </label>
+                        <div class="space-y-2">
+                            <label v-for="angle in angles" :key="angle.id" 
+                                   class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" v-model="selectedAngles" :value="angle.id"
+                                       class="rounded border-gray-300 text-blue-600">
+                                <span class="text-sm">{{ angle.name }}</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 生成设置 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            ⚙️ 生成设置
+                        </label>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs text-gray-500">生成数量</label>
+                                <select v-model="generateCount" class="w-full border rounded px-2 py-1 text-sm">
+                                    <option value="10">10 个</option>
+                                    <option value="20" selected>20 个</option>
+                                    <option value="50">50 个</option>
+                                    <option value="100">100 个</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500">最低评分</label>
+                                <select v-model="minScore" class="w-full border rounded px-2 py-1 text-sm">
+                                    <option value="40">40 分+</option>
+                                    <option value="60" selected>60 分+</option>
+                                    <option value="75">75 分+</option>
+                                    <option value="85">85 分+</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500">基于热点</label>
+                                <select v-model="basedOnHotnews" class="w-full border rounded px-2 py-1 text-sm">
+                                    <option value="false">不基于</option>
+                                    <option value="true">最近 24 小时热点</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">总选题数</div>
+                    <div class="text-2xl font-bold text-blue-600">{{ topics.length }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">S 级爆款</div>
+                    <div class="text-2xl font-bold text-yellow-600">{{ countByGrade('S') }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">A 级优质</div>
+                    <div class="text-2xl font-bold text-blue-600">{{ countByGrade('A') }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">B 级合格</div>
+                    <div class="text-2xl font-bold text-green-600">{{ countByGrade('B') }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">平均分</div>
+                    <div class="text-2xl font-bold text-purple-600">{{ avgScore }}</div>
+                </div>
+            </div>
+
+            <!-- 筛选器 -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <div class="flex flex-wrap gap-4 items-end">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">🔍 搜索</label>
+                        <input v-model="filters.keyword" @keyup.enter="filterTopics" type="text" 
+                               placeholder="搜索选题..." class="w-full border rounded px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">行业</label>
+                        <select v-model="filters.industry" @change="filterTopics" class="border rounded px-3 py-2">
+                            <option value="">全部行业</option>
+                            <option v-for="ind in industries" :key="ind.id" :value="ind.id">{{ ind.name }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">角度</label>
+                        <select v-model="filters.angle" @change="filterTopics" class="border rounded px-3 py-2">
+                            <option value="">全部角度</option>
+                            <option v-for="angle in angles" :key="angle.id" :value="angle.id">{{ angle.name }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">评分</label>
+                        <select v-model="filters.grade" @change="filterTopics" class="border rounded px-3 py-2">
+                            <option value="">全部评分</option>
+                            <option value="S">S 级 (85-100)</option>
+                            <option value="A">A 级 (75-84)</option>
+                            <option value="B">B 级 (60-74)</option>
+                            <option value="C">C 级 (40-59)</option>
+                            <option value="D">D 级 (0-39)</option>
+                        </select>
+                    </div>
+                    <button @click="filterTopics" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        筛选
+                    </button>
+                </div>
+            </div>
+
+            <!-- 选题列表 -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-semibold">选题列表</h2>
+                        <p class="text-sm text-gray-500">显示 {{ filteredTopics.length }} / {{ topics.length }} 条</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button @click="sortBy('score')" class="px-3 py-1 rounded hover:bg-gray-100">
+                            📊 按评分 {{ sortDir==='desc'?'↓':'↑' }}
+                        </button>
+                        <button @click="sortBy('created_at')" class="px-3 py-1 rounded hover:bg-gray-100">
+                            🕐 按时间
+                        </button>
+                        <button @click="exportTopics" class="px-3 py-1 rounded hover:bg-gray-100">
+                            📥 导出
+                        </button>
+                    </div>
+                </div>
+
+                <div v-if="generating" class="p-8 text-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p class="mt-2 text-gray-500">正在生成选题...</p>
+                </div>
+
+                <div v-else-if="filteredTopics.length === 0" class="p-8 text-center text-gray-500">
+                    暂无选题，点击"批量生成"按钮创建新选题
+                </div>
+
+                <div v-else class="divide-y divide-gray-200">
+                    <div v-for="topic in filteredTopics" :key="topic.id" 
+                         class="p-4 hover:bg-gray-50 cursor-pointer score-{{ topic.score.grade }}"
+                         @click="showDetail(topic)">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs px-2 py-0.5 rounded bg-blue-100">{{ getIndustryName(topic.industry) }}</span>
+                                    <span class="text-xs px-2 py-0.5 rounded bg-purple-100">{{ getAngleName(topic.angle) }}</span>
+                                    <span class="text-xs text-gray-500">{{ formatTime(topic.created_at) }}</span>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ topic.title }}</h3>
+                                <p class="text-sm text-gray-600 line-clamp-2">{{ topic.description }}</p>
+                                <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                    <span>🔑 要点：{{ topic.key_points?.length || 0 }} 个</span>
+                                    <span>📊 热度：{{ topic.score.heat }}</span>
+                                    <span>📈 潜力：{{ topic.score.potential }}</span>
+                                </div>
+                            </div>
+                            <div class="text-right ml-4">
+                                <div class="text-2xl font-bold" :class="getScoreColor(topic.score.total)">
+                                    {{ topic.score.total }}
+                                </div>
+                                <div class="text-sm font-semibold" :class="getScoreColor(topic.score.total)">
+                                    {{ topic.score.grade }}级
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 选题详情弹窗 -->
+        <div v-if="selectedTopic" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" @click.self="selectedTopic=null">
+            <div class="bg-white rounded-lg max-w-3xl w-full max-h-[80vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm px-2 py-1 rounded bg-blue-100">{{ getIndustryName(selectedTopic.industry) }}</span>
+                            <span class="text-sm px-2 py-1 rounded bg-purple-100">{{ getAngleName(selectedTopic.angle) }}</span>
+                        </div>
+                        <button @click="selectedTopic=null" class="text-gray-400 hover:text-gray-600">✕</button>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-2xl font-bold text-gray-900">{{ selectedTopic.title }}</h2>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold" :class="getScoreColor(selectedTopic.score.total)">
+                                {{ selectedTopic.score.total }}
+                            </div>
+                            <div class="text-sm text-gray-500">{{ selectedTopic.score.grade }}级 - {{ selectedTopic.score.comment }}</div>
+                        </div>
+                    </div>
+
+                    <!-- 5 维评分 -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">📊 5 维评分详情</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs w-16">🔥 热度</span>
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-500 h-2 rounded-full" :style="{width: selectedTopic.score.heat + '%'}"></div>
+                                </div>
+                                <span class="text-xs w-10 text-right">{{ selectedTopic.score.heat }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs w-16">📈 潜力</span>
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-orange-500 h-2 rounded-full" :style="{width: selectedTopic.score.potential + '%'}"></div>
+                                </div>
+                                <span class="text-xs w-10 text-right">{{ selectedTopic.score.potential }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs w-16">🎯 匹配</span>
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" :style="{width: selectedTopic.score.match + '%'}"></div>
+                                </div>
+                                <span class="text-xs w-10 text-right">{{ selectedTopic.score.match }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs w-16">💡 新颖</span>
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" :style="{width: selectedTopic.score.novelty + '%'}"></div>
+                                </div>
+                                <span class="text-xs w-10 text-right">{{ selectedTopic.score.novelty }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs w-16">✅ 可行</span>
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-purple-500 h-2 rounded-full" :style="{width: selectedTopic.score.feasibility + '%'}"></div>
+                                </div>
+                                <span class="text-xs w-10 text-right">{{ selectedTopic.score.feasibility }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="prose max-w-none mb-4">
+                        <p class="text-gray-700">{{ selectedTopic.description }}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">🔑 核心要点</h3>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li v-for="(point, i) in selectedTopic.key_points" :key="i" class="text-gray-700">
+                                {{ point }}
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-6 flex gap-3">
+                        <button @click="startWriting(selectedTopic)" class="flex-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                            ✍️ 开始写作
+                        </button>
+                        <button @click="compareTopic(selectedTopic)" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+                            📊 加入对比
+                        </button>
+                        <button @click="deleteTopic(selectedTopic)" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                            🗑️ 删除
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    API_BASE: 'http://43.134.234.4:8000/api/v3',
+                    generating: false,
+                    topics: [],
+                    filteredTopics: [],
+                    selectedTopic: null,
+                    sortDir: 'desc',
+                    selectedIndustries: ['教育', '科技'],
+                    selectedAngles: ['深度分析', '数据解读'],
+                    generateCount: '20',
+                    minScore: '60',
+                    basedOnHotnews: 'false',
+                    filters: { keyword: '', industry: '', angle: '', grade: '' },
+                    industries: [
+                        { id: '教育', name: '🎓 教育' },
+                        { id: '科技', name: '💻 科技' },
+                        { id: '财经', name: '💰 财经' },
+                        { id: '娱乐', name: '🎬 娱乐' },
+                        { id: '体育', name: '⚽ 体育' },
+                        { id: '健康', name: '🏥 健康' },
+                        { id: '职场', name: '💼 职场' },
+                        { id: '生活', name: '🏠 生活' }
+                    ],
+                    angles: [
+                        { id: '深度分析', name: '🔍 深度分析' },
+                        { id: '数据解读', name: '📊 数据解读' },
+                        { id: '观点评论', name: '💡 观点评论' },
+                        { id: '知识科普', name: '🎓 知识科普' },
+                        { id: '幽默调侃', name: '😂 幽默调侃' },
+                        { id: '风险警示', name: '⚠️ 风险警示' },
+                        { id: '趋势预测', name: '🚀 趋势预测' },
+                        { id: '人物故事', name: '👥 人物故事' }
+                    ]
+                }
+            },
+            computed: {
+                avgScore() {
+                    if (this.topics.length === 0) return 0;
+                    const sum = this.topics.reduce((acc, t) => acc + t.score.total, 0);
+                    return Math.round(sum / this.topics.length);
+                }
+            },
+            mounted() {
+                this.loadTopics();
+            },
+            methods: {
+                async loadTopics() {
+                    try {
+                        const res = await fetch(`${this.API_BASE}/topics`);
+                        const data = await res.json();
+                        this.topics = data.data || [];
+                        this.filteredTopics = this.topics;
+                    } catch (e) {
+                        console.error('加载失败:', e);
+                        this.topics = this.getMockTopics();
+                        this.filteredTopics = this.topics;
+                    }
+                },
+                async generateTopics() {
+                    this.generating = true;
+                    try {
+                        const res = await fetch(`${this.API_BASE}/topics/generate`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                industries: this.selectedIndustries,
+                                angles: this.selectedAngles,
+                                count: parseInt(this.generateCount),
+                                min_score: parseFloat(this.minScore)
+                            })
+                        });
+                        const data = await res.json();
+                        this.topics = [...data.data, ...this.topics];
+                        this.filteredTopics = this.topics;
+                        alert(`✅ 生成 ${data.data.length} 个选题`);
+                    } catch (e) {
+                        console.error('生成失败:', e);
+                        // Mock 生成
+                        const mock = this.getMockTopics(20);
+                        this.topics = [...mock, ...this.topics];
+                        this.filteredTopics = this.topics;
+                        alert('✅ 生成 20 个选题 (Mock)');
+                    } finally {
+                        this.generating = false;
+                    }
+                },
+                filterTopics() {
+                    this.filteredTopics = this.topics.filter(t => {
+                        if (this.filters.keyword && !t.title.includes(this.filters.keyword)) return false;
+                        if (this.filters.industry && t.industry !== this.filters.industry) return false;
+                        if (this.filters.angle && t.angle !== this.filters.angle) return false;
+                        if (this.filters.grade && t.score.grade !== this.filters.grade) return false;
+                        return true;
+                    });
+                },
+                sortBy(field) {
+                    this.sortDir = this.sortDir === 'desc' ? 'asc' : 'desc';
+                    this.filteredTopics.sort((a, b) => {
+                        const aVal = a[field] || a.score[field];
+                        const bVal = b[field] || b.score[field];
+                        return this.sortDir === 'desc' ? bVal - aVal : aVal - bVal;
+                    });
+                },
+                showDetail(topic) {
+                    this.selectedTopic = topic;
+                },
+                startWriting(topic) {
+                    alert(`开始写作：${topic.title}\n(跳转到写作模块)`);
+                },
+                compareTopic(topic) {
+                    alert(`已加入对比：${topic.title}`);
+                },
+                deleteTopic(topic) {
+                    if (confirm(`确定删除选题：${topic.title}?`)) {
+                        this.topics = this.topics.filter(t => t.id !== topic.id);
+                        this.filteredTopics = this.filteredTopics.filter(t => t.id !== topic.id);
+                        this.selectedTopic = null;
+                    }
+                },
+                exportTopics() {
+                    const data = JSON.stringify(this.topics, null, 2);
+                    const blob = new Blob([data], {type: 'application/json'});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `topics_${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                },
+                countByGrade(grade) {
+                    return this.topics.filter(t => t.score.grade === grade).length;
+                },
+                getIndustryName(id) {
+                    return this.industries.find(i => i.id === id)?.name || id;
+                },
+                getAngleName(id) {
+                    return this.angles.find(a => a.id === id)?.name || id;
+                },
+                getScoreColor(score) {
+                    if (score >= 85) return 'text-yellow-600';
+                    if (score >= 75) return 'text-blue-600';
+                    if (score >= 60) return 'text-green-600';
+                    return 'text-red-600';
+                },
+                formatTime(timeStr) {
+                    if (!timeStr) return '-';
+                    const date = new Date(timeStr);
+                    return date.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                },
+                getMockTopics(count = 20) {
+                    return Array.from({length: count}, (_, i) => ({
+                        id: `topic_${i}`,
+                        title: `AI 教育${['机遇','挑战','变革','未来','趋势'][i%5]}：${['深度分析','数据解读','观点评论'][i%3]}`,
+                        industry: ['教育', '科技', '财经', '职场'][i%4],
+                        angle: ['深度分析', '数据解读', '观点评论', '知识科普'][i%4],
+                        description: '这是一个很有潜力的选题，值得深入探讨...',
+                        key_points: ['要点 1', '要点 2', '要点 3'],
+                        score: {
+                            total: Math.floor(Math.random() * 40) + 60,
+                            heat: Math.floor(Math.random() * 40) + 60,
+                            potential: Math.floor(Math.random() * 40) + 60,
+                            match: Math.floor(Math.random() * 40) + 60,
+                            novelty: Math.floor(Math.random() * 40) + 60,
+                            feasibility: Math.floor(Math.random() * 40) + 60,
+                            grade: ['S', 'A', 'B', 'C'][i%4],
+                            comment: '值得写作'
+                        },
+                        created_at: new Date().toISOString()
+                    }));
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
