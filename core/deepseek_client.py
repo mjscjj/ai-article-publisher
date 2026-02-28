@@ -287,7 +287,7 @@ if __name__ == '__main__':
     result = client.evaluate_article(
         test_article['title'],
         test_article['content'],
-        eval_type='article'
+        evaluation_type='article'
     )
     
     print(json.dumps(result, ensure_ascii=False, indent=2))
