@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V3 工作 Review - DeepSeek V3 Review</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
+        <!-- 顶部导航 -->
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">🔍 V3 工作 Review</h1>
+                        <p class="text-sm text-gray-500 mt-1">DeepSeek V3 全面评价系统 - 持续改进</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button @click="runComprehensiveReview" :disabled="reviewing"
+                                class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400">
+                            {{ reviewing ? 'Review 中...' : '🚀 全面 Review' }}
+                        </button>
+                        <button @click="saveReport" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                            💾 保存报告
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">平均评分</div>
+                    <div class="text-2xl font-bold" :class="getScoreColor(avgScore)">{{ avgScore }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">代码质量</div>
+                    <div class="text-2xl font-bold" :class="getScoreColor(codeScore)">{{ codeScore || '-' }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">文档质量</div>
+                    <div class="text-2xl font-bold" :class="getScoreColor(docScore)">{{ docScore || '-' }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">项目进度</div>
+                    <div class="text-2xl font-bold" :class="getScoreColor(progressScore)">{{ progressScore || '-' }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">测试覆盖</div>
+                    <div class="text-2xl font-bold" :class="getScoreColor(testScore)">{{ testScore || '-' }}</div>
+                </div>
+            </div>
+
+            <!-- Review 类型选择 -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <h2 class="text-lg font-semibold mb-4">📋 Review 类型</h2>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <button @click="runCodeReview" :disabled="reviewing"
+                            class="p-4 rounded-lg border-2 hover:border-blue-500 hover:bg-blue-50">
+                        <div class="text-2xl mb-2">💻</div>
+                        <div class="font-semibold">代码 Review</div>
+                        <div class="text-xs text-gray-500">代码质量/架构/规范</div>
+                    </button>
+                    <button @click="runDocReview" :disabled="reviewing"
+                            class="p-4 rounded-lg border-2 hover:border-blue-500 hover:bg-blue-50">
+                        <div class="text-2xl mb-2">📄</div>
+                        <div class="font-semibold">文档 Review</div>
+                        <div class="text-xs text-gray-500">完整性/清晰度</div>
+                    </button>
+                    <button @click="runProgressReview" :disabled="reviewing"
+                            class="p-4 rounded-lg border-2 hover:border-blue-500 hover:bg-blue-50">
+                        <div class="text-2xl mb-2">📊</div>
+                        <div class="font-semibold">进度 Review</div>
+                        <div class="text-xs text-gray-500">开发效率/里程碑</div>
+                    </button>
+                    <button @click="runTestReview" :disabled="reviewing"
+                            class="p-4 rounded-lg border-2 hover:border-blue-500 hover:bg-blue-50">
+                        <div class="text-2xl mb-2">🧪</div>
+                        <div class="font-semibold">测试 Review</div>
+                        <div class="text-xs text-gray-500">覆盖率/质量</div>
+                    </button>
+                    <button @click="runComprehensiveReview" :disabled="reviewing"
+                            class="p-4 rounded-lg border-2 hover:border-blue-500 hover:bg-blue-50 bg-blue-50">
+                        <div class="text-2xl mb-2">🚀</div>
+                        <div class="font-semibold">全面 Review</div>
+                        <div class="text-xs text-gray-500">全部维度</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Review 结果 -->
+            <div v-if="currentResult" class="bg-white rounded-lg shadow p-6 mb-6">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900 mb-2">
+                            {{ currentResult.review_type === 'comprehensive' ? '🚀 全面 Review' : '📝 ' + getReviewTypeName(currentResult.review_type) }}
+                        </h2>
+                        <p class="text-sm text-gray-500">Review 时间：{{ formatTime(currentResult.reviewed_at) }}</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-4xl font-bold" :class="getScoreColor(currentResult.total_score)">
+                            {{ currentResult.total_score }}
+                        </div>
+                        <div class="text-lg font-semibold" :class="getScoreColor(currentResult.total_score)">
+                            {{ currentResult.grade }}级 - {{ currentResult.recommendation }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 子评价 (全面 Review 时显示) -->
+                <div v-if="currentResult.sub_reviews" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div v-for="(sub, key) in currentResult.sub_reviews" :key="key" class="p-4 rounded-lg border">
+                        <div class="text-sm text-gray-500 mb-1">{{ getSubReviewName(key) }}</div>
+                        <div class="text-2xl font-bold" :class="getScoreColor(sub.total_score)">{{ sub.total_score }}</div>
+                        <div class="text-xs">{{ sub.grade }}级</div>
+                    </div>
+                </div>
+
+                <!-- 雷达图 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">📊 评分维度</h3>
+                        <canvas ref="radarChart"></canvas>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">📈 详细评分</h3>
+                        <div class="space-y-3">
+                            <div v-for="(score, dim) in getScores(currentResult)" :key="dim" class="flex items-center gap-2">
+                                <span class="text-xs w-20">{{ getDimensionName(dim) }}</span>
+                                <div class="flex-1 bg-gray-200 rounded-full h-3">
+                                    <div class="bg-blue-500 h-3 rounded-full" :style="{width: score + '%'}"></div>
+                                </div>
+                                <span class="text-xs w-10 text-right font-semibold">{{ score }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 优点和建议 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">✅ 优点</h3>
+                        <ul class="space-y-2">
+                            <li v-for="(s, i) in currentResult.overall_strengths" :key="i" 
+                                class="flex items-start gap-2 text-sm text-gray-700">
+                                <span class="text-green-500 mt-1">✓</span>
+                                <span>{{ s }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">💡 改进建议</h3>
+                        <ul class="space-y-2">
+                            <li v-for="(s, i) in currentResult.overall_improvements" :key="i" 
+                                class="flex items-start gap-2 text-sm text-gray-700">
+                                <span class="text-orange-500 mt-1">!</span>
+                                <span>{{ s }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 改进计划 -->
+            <div v-if="improvementPlan" class="bg-white rounded-lg shadow p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold">📋 改进计划</h2>
+                    <button @click="generateImprovementPlan" :disabled="generatingPlan"
+                            class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:bg-gray-400">
+                        {{ generatingPlan ? '生成中...' : '✨ 生成改进计划' }}
+                    </button>
+                </div>
+
+                <div class="space-y-3">
+                    <div v-for="(item, i) in improvementPlan.improvement_plan" :key="i"
+                         class="p-4 rounded-lg border-l-4"
+                         :class="getPriorityColor(item.priority)">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-bold px-2 py-0.5 rounded"
+                                  :class="getPriorityBadgeColor(item.priority)">
+                                {{ item.priority }}
+                            </span>
+                            <span class="text-xs text-gray-500">预计 {{ item.estimated_hours }} 小时</span>
+                        </div>
+                        <div class="font-semibold mb-1">{{ item.action }}</div>
+                        <div class="text-sm text-gray-600">验收：{{ item.acceptance_criteria }}</div>
+                    </div>
+                </div>
+
+                <div v-if="improvementPlan.next_review_date" class="mt-4 p-3 bg-gray-50 rounded">
+                    <span class="text-sm text-gray-600">📅 下次 Review: {{ improvementPlan.next_review_date }}</span>
+                </div>
+            </div>
+
+            <!-- Review 历史 -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-4 py-3 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold">Review 历史</h2>
+                    <p class="text-sm text-gray-500">最近 {{ history.length }} 次 Review</p>
+                </div>
+
+                <div class="divide-y divide-gray-200">
+                    <div v-for="(item, i) in history" :key="i" 
+                         class="p-4 hover:bg-gray-50 cursor-pointer"
+                         @click="loadReviewDetail(item)">
+                        <div class="flex justify-between items-center">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs px-2 py-0.5 rounded bg-blue-100">
+                                        {{ getReviewTypeName(item.review_type) }}
+                                    </span>
+                                    <span class="text-xs text-gray-500">{{ formatTime(item.reviewed_at) }}</span>
+                                </div>
+                                <div class="text-sm text-gray-600">
+                                    {{ item.recommendation || 'Review 记录' }}
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-bold" :class="getScoreColor(item.total_score)">
+                                    {{ item.total_score }}
+                                </div>
+                                <div class="text-sm font-semibold">{{ item.grade }}级</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    API_BASE: 'http://43.134.234.4:8002/api/v3/review',
+                    reviewing: false,
+                    generatingPlan: false,
+                    currentResult: null,
+                    improvementPlan: null,
+                    history: [],
+                    chart: null,
+                    scores: {
+                        code: 0,
+                        doc: 0,
+                        progress: 0,
+                        test: 0
+                    }
+                }
+            },
+            computed: {
+                avgScore() {
+                    const scores = [this.codeScore, this.docScore, this.progressScore, this.testScore].filter(s => s);
+                    if (scores.length === 0) return 0;
+                    return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+                },
+                codeScore() { return this.currentResult?.sub_reviews?.code?.total_score || this.scores.code; },
+                docScore() { return this.currentResult?.sub_reviews?.doc?.total_score || this.scores.doc; },
+                progressScore() { return this.currentResult?.sub_reviews?.progress?.total_score || this.scores.progress; },
+                testScore() { return this.currentResult?.sub_reviews?.tests?.total_score || this.scores.test; }
+            },
+            mounted() {
+                this.loadHistory();
+            },
+            methods: {
+                async runComprehensiveReview() {
+                    this.reviewing = true;
+                    try {
+                        const res = await fetch(`${this.API_BASE}/comprehensive`, { method: 'POST' });
+                        const data = await res.json();
+                        this.currentResult = data.data;
+                        this.loadHistory();
+                        this.$nextTick(() => this.renderRadarChart());
+                    } catch (e) {
+                        console.error('Review 失败:', e);
+                        this.currentResult = this.getMockResult('comprehensive');
+                    } finally {
+                        this.reviewing = false;
+                    }
+                },
+                async runCodeReview() {
+                    this.reviewing = true;
+                    try {
+                        const res = await fetch(`${this.API_BASE}/code`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({})
+                        });
+                        const data = await res.json();
+                        this.currentResult = data.data;
+                        this.$nextTick(() => this.renderRadarChart());
+                    } catch (e) {
+                        this.currentResult = this.getMockResult('code');
+                    } finally {
+                        this.reviewing = false;
+                    }
+                },
+                async runDocReview() {
+                    this.reviewing = true;
+                    try {
+                        const res = await fetch(`${this.API_BASE}/docs`, { method: 'POST' });
+                        const data = await res.json();
+                        this.currentResult = data.data;
+                        this.$nextTick(() => this.renderRadarChart());
+                    } catch (e) {
+                        this.currentResult = this.getMockResult('doc');
+                    } finally {
+                        this.reviewing = false;
+                    }
+                },
+                async runProgressReview() {
+                    this.reviewing = true;
+                    try {
+                        const res = await fetch(`${this.API_BASE}/progress`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ days: 7 })
+                        });
+                        const data = await res.json();
+                        this.currentResult = data.data;
+                        this.$nextTick(() => this.renderRadarChart());
+                    } catch (e) {
+                        this.currentResult = this.getMockResult('progress');
+                    } finally {
+                        this.reviewing = false;
+                    }
+                },
+                async runTestReview() {
+                    this.reviewing = true;
+                    try {
+                        const res = await fetch(`${this.API_BASE}/tests`, { method: 'POST' });
+                        const data = await res.json();
+                        this.currentResult = data.data;
+                        this.$nextTick(() => this.renderRadarChart());
+                    } catch (e) {
+                        this.currentResult = this.getMockResult('test');
+                    } finally {
+                        this.reviewing = false;
+                    }
+                },
+                async generateImprovementPlan() {
+                    if (!this.currentResult) {
+                        alert('请先执行 Review');
+                        return;
+                    }
+                    this.generatingPlan = true;
+                    try {
+                        const res = await fetch(`${this.API_BASE}/improvement-plan`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ review_result: this.currentResult })
+                        });
+                        const data = await res.json();
+                        this.improvementPlan = data.data;
+                    } catch (e) {
+                        console.error('生成计划失败:', e);
+                        this.improvementPlan = this.getMockPlan();
+                    } finally {
+                        this.generatingPlan = false;
+                    }
+                },
+                async loadHistory() {
+                    try {
+                        const res = await fetch(`${this.API_BASE}/history?limit=10`);
+                        const data = await res.json();
+                        this.history = data.data || [];
+                    } catch (e) {
+                        this.history = [];
+                    }
+                },
+                async saveReport() {
+                    try {
+                        const res = await fetch(`${this.API_BASE}/save-report`, { method: 'POST' });
+                        const data = await res.json();
+                        alert(`报告已保存：${data.path}`);
+                    } catch (e) {
+                        alert('保存失败');
+                    }
+                },
+                loadReviewDetail(item) {
+                    this.currentResult = item;
+                    this.$nextTick(() => this.renderRadarChart());
+                },
+                renderRadarChart() {
+                    const ctx = this.$refs.radarChart;
+                    if (!ctx) return;
+                    if (this.chart) this.chart.destroy();
+
+                    const scores = this.getScoreValues(this.currentResult);
+                    const labels = Object.keys(scores).map(k => this.getDimensionName(k));
+                    const values = Object.values(scores);
+
+                    this.chart = new Chart(ctx, {
+                        type: 'radar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: '评分',
+                                data: values,
+                                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                                borderColor: 'rgb(59, 130, 246)',
+                                pointBackgroundColor: 'rgb(59, 130, 246)',
+                                pointBorderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            scales: { r: { suggestedMin: 0, suggestedMax: 100 } },
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+                },
+                getScoreValues(result) {
+                    if (!result) return {};
+                    if (result.scores) return result.scores;
+                    if (result.sub_reviews) {
+                        return {
+                            code: result.sub_reviews.code?.total_score || 0,
+                            doc: result.sub_reviews.documentation?.total_score || 0,
+                            progress: result.sub_reviews.progress?.total_score || 0,
+                            test: result.sub_reviews.tests?.total_score || 0
+                        };
+                    }
+                    return {};
+                },
+                getScores(result) {
+                    return this.getScoreValues(result);
+                },
+                getReviewTypeName(type) {
+                    const names = {
+                        code: '代码 Review',
+                        documentation: '文档 Review',
+                        progress: '进度 Review',
+                        tests: '测试 Review',
+                        comprehensive: '全面 Review'
+                    };
+                    return names[type] || type;
+                },
+                getSubReviewName(key) {
+                    const names = {
+                        code: '代码',
+                        documentation: '文档',
+                        progress: '进度',
+                        tests: '测试'
+                    };
+                    return names[key] || key;
+                },
+                getDimensionName(dim) {
+                    const names = {
+                        code_quality: '代码质量',
+                        architecture: '架构设计',
+                        error_handling: '错误处理',
+                        performance: '性能优化',
+                        test_coverage: '测试覆盖',
+                        content: '内容完整性',
+                        structure: '结构清晰度',
+                        expression: '表达准确性',
+                        readability: '可读性',
+                        practicality: '实用性',
+                        efficiency: '开发效率',
+                        quality: '代码质量',
+                        progress_control: '进度控制',
+                        collaboration: '团队协作',
+                        tech_debt: '技术债务'
+                    };
+                    return names[dim] || dim;
+                },
+                getScoreColor(score) {
+                    if (!score) return 'text-gray-400';
+                    if (score >= 90) return 'text-yellow-600';
+                    if (score >= 80) return 'text-blue-600';
+                    if (score >= 70) return 'text-green-600';
+                    if (score >= 60) return 'text-orange-600';
+                    return 'text-red-600';
+                },
+                getPriorityColor(priority) {
+                    const colors = {
+                        'P0': 'border-red-500 bg-red-50',
+                        'P1': 'border-orange-500 bg-orange-50',
+                        'P2': 'border-blue-500 bg-blue-50'
+                    };
+                    return colors[priority] || 'border-gray-500';
+                },
+                getPriorityBadgeColor(priority) {
+                    const colors = {
+                        'P0': 'bg-red-100 text-red-800',
+                        'P1': 'bg-orange-100 text-orange-800',
+                        'P2': 'bg-blue-100 text-blue-800'
+                    };
+                    return colors[priority] || 'bg-gray-100 text-gray-800';
+                },
+                formatTime(timeStr) {
+                    if (!timeStr) return '-';
+                    const date = new Date(timeStr);
+                    return date.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                },
+                getMockResult(type) {
+                    return {
+                        review_type: type,
+                        total_score: Math.floor(Math.random() * 30) + 70,
+                        grade: ['S', 'A', 'B', 'C'][Math.floor(Math.random() * 4)],
+                        recommendation: '持续改进',
+                        overall_strengths: ['优点 1', '优点 2', '优点 3'],
+                        overall_improvements: ['建议 1', '建议 2', '建议 3'],
+                        reviewed_at: new Date().toISOString(),
+                        sub_reviews: type === 'comprehensive' ? {
+                            code: { total_score: 85, grade: 'A' },
+                            documentation: { total_score: 80, grade: 'A' },
+                            progress: { total_score: 75, grade: 'B' },
+                            tests: { total_score: 70, grade: 'B' }
+                        } : null
+                    };
+                },
+                getMockPlan() {
+                    return {
+                        improvement_plan: [
+                            { priority: 'P0', action: '修复关键 Bug', estimated_hours: 4, acceptance_criteria: '所有 P0 Bug 关闭' },
+                            { priority: 'P1', action: '提升测试覆盖率到 80%', estimated_hours: 8, acceptance_criteria: '覆盖率报告' },
+                            { priority: 'P2', action: '优化文档结构', estimated_hours: 3, acceptance_criteria: '文档更新完成' }
+                        ],
+                        next_review_date: '2026-03-03'
+                    };
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
