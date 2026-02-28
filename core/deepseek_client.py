@@ -31,7 +31,8 @@ class DeepSeekClient:
     MODELS = {
         'chat': 'deepseek/deepseek-chat',  # 高性价比
         'free': 'deepseek/deepseek-r1-0528:free',  # 免费
-        'v3': 'deepseek/deepseek-chat-v3'  # V3 版本
+        'v3': 'deepseek/deepseek-chat-v3',  # V3 版本 ⭐ 推荐用于 Review
+        'v3-thinking': 'deepseek/deepseek-chat-v3-thinking'  # V3 思考模式
     }
     
     def __init__(self, model: str = 'chat'):
