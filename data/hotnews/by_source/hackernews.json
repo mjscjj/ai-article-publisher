@@ -1102,5 +1102,89 @@
     "crawl_time": "2026-02-24 06:00:11",
     "crawl_date": "2026-02-24",
     "pub_time": null
+  },
+  {
+    "id": "c9cb0e6914ef",
+    "title": "ASML unveils EUV light source advance that could yield 50% more chips by 2030",
+    "url": "https://www.reuters.com/world/china/asml-unveils-euv-light-source-advance-that-could-yield-50-more-chips-by-2030-2026-02-23/",
+    "source_id": "hackernews",
+    "source_name": "Hacker News",
+    "platform": "Hacker News",
+    "category": "科技",
+    "crawl_time": "2026-02-24 09:00:13",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "07cbc377baed",
+    "title": "Flock cameras gifted by Horowitz Foundation, avoiding public oversight",
+    "url": "https://thenevadaindependent.com/article/vegas-police-are-big-users-of-license-plate-readers-public-has-little-input-because-its-a-gift",
+    "source_id": "hackernews",
+    "source_name": "Hacker News",
+    "platform": "Hacker News",
+    "category": "科技",
+    "crawl_time": "2026-02-24 09:00:13",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "3a7b21501728",
+    "title": "FreeBSD doesn&#39;t have Wi-Fi driver for my old MacBook. AI build one for me",
+    "url": "https://vladimir.varank.in/notes/2026/02/freebsd-brcmfmac/",
+    "source_id": "hackernews",
+    "source_name": "Hacker News",
+    "platform": "Hacker News",
+    "category": "科技",
+    "crawl_time": "2026-02-24 09:00:13",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "92900deb88de",
+    "title": "AI Added &#39;Basically Zero&#39; to US Economic Growth Last Year, Goldman Sachs Says",
+    "url": "https://gizmodo.com/ai-added-basically-zero-to-us-economic-growth-last-year-goldman-sachs-says-2000725380",
+    "source_id": "hackernews",
+    "source_name": "Hacker News",
+    "platform": "Hacker News",
+    "category": "科技",
+    "crawl_time": "2026-02-24 12:00:12",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "4a216165b6cc",
+    "title": "Ladybird adopts Rust, with help from AI",
+    "url": "https://ladybird.org/posts/adopting-rust/",
+    "source_id": "hackernews",
+    "source_name": "Hacker News",
+    "platform": "Hacker News",
+    "category": "科技",
+    "crawl_time": "2026-02-24 15:00:12",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "3a0459f87875",
+    "title": "FreeBSD doesn&#39;t have Wi-Fi driver for my old MacBook, so AI built one for me",
+    "url": "https://vladimir.varank.in/notes/2026/02/freebsd-brcmfmac/",
+    "source_id": "hackernews",
+    "source_name": "Hacker News",
+    "platform": "Hacker News",
+    "category": "科技",
+    "crawl_time": "2026-02-24 15:00:12",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "01967dba5e02",
+    "title": "Show HN: PgDog – Scale Postgres without changing the app",
+    "url": "https://github.com/pgdogdev/pgdog",
+    "source_id": "hackernews",
+    "source_name": "Hacker News",
+    "platform": "Hacker News",
+    "category": "科技",
+    "crawl_time": "2026-02-24 15:00:12",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
   }
 ]

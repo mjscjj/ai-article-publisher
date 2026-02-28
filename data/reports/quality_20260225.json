@@ -1,0 +1,37 @@
+{
+  "analyze_time": "2026-02-25 09:00:01",
+  "sources": {
+    "dailyhot": {
+      "file": "data/hotnews/daily/2026-02-25_dailyhot.json",
+      "total": 1832,
+      "valid": 1746,
+      "quality_score": 95.31,
+      "issues": []
+    },
+    "videos": {
+      "file": "data/videos/2026-02-25.json",
+      "total": 227,
+      "valid": 226,
+      "quality_score": 99.56,
+      "issues": []
+    },
+    "contents": {
+      "file": "data/contents/2026-02-25.json",
+      "total": 146,
+      "valid": 146,
+      "quality_score": 100.0,
+      "issues": []
+    },
+    "hotwords": {
+      "file": "data/hotwords/2026-02-25.json",
+      "total": 0,
+      "valid": 0,
+      "quality_score": 0.0,
+      "issues": []
+    }
+  },
+  "summary": {
+    "total_items": 2205,
+    "avg_quality": 73.72
+  }
+}

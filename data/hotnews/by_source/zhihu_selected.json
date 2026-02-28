@@ -1,0 +1,194 @@
+[
+  {
+    "title": "美国最高法院裁定特朗普政府大规模关税政策违法 ，这会带来哪些影响？关税政策会撤回吗？",
+    "url": "https://www.zhihu.com/question/2008321129270486041",
+    "source": "",
+    "category": "综合",
+    "final_score": 56.9,
+    "recommendation": "不推荐",
+    "scores": {
+      "base": 50.0,
+      "trend": 25.0,
+      "llm": 86
+    },
+    "trend": {
+      "direction": "平稳",
+      "lifecycle": "衰退期 (热点已过)",
+      "best_timing": "不建议发布"
+    },
+    "llm_analysis": {
+      "overall_score": 86,
+      "dimensions": {
+        "news_value": 9,
+        "user_match": 8,
+        "competition": 6,
+        "difficulty": 7,
+        "expected_impact": 8
+      },
+      "analysis": "该选题具有高新闻价值和良好的用户匹配度，适合进行深度分析，关注竞争和时效性。",
+      "writing_angles": [
+        {
+          "angle": "特朗普关税政策的法律后果",
+          "title": "美国最高法院裁定：特朗普关税政策的法律与后果"
+        },
+        {
+          "angle": "对经济的直接影响",
+          "title": "特朗普关税政策违法：对美国经济的潜在影响"
+        },
+        {
+          "angle": "未来关税政策的走向",
+          "title": "关税政策会撤回吗？未来的政策走向分析"
+        }
+      ],
+      "risks": [
+        "敏感的政治话题",
+        "法律变化带来的时效风险"
+      ],
+      "recommendation": "强烈推荐",
+      "topic": "美国最高法院裁定特朗普政府大规模关税政策违法 ，这会带来哪些影响？关税政策会撤回吗？",
+      "source": "",
+      "model": "step-3.5-flash-free",
+      "cost": "$0 (免费)"
+    },
+    "raw": {
+      "id": "7eb82f06e789",
+      "title": "美国最高法院裁定特朗普政府大规模关税政策违法 ，这会带来哪些影响？关税政策会撤回吗？",
+      "url": "https://www.zhihu.com/question/2008321129270486041",
+      "source_id": "zhihu",
+      "source_name": "知乎热榜",
+      "platform": "知乎",
+      "category": "综合",
+      "crawl_time": "2026-02-21 16:46:42",
+      "crawl_date": "2026-02-21",
+      "pub_time": null
+    }
+  },
+  {
+    "title": "白宫官员确认，美国总统特朗普计划于 3 月 31 日至 4 月 2 日访问中国，哪些信息值得关注？",
+    "url": "https://www.zhihu.com/question/2008503061484631366",
+    "source": "",
+    "category": "综合",
+    "final_score": 56.5,
+    "recommendation": "不推荐",
+    "scores": {
+      "base": 50.0,
+      "trend": 25.0,
+      "llm": 85
+    },
+    "trend": {
+      "direction": "平稳",
+      "lifecycle": "衰退期 (热点已过)",
+      "best_timing": "不建议发布"
+    },
+    "llm_analysis": {
+      "overall_score": 85,
+      "dimensions": {
+        "news_value": 9,
+        "user_match": 8,
+        "competition": 6,
+        "difficulty": 7,
+        "expected_impact": 8
+      },
+      "analysis": "该选题具有高度的新闻价值和适中的用户匹配度，适合进行深度分析，但需关注竞争和敏感性。",
+      "writing_angles": [
+        {
+          "angle": "中美关系的历史背景",
+          "title": "特朗普访华：中美关系新篇章的前奏"
+        },
+        {
+          "angle": "对中国经济的潜在影响",
+          "title": "特朗普访华将如何影响中国经济及国际关系？"
+        },
+        {
+          "angle": "职场人士的应对策略",
+          "title": "特朗普访华：职场人士如何把握中美关系变化带来的机遇？"
+        }
+      ],
+      "risks": [
+        "敏感的政治内容",
+        "信息时效性风险"
+      ],
+      "recommendation": "推荐",
+      "topic": "白宫官员确认，美国总统特朗普计划于 3 月 31 日至 4 月 2 日访问中国，哪些信息值得关注？",
+      "source": "",
+      "model": "step-3.5-flash-free",
+      "cost": "$0 (免费)"
+    },
+    "raw": {
+      "id": "16179f9c9ea2",
+      "title": "白宫官员确认，美国总统特朗普计划于 3 月 31 日至 4 月 2 日访问中国，哪些信息值得关注？",
+      "url": "https://www.zhihu.com/question/2008503061484631366",
+      "source_id": "zhihu",
+      "source_name": "知乎热榜",
+      "platform": "知乎",
+      "category": "综合",
+      "crawl_time": "2026-02-21 16:46:42",
+      "crawl_date": "2026-02-21",
+      "pub_time": null
+    }
+  },
+  {
+    "title": "美国迎来「特朗普关税违法、PCE、GDP」三大超预期时刻，全球贸易和金融市场将会如何变化？",
+    "url": "https://www.zhihu.com/question/2008327529652577984",
+    "source": "",
+    "category": "综合",
+    "final_score": 56.1,
+    "recommendation": "不推荐",
+    "scores": {
+      "base": 50.0,
+      "trend": 25.0,
+      "llm": 84
+    },
+    "trend": {
+      "direction": "平稳",
+      "lifecycle": "衰退期 (热点已过)",
+      "best_timing": "不建议发布"
+    },
+    "llm_analysis": {
+      "overall_score": 84,
+      "dimensions": {
+        "news_value": 9,
+        "user_match": 8,
+        "competition": 6,
+        "difficulty": 7,
+        "expected_impact": 8
+      },
+      "analysis": "该选题具有高新闻价值和良好的用户匹配度，适合进行深入分析，但需注意竞争和复杂性。",
+      "writing_angles": [
+        {
+          "angle": "特朗普政策的直接影响",
+          "title": "特朗普关税政策的影响：全球贸易的未来"
+        },
+        {
+          "angle": "PCE与GDP数据解析",
+          "title": "超预期的PCE和GDP数据对经济的启示"
+        },
+        {
+          "angle": "市场反应与预测",
+          "title": "全球金融市场如何应对特朗普的政策变化？"
+        }
+      ],
+      "risks": [
+        "敏感的政治与经济话题",
+        "数据变化带来的时效风险"
+      ],
+      "recommendation": "推荐",
+      "topic": "美国迎来「特朗普关税违法、PCE、GDP」三大超预期时刻，全球贸易和金融市场将会如何变化？",
+      "source": "",
+      "model": "step-3.5-flash-free",
+      "cost": "$0 (免费)"
+    },
+    "raw": {
+      "id": "49ba29422fd0",
+      "title": "美国迎来「特朗普关税违法、PCE、GDP」三大超预期时刻，全球贸易和金融市场将会如何变化？",
+      "url": "https://www.zhihu.com/question/2008327529652577984",
+      "source_id": "zhihu",
+      "source_name": "知乎热榜",
+      "platform": "知乎",
+      "category": "综合",
+      "crawl_time": "2026-02-21 16:46:42",
+      "crawl_date": "2026-02-21",
+      "pub_time": null
+    }
+  }
+]

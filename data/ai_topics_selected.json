@@ -1,0 +1,161 @@
+[
+  {
+    "title": "专家称AI时代文科比理科吃香",
+    "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%E4%B8%93%E5%AE%B6%E7%A7%B0AI%E6%97%B6%E4%BB%A3%E6%96%87%E7%A7%91%E6%AF%94%E7%90%86%E7%A7%91%E5%90%83%E9%A6%99",
+    "source": "",
+    "category": "综合",
+    "final_score": 66.5,
+    "recommendation": "可以考虑",
+    "scores": {
+      "base": 59.8,
+      "trend": 50.0,
+      "llm": 84
+    },
+    "trend": {
+      "direction": "平稳",
+      "lifecycle": "衰退期 (热点已过)",
+      "best_timing": "不建议发布"
+    },
+    "llm_analysis": {
+      "overall_score": 84,
+      "dimensions": {
+        "news_value": 8,
+        "user_match": 9,
+        "competition": 6,
+        "difficulty": 7,
+        "expected_impact": 8
+      },
+      "analysis": "该选题探讨AI时代文科与理科的职业前景，具有较高的社会关注度和学术价值。",
+      "writing_angles": [
+        {
+          "angle": "文科与理科的职业发展对比",
+          "title": "AI时代：文科生如何赢得更多机会"
+        },
+        {
+          "angle": "专家观点与市场趋势",
+          "title": "专家解读：为何文科在AI时代更受青睐"
+        }
+      ],
+      "recommendation": "推荐",
+      "topic": "专家称AI时代文科比理科吃香"
+    },
+    "raw": {
+      "id": "912a2b14008b",
+      "title": "专家称AI时代文科比理科吃香",
+      "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%E4%B8%93%E5%AE%B6%E7%A7%B0AI%E6%97%B6%E4%BB%A3%E6%96%87%E7%A7%91%E6%AF%94%E7%90%86%E7%A7%91%E5%90%83%E9%A6%99",
+      "source_id": "weibo",
+      "source_name": "微博热搜",
+      "platform": "微博",
+      "category": "综合",
+      "crawl_time": "2026-02-24 15:00:05",
+      "crawl_date": "2026-02-24",
+      "pub_time": null
+    }
+  },
+  {
+    "title": "芯片初创公司 taalas 融资 1.69 亿美元研发 AI 芯片挑战英伟达，这意味着什么？",
+    "url": "https://www.zhihu.com/question/2008005974397576586",
+    "source": "",
+    "category": "综合",
+    "final_score": 65.0,
+    "recommendation": "可以考虑",
+    "scores": {
+      "base": 59.8,
+      "trend": 39.7,
+      "llm": 88
+    },
+    "trend": {
+      "direction": "平稳",
+      "lifecycle": "衰退期 (热点已过)",
+      "best_timing": "不建议发布"
+    },
+    "llm_analysis": {
+      "overall_score": 88,
+      "dimensions": {
+        "news_value": 9,
+        "user_match": 8,
+        "competition": 6,
+        "difficulty": 7,
+        "expected_impact": 8
+      },
+      "analysis": "该选题探讨芯片初创公司对AI市场的影响，具有重要的行业意义和前瞻性。",
+      "writing_angles": [
+        {
+          "angle": "AI芯片市场竞争分析",
+          "title": "taalas融资1.69亿：对抗英伟达的市场前景"
+        },
+        {
+          "angle": "初创公司在芯片领域的机会",
+          "title": "融资背后的机遇：芯片初创公司如何挑战巨头"
+        }
+      ],
+      "recommendation": "推荐",
+      "topic": "芯片初创公司 taalas 融资 1.69 亿美元研发 AI 芯片挑战英伟达，这意味着什么？"
+    },
+    "raw": {
+      "id": "454e50221271",
+      "title": "芯片初创公司 taalas 融资 1.69 亿美元研发 AI 芯片挑战英伟达，这意味着什么？",
+      "url": "https://www.zhihu.com/question/2008005974397576586",
+      "source_id": "zhihu",
+      "source_name": "知乎热榜",
+      "platform": "知乎",
+      "category": "综合",
+      "crawl_time": "2026-02-22 21:00:06",
+      "crawl_date": "2026-02-22",
+      "pub_time": null
+    }
+  },
+  {
+    "title": "AI骗局三件套涌入老年机",
+    "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3DAI%E9%AA%97%E5%B1%80%E4%B8%89%E4%BB%B6%E5%A5%97%E6%B6%8C%E5%85%A5%E8%80%81%E5%B9%B4%E6%9C%BA",
+    "source": "",
+    "category": "综合",
+    "final_score": 62.7,
+    "recommendation": "可以考虑",
+    "scores": {
+      "base": 59.8,
+      "trend": 39.7,
+      "llm": 82
+    },
+    "trend": {
+      "direction": "平稳",
+      "lifecycle": "衰退期 (热点已过)",
+      "best_timing": "不建议发布"
+    },
+    "llm_analysis": {
+      "overall_score": 82,
+      "dimensions": {
+        "news_value": 9,
+        "user_match": 8,
+        "competition": 6,
+        "difficulty": 7,
+        "expected_impact": 8
+      },
+      "analysis": "该选题关注老年人群体面临的AI骗局问题，具有较高的社会意义和新闻价值。",
+      "writing_angles": [
+        {
+          "angle": "AI骗局的常见类型",
+          "title": "揭露老年机上的AI骗局三件套"
+        },
+        {
+          "angle": "防骗技巧与建议",
+          "title": "如何保护老年人免受AI骗局的侵害"
+        }
+      ],
+      "recommendation": "推荐",
+      "topic": "AI骗局三件套涌入老年机"
+    },
+    "raw": {
+      "id": "01bbb537a6f2",
+      "title": "AI骗局三件套涌入老年机",
+      "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3DAI%E9%AA%97%E5%B1%80%E4%B8%89%E4%BB%B6%E5%A5%97%E6%B6%8C%E5%85%A5%E8%80%81%E5%B9%B4%E6%9C%BA",
+      "source_id": "weibo",
+      "source_name": "微博热搜",
+      "platform": "微博",
+      "category": "综合",
+      "crawl_time": "2026-02-23 15:00:06",
+      "crawl_date": "2026-02-23",
+      "pub_time": null
+    }
+  }
+]

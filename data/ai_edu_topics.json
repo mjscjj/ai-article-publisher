@@ -1,0 +1,50 @@
+[
+  {
+    "id": "912a2b14008b",
+    "title": "专家称AI时代文科比理科吃香",
+    "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%E4%B8%93%E5%AE%B6%E7%A7%B0AI%E6%97%B6%E4%BB%A3%E6%96%87%E7%A7%91%E6%AF%94%E7%90%86%E7%A7%91%E5%90%83%E9%A6%99",
+    "source_id": "weibo",
+    "source_name": "微博热搜",
+    "platform": "微博",
+    "category": "综合",
+    "crawl_time": "2026-02-24 15:00:05",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "bb2eb51e7f43",
+    "title": "财联社2月23日电，谷歌官网消息，谷歌教育推出新计划，将为美国600万K-12和高等教育教师提供免费Gemini培训。",
+    "url": "https://api3.cls.cn/share/article/2292935?os=web&amp;sv=8.4.6&amp;app=CailianpressWeb",
+    "source_id": "cls",
+    "source_name": "财联社",
+    "platform": "财联社",
+    "category": "财经",
+    "crawl_time": "2026-02-23 21:00:42",
+    "crawl_date": "2026-02-23",
+    "pub_time": null
+  },
+  {
+    "id": "3bf7cf9fbbbe",
+    "title": "李政涛：人工智能时代，教育要引导学生独立思考和体验成长",
+    "url": "https://m.thepaper.cn/detail/32592743",
+    "source_id": "thepaper",
+    "source_name": "澎湃新闻",
+    "platform": "澎湃新闻",
+    "category": "新闻",
+    "crawl_time": "2026-02-22 09:00:47",
+    "crawl_date": "2026-02-22",
+    "pub_time": null
+  },
+  {
+    "id": "7942292fdec2",
+    "title": "人工智能“大事正在发生”：高等教育的人文主义重构",
+    "url": "https://m.thepaper.cn/detail/32648333",
+    "source_id": "thepaper",
+    "source_name": "澎湃新闻",
+    "platform": "澎湃新闻",
+    "category": "新闻",
+    "crawl_time": "2026-02-24 09:00:51",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  }
+]

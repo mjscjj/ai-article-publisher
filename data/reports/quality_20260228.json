@@ -1,0 +1,16 @@
+{
+  "analyze_time": "2026-02-28 09:00:02",
+  "sources": {
+    "hotwords": {
+      "file": "data/hotwords/2026-02-28.json",
+      "total": 0,
+      "valid": 0,
+      "quality_score": 0.0,
+      "issues": []
+    }
+  },
+  "summary": {
+    "total_items": 0,
+    "avg_quality": 0.0
+  }
+}

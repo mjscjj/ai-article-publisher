@@ -1,0 +1,161 @@
+[
+  {
+    "title": "人工智能“大事正在发生”：高等教育的人文主义重构",
+    "url": "https://m.thepaper.cn/detail/32648333",
+    "source": "",
+    "category": "新闻",
+    "final_score": 67.1,
+    "recommendation": "可以考虑",
+    "scores": {
+      "base": 57.5,
+      "trend": 50.0,
+      "llm": 87
+    },
+    "trend": {
+      "direction": "平稳",
+      "lifecycle": "衰退期 (热点已过)",
+      "best_timing": "不建议发布"
+    },
+    "llm_analysis": {
+      "overall_score": 87,
+      "dimensions": {
+        "news_value": 9,
+        "user_match": 8,
+        "competition": 6,
+        "difficulty": 7,
+        "expected_impact": 8
+      },
+      "analysis": "该选题探讨人工智能对高等教育的深远影响，强调人文主义的重构，具有重要的学术价值。",
+      "writing_angles": [
+        {
+          "angle": "高等教育中的人文主义变革",
+          "title": "人工智能与高等教育：人文主义的重构之路"
+        },
+        {
+          "angle": "技术与教育的结合",
+          "title": "人工智能时代：如何在高等教育中重塑人文价值"
+        }
+      ],
+      "recommendation": "推荐",
+      "topic": "人工智能“大事正在发生”：高等教育的人文主义重构"
+    },
+    "raw": {
+      "id": "7942292fdec2",
+      "title": "人工智能“大事正在发生”：高等教育的人文主义重构",
+      "url": "https://m.thepaper.cn/detail/32648333",
+      "source_id": "thepaper",
+      "source_name": "澎湃新闻",
+      "platform": "澎湃新闻",
+      "category": "新闻",
+      "crawl_time": "2026-02-24 09:00:51",
+      "crawl_date": "2026-02-24",
+      "pub_time": null
+    }
+  },
+  {
+    "title": "财联社2月23日电，谷歌官网消息，谷歌教育推出新计划，将为美国600万K-12和高等教育教师提供免费Gemini培训。",
+    "url": "https://api3.cls.cn/share/article/2292935?os=web&amp;sv=8.4.6&amp;app=CailianpressWeb",
+    "source": "",
+    "category": "财经",
+    "final_score": 66.7,
+    "recommendation": "可以考虑",
+    "scores": {
+      "base": 57.5,
+      "trend": 50.0,
+      "llm": 86
+    },
+    "trend": {
+      "direction": "平稳",
+      "lifecycle": "衰退期 (热点已过)",
+      "best_timing": "不建议发布"
+    },
+    "llm_analysis": {
+      "overall_score": 86,
+      "dimensions": {
+        "news_value": 9,
+        "user_match": 8,
+        "competition": 6,
+        "difficulty": 7,
+        "expected_impact": 8
+      },
+      "analysis": "该选题涉及谷歌教育的新计划，具有较高的新闻价值和教育影响力。",
+      "writing_angles": [
+        {
+          "angle": "谷歌教育的战略意图",
+          "title": "谷歌Gemini培训计划：提升教育质量的关键"
+        },
+        {
+          "angle": "对教师职业发展的影响",
+          "title": "免费Gemini培训：如何改变K-12及高等教育教师的教学方式"
+        }
+      ],
+      "recommendation": "推荐",
+      "topic": "财联社2月23日电，谷歌官网消息，谷歌教育推出新计划，将为美国600万K-12和高等教育教师提供免费Gemini培训。"
+    },
+    "raw": {
+      "id": "bb2eb51e7f43",
+      "title": "财联社2月23日电，谷歌官网消息，谷歌教育推出新计划，将为美国600万K-12和高等教育教师提供免费Gemini培训。",
+      "url": "https://api3.cls.cn/share/article/2292935?os=web&amp;sv=8.4.6&amp;app=CailianpressWeb",
+      "source_id": "cls",
+      "source_name": "财联社",
+      "platform": "财联社",
+      "category": "财经",
+      "crawl_time": "2026-02-23 21:00:42",
+      "crawl_date": "2026-02-23",
+      "pub_time": null
+    }
+  },
+  {
+    "title": "专家称AI时代文科比理科吃香",
+    "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%E4%B8%93%E5%AE%B6%E7%A7%B0AI%E6%97%B6%E4%BB%A3%E6%96%87%E7%A7%91%E6%AF%94%E7%90%86%E7%A7%91%E5%90%83%E9%A6%99",
+    "source": "",
+    "category": "综合",
+    "final_score": 66.5,
+    "recommendation": "可以考虑",
+    "scores": {
+      "base": 59.8,
+      "trend": 50.0,
+      "llm": 84
+    },
+    "trend": {
+      "direction": "平稳",
+      "lifecycle": "衰退期 (热点已过)",
+      "best_timing": "不建议发布"
+    },
+    "llm_analysis": {
+      "overall_score": 84,
+      "dimensions": {
+        "news_value": 8,
+        "user_match": 9,
+        "competition": 6,
+        "difficulty": 7,
+        "expected_impact": 8
+      },
+      "analysis": "该选题探讨在AI时代文科的优势，具有较高的社会关注度和学术价值。",
+      "writing_angles": [
+        {
+          "angle": "文科与理科的职业前景对比",
+          "title": "AI时代：文科生如何胜出？"
+        },
+        {
+          "angle": "专家观点解析",
+          "title": "为何文科在AI时代更具竞争力？"
+        }
+      ],
+      "recommendation": "推荐",
+      "topic": "专家称AI时代文科比理科吃香"
+    },
+    "raw": {
+      "id": "912a2b14008b",
+      "title": "专家称AI时代文科比理科吃香",
+      "url": "https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%E4%B8%93%E5%AE%B6%E7%A7%B0AI%E6%97%B6%E4%BB%A3%E6%96%87%E7%A7%91%E6%AF%94%E7%90%86%E7%A7%91%E5%90%83%E9%A6%99",
+      "source_id": "weibo",
+      "source_name": "微博热搜",
+      "platform": "微博",
+      "category": "综合",
+      "crawl_time": "2026-02-24 15:00:05",
+      "crawl_date": "2026-02-24",
+      "pub_time": null
+    }
+  }
+]

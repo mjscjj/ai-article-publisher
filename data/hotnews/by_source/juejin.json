@@ -262,5 +262,29 @@
     "crawl_time": "2026-02-22 18:00:29",
     "crawl_date": "2026-02-22",
     "pub_time": null
+  },
+  {
+    "id": "97584d00c213",
+    "title": "全栈开发者的谎言：什么都会 = 什么都不精？",
+    "url": "https://juejin.cn/post/7601811815828406323",
+    "source_id": "juejin",
+    "source_name": "掘金",
+    "platform": "掘金",
+    "category": "科技",
+    "crawl_time": "2026-02-24 12:00:21",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
+  },
+  {
+    "id": "9951c9881b1e",
+    "title": "AI 编程的临界点：当三家巨头同时宣布我们不写代码了",
+    "url": "https://juejin.cn/post/7605816833192067072",
+    "source_id": "juejin",
+    "source_name": "掘金",
+    "platform": "掘金",
+    "category": "科技",
+    "crawl_time": "2026-02-24 15:00:32",
+    "crawl_date": "2026-02-24",
+    "pub_time": null
   }
 ]
