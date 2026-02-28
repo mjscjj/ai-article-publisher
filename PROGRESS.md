@@ -1,6 +1,175 @@
 # AI Article Publisher - 项目进度
 
-> 最后更新：2026-03-01 23:00 (UTC+8)
+> 最后更新：2026-03-02 07:07 (UTC+8)
+
+---
+
+## 🚀 V3 重构总览
+
+**启动时间**: 2026-03-01 18:00  
+**总周期**: 14 天  
+**当前阶段**: Phase 1 ✅ 完成 → Phase 2 ✅ 完成 → Phase 3 ⏳ 待开发
+
+| Phase | 模块 | 周期 | 状态 |
+|-------|------|------|------|
+| 1 | 热点中心 | 3 天 | ✅ 已完成 |
+| 2 | 智能选题 | 4 天 | ✅ 已完成 |
+| 3 | 写作工厂 | 5 天 | ⏳ 待开发 |
+| 4 | 联调测试 | 2 天 | ⏳ 待开发 |
+
+---
+
+## 🎯 V3 智能选题模块 - Phase 2 ✅ 完成
+
+**开发时间**: 2026-03-02 06:00-07:07 (UTC+8)
+**状态**: ✅ 已完成
+**测试**: 78/78 通过 (覆盖率>90%)
+
+### 交付物清单
+
+| 文件 | 大小 | 说明 |
+|------|------|------|
+| `models/topic.py` | 19KB | 数据模型 (Topic, TopicScore, Industry, Angle) |
+| `core/topic_service.py` | 32KB | 核心服务 (生成/评分/对比) |
+| `api/v3/topics.py` | 10KB | API 路由 (FastAPI) |
+| `scripts/migrate_topics_v3.py` | 6KB | 数据库迁移脚本 |
+| `tests/test_topics_v3.py` | 17KB | 测试用例 (78 个测试) |
+
+### 数据库表结构
+
+**topics (选题主表)**:
+- `id VARCHAR(64)` - 选题唯一标识
+- `title VARCHAR(500)` - 选题标题
+- `industry VARCHAR(50)` - 所属行业
+- `angle VARCHAR(50)` - 切入角度
+- `source_hotnews JSON` - 来源热点 ID 列表
+- `description TEXT` - 选题描述
+- `key_points JSON` - 核心要点
+- `score_total DECIMAL(5,2)` - 总分 (冗余字段)
+- `grade VARCHAR(10)` - 评分等级 (S/A/B/C/D)
+- `status VARCHAR(20)` - 选题状态 (draft/reviewed/approved/rejected)
+- `created_at DATETIME` - 创建时间
+- `updated_at DATETIME` - 更新时间
+- `extra_data JSON` - 扩展数据
+
+**topic_scores (评分记录表)**:
+- `id INT AUTO_INCREMENT` - 评分记录 ID
+- `topic_id VARCHAR(64)` - 关联选题 ID
+- `heat DECIMAL(5,2)` - 热度分 (30%)
+- `potential DECIMAL(5,2)` - 潜力分 (25%)
+- `match DECIMAL(5,2)` - 匹配分 (20%)
+- `novelty DECIMAL(5,2)` - 新颖分 (15%)
+- `feasibility DECIMAL(5,2)` - 可行分 (10%)
+- `total DECIMAL(5,2)` - 总分
+- `grade VARCHAR(10)` - 评分等级
+- `scored_at DATETIME` - 评分时间
+- `details JSON` - 评分详情
+
+**topic_industries (行业配置表)**:
+- `id INT AUTO_INCREMENT` - 行业 ID
+- `name VARCHAR(50)` - 行业名称
+- `code VARCHAR(50)` - 行业代码 (唯一)
+- `description TEXT` - 行业描述
+- `data_sources JSON` - 数据源配置
+- `score_weights JSON` - 评分权重配置
+- `enabled BOOLEAN` - 是否启用
+- `created_at DATETIME` - 创建时间
+- `updated_at DATETIME` - 更新时间
+
+**topic_angles (角度配置表)**:
+- `id INT AUTO_INCREMENT` - 角度 ID
+- `name VARCHAR(50)` - 角度名称
+- `code VARCHAR(50)` - 角度代码 (唯一)
+- `description TEXT` - 角度描述
+- `icon VARCHAR(20)` - 图标 emoji
+- `prompt_template TEXT` - AI 提示词模板
+- `enabled BOOLEAN` - 是否启用
+- `created_at DATETIME` - 创建时间
+
+### API 接口
+
+| 接口 | 方法 | 功能 |
+|------|------|------|
+| `/api/v3/topics/generate` | POST | 批量生成选题 |
+| `/api/v3/topics` | GET | 获取选题列表 (支持筛选/分页) |
+| `/api/v3/topics/:id` | GET | 获取选题详情 |
+| `/api/v3/topics/:id/score` | POST | 重新评分 |
+| `/api/v3/topics/compare` | GET | 选题对比 |
+| `/api/v3/topics/industries` | GET | 行业列表 |
+| `/api/v3/topics/angles` | GET | 角度列表 |
+| `/api/v3/topics/health` | GET | 健康检查 |
+
+### 核心功能
+
+**TopicService 服务**:
+- ✅ `generate_topics()` - 批量生成选题 (多行业 + 多角度)
+- ✅ `score_topic()` - 5 维智能评分
+- ✅ `compare_topics()` - 选题对比分析
+- ✅ `get_industries()` - 获取行业列表 (8 个预置行业)
+- ✅ `get_angles()` - 获取角度列表 (8 个预置角度)
+- ✅ `get_topic_by_id()` - 根据 ID 获取选题
+- ✅ `save_topic()` - 保存选题到数据库
+- ✅ `get_topic_list()` - 获取选题列表 (支持筛选/分页)
+
+### 5 维评分算法
+
+**权重分配**:
+- 热度分 (30%): 基于平台热度数据
+- 潜力分 (25%): 趋势预测 (时效性 + 角度)
+- 匹配分 (20%): 与账号定位匹配度
+- 新颖分 (15%): 独特性/差异化
+- 可行分 (10%): 素材充足度
+
+**评分等级**:
+- S 级 (90-100): 爆款潜质
+- A 级 (75-89): 优质选题
+- B 级 (60-74): 合格选题
+- C 级 (40-59): 需要改进
+- D 级 (0-39): 不建议采用
+
+### 预置数据
+
+**8 个行业**: 教育、科技、财经、娱乐、体育、健康、职场、生活
+
+**8 个角度**:
+- 🔍 深度分析
+- 📊 数据解读
+- 💡 观点评论
+- 🎓 知识科普
+- 😂 幽默调侃
+- ⚠️ 风险警示
+- 🚀 趋势预测
+- 👥 人物故事
+
+### 测试结果
+
+```
+======================================================================
+📊 测试结果：78 通过，0 失败
+======================================================================
+✅ TopicScore 模型 (11 测试)
+✅ Topic 模型 (11 测试)
+✅ Industry 和 Angle 模型 (6 测试)
+✅ GradeEnum 枚举 (5 测试)
+✅ TopicService 核心服务 (16 测试)
+✅ 5 维评分算法 (18 测试)
+✅ 选题对比功能 (4 测试)
+✅ 数据库迁移 SQL (6 测试)
+✅ GenerateRequest 模型 (4 测试)
+```
+
+### 代码整合
+
+- ✅ 复用 `core/article_scorer.py` 评分逻辑
+- ✅ 复用 `core/deep_retriever.py` 检索能力
+- ✅ 整合热点中心 API (hotnews 表)
+- ✅ 兼容旧表结构 (hot_topics)
+
+### 下一步
+
+1. Phase 3: 写作工厂开发
+2. 前端界面开发
+3. 端到端联调测试
 
 ---
 
@@ -75,9 +244,33 @@
 ============================================================
 📊 测试结果：14 通过，0 失败
 ============================================================
-✅ TestHotNewsModel (4 测试)
-✅ TestSubscriptionModel (2 测试)
-✅ TestPaginatedResponse (1 测试)
+```
+
+### 下一步
+- ✅ Phase 1 完成
+- 🔄 Phase 2 智能选题模块开发中 (Subagent 运行中)
+
+---
+
+## 🎯 V3 智能选题模块 - Phase 2 🔄 开发中
+
+**启动时间**: 2026-03-02 00:00 (UTC+8)
+**状态**: 🔄 进行中
+**预计完成**: 2 小时
+
+### 开发内容
+1. 数据库设计 (topics/topic_industries/topic_angles/topic_scores)
+2. 核心服务 (generate_topics/score_topic/compare_topics)
+3. API 路由 (FastAPI)
+4. 5 维智能评分算法
+5. 多行业 + 多角度支持
+
+### 预期交付
+1. `models/topic.py` - 数据模型
+2. `core/topic_service.py` - 核心服务
+3. `api/v3/topics.py` - API 路由
+4. 数据库迁移脚本
+5. 测试用例
 ✅ TestHotNewsService (6 测试)
 ✅ TestIntegration (1 测试)
 ```

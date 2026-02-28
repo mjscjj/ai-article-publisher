@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V3 热点中心 - HotNews Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .heat-explosive { border-left: 4px solid #ef4444; background: linear-gradient(90deg, #fef2f2 0%, transparent 100%); }
+        .heat-hot { border-left: 4px solid #f97316; background: linear-gradient(90deg, #fff7ed 0%, transparent 100%); }
+        .heat-warm { border-left: 4px solid #eab308; background: linear-gradient(90deg, #fefce8 0%, transparent 100%); }
+        .heat-normal { border-left: 4px solid #22c55e; }
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
+        <!-- 顶部导航 -->
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">🔥 V3 热点中心</h1>
+                        <p class="text-sm text-gray-500 mt-1">HotNews Center - 实时热榜聚合</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button @click="refresh" :disabled="refreshing" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400">
+                            {{ refreshing ? '刷新中...' : '🔄 刷新' }}
+                        </button>
+                        <div class="text-sm text-gray-500">
+                            最后更新：{{ lastUpdate }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">总热点数</div>
+                    <div class="text-2xl font-bold text-blue-600">{{ stats.total || 0 }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">🔥 爆款</div>
+                    <div class="text-2xl font-bold text-red-600">{{ stats.explosive || 0 }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">热门</div>
+                    <div class="text-2xl font-bold text-orange-600">{{ stats.hot || 0 }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">平台数</div>
+                    <div class="text-2xl font-bold text-purple-600">{{ stats.platforms || 0 }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-500">订阅数</div>
+                    <div class="text-2xl font-bold text-green-600">{{ stats.subscriptions || 0 }}</div>
+                </div>
+            </div>
+
+            <!-- 筛选器 -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <div class="flex flex-wrap gap-4 items-end">
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">🔍 关键词搜索</label>
+                        <input v-model="filters.keyword" @keyup.enter="loadHotnews" type="text" 
+                               placeholder="搜索热点..." class="w-full border rounded px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">平台</label>
+                        <select v-model="filters.platform" @change="loadHotnews" class="border rounded px-3 py-2">
+                            <option value="">全部平台</option>
+                            <option v-for="p in platforms" :key="p" :value="p">{{ p }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
+                        <select v-model="filters.category" @change="loadHotnews" class="border rounded px-3 py-2">
+                            <option value="">全部分类</option>
+                            <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">时间</label>
+                        <select v-model="filters.timeRange" @change="loadHotnews" class="border rounded px-3 py-2">
+                            <option value="1h">最近 1 小时</option>
+                            <option value="6h">最近 6 小时</option>
+                            <option value="24h" selected>最近 24 小时</option>
+                            <option value="7d">最近 7 天</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">热度</label>
+                        <select v-model="filters.minHeat" @change="loadHotnews" class="border rounded px-3 py-2">
+                            <option value="0">全部热度</option>
+                            <option value="100000">🔥 10 万+</option>
+                            <option value="500000">🔥 50 万+</option>
+                            <option value="1000000">🔥 100 万+</option>
+                        </select>
+                    </div>
+                    <button @click="loadHotnews" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        筛选
+                    </button>
+                </div>
+            </div>
+
+            <!-- 热点列表 -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-semibold">热点列表</h2>
+                        <p class="text-sm text-gray-500">共 {{ hotnews.length }} 条</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button @click="toggleView('list')" :class="viewMode==='list'?'bg-blue-100':''" class="px-3 py-1 rounded">
+                            📋 列表
+                        </button>
+                        <button @click="toggleView('grid')" :class="viewMode==='grid'?'bg-blue-100':''" class="px-3 py-1 rounded">
+                            📊 网格
+                        </button>
+                    </div>
+                </div>
+                
+                <div v-if="loading" class="p-8 text-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p class="mt-2 text-gray-500">加载中...</p>
+                </div>
+
+                <div v-else-if="hotnews.length === 0" class="p-8 text-center text-gray-500">
+                    暂无热点数据，点击刷新按钮获取最新热点
+                </div>
+
+                <!-- 列表视图 -->
+                <div v-else-if="viewMode==='list'" class="divide-y divide-gray-200">
+                    <div v-for="item in hotnews" :key="item.id" 
+                         class="p-4 hover:bg-gray-50 cursor-pointer heat-{{ item.heat_level }}"
+                         @click="showDetail(item)">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs px-2 py-0.5 rounded bg-gray-100">{{ item.platform }}</span>
+                                    <span class="text-xs px-2 py-0.5 rounded bg-blue-100">{{ item.category }}</span>
+                                    <span class="text-xs text-gray-500">{{ formatTime(item.publish_time) }}</span>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ item.title }}</h3>
+                                <p class="text-sm text-gray-600 line-clamp-2">{{ item.content || item.description }}</p>
+                            </div>
+                            <div class="text-right ml-4">
+                                <div class="text-lg font-bold" :class="getHeatColor(item.heat_count)">
+                                    🔥 {{ formatHeat(item.heat_count) }}
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">{{ item.heat_level }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 网格视图 -->
+                <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                    <div v-for="item in hotnews" :key="item.id" 
+                         class="p-4 rounded-lg shadow hover:shadow-md cursor-pointer heat-{{ item.heat_level }}"
+                         @click="showDetail(item)">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-xs px-2 py-0.5 rounded bg-gray-100">{{ item.platform }}</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-blue-100">{{ item.category }}</span>
+                        </div>
+                        <h3 class="text-base font-semibold text-gray-900 mb-2 line-clamp-2">{{ item.title }}</h3>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500">{{ formatTime(item.publish_time) }}</span>
+                            <span class="text-sm font-bold" :class="getHeatColor(item.heat_count)">
+                                🔥 {{ formatHeat(item.heat_count) }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分页 -->
+                <div v-if="hotnews.length > 0" class="px-4 py-3 border-t border-gray-200 flex justify-between items-center">
+                    <button @click="changePage(-1)" :disabled="page<=1" class="px-4 py-2 rounded border disabled:opacity-50">
+                        ← 上一页
+                    </button>
+                    <span class="text-sm text-gray-500">第 {{ page }} 页</span>
+                    <button @click="changePage(1)" class="px-4 py-2 rounded border">
+                        下一页 →
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- 热点详情弹窗 -->
+        <div v-if="selectedItem" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" @click.self="selectedItem=null">
+            <div class="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm px-2 py-1 rounded bg-gray-100">{{ selectedItem.platform }}</span>
+                            <span class="text-sm px-2 py-1 rounded bg-blue-100">{{ selectedItem.category }}</span>
+                        </div>
+                        <button @click="selectedItem=null" class="text-gray-400 hover:text-gray-600">✕</button>
+                    </div>
+                    
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ selectedItem.title }}</h2>
+                    
+                    <div class="flex items-center gap-4 mb-4 text-sm text-gray-500">
+                        <span>🔥 {{ formatHeat(selectedItem.heat_count) }}</span>
+                        <span>📅 {{ formatTime(selectedItem.publish_time) }}</span>
+                        <span>🕐 采集：{{ formatTime(selectedItem.crawl_time) }}</span>
+                    </div>
+
+                    <div class="prose max-w-none mb-4">
+                        <p class="text-gray-700">{{ selectedItem.content || selectedItem.description }}</p>
+                    </div>
+
+                    <a :href="selectedItem.source_url" target="_blank" 
+                       class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        🔗 查看原文
+                    </a>
+
+                    <div class="mt-6 flex gap-3">
+                        <button @click="createTopic(selectedItem)" class="flex-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                            📝 一键选题
+                        </button>
+                        <button @click="subscribe(selectedItem)" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+                            🔔 订阅
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    API_BASE: 'http://43.134.234.4:8000/api/v3',
+                    loading: false,
+                    refreshing: false,
+                    hotnews: [],
+                    selectedItem: null,
+                    viewMode: 'list',
+                    page: 1,
+                    lastUpdate: '-',
+                    stats: { total: 0, explosive: 0, hot: 0, platforms: 0, subscriptions: 0 },
+                    filters: {
+                        keyword: '',
+                        platform: '',
+                        category: '',
+                        timeRange: '24h',
+                        minHeat: '0'
+                    },
+                    platforms: ['微博', '知乎', 'B 站', '抖音', '快手', '小红书', '豆瓣', '虎扑'],
+                    categories: ['科技', '教育', '财经', '娱乐', '体育', '健康', '职场', '生活']
+                }
+            },
+            mounted() {
+                this.loadHotnews();
+                this.loadStats();
+                // 自动刷新 (5 分钟)
+                setInterval(() => {
+                    this.refresh();
+                }, 300000);
+            },
+            methods: {
+                async loadHotnews() {
+                    this.loading = true;
+                    try {
+                        const params = new URLSearchParams({
+                            page: this.page,
+                            page_size: 50,
+                            ...this.filters
+                        });
+                        const res = await fetch(`${this.API_BASE}/hotnews?${params}`);
+                        const data = await res.json();
+                        this.hotnews = data.data || [];
+                        this.lastUpdate = new Date().toLocaleTimeString();
+                    } catch (e) {
+                        console.error('加载失败:', e);
+                        // Mock 数据 (API 未就绪时)
+                        this.hotnews = this.getMockData();
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                async loadStats() {
+                    try {
+                        const res = await fetch(`${this.API_BASE}/hotnews/statistics`);
+                        const data = await res.json();
+                        this.stats = data.data || this.stats;
+                    } catch (e) {
+                        console.error('统计加载失败:', e);
+                    }
+                },
+                async refresh() {
+                    this.refreshing = true;
+                    await this.loadHotnews();
+                    await this.loadStats();
+                    this.refreshing = false;
+                },
+                showDetail(item) {
+                    this.selectedItem = item;
+                },
+                createTopic(item) {
+                    alert(`已创建选题：${item.title}\n(跳转到选题模块)`);
+                    // TODO: 跳转到选题模块
+                },
+                async subscribe(item) {
+                    try {
+                        await fetch(`${this.API_BASE}/hotnews/subscribe`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                keyword: item.title,
+                                category: item.category
+                            })
+                        });
+                        alert('✅ 订阅成功');
+                        this.stats.subscriptions++;
+                    } catch (e) {
+                        alert('订阅失败');
+                    }
+                },
+                toggleView(mode) {
+                    this.viewMode = mode;
+                },
+                changePage(delta) {
+                    this.page += delta;
+                    this.loadHotnews();
+                },
+                formatHeat(count) {
+                    if (count >= 1000000) return (count/1000000).toFixed(1) + '万';
+                    if (count >= 10000) return (count/10000).toFixed(1) + '万';
+                    return count.toLocaleString();
+                },
+                getHeatColor(count) {
+                    if (count >= 1000000) return 'text-red-600';
+                    if (count >= 500000) return 'text-orange-600';
+                    if (count >= 100000) return 'text-yellow-600';
+                    return 'text-green-600';
+                },
+                formatTime(timeStr) {
+                    if (!timeStr) return '-';
+                    const date = new Date(timeStr);
+                    return date.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                },
+                getMockData() {
+                    // Mock 数据用于演示
+                    return Array.from({length: 20}, (_, i) => ({
+                        id: `mock_${i}`,
+                        title: `热点标题示例 ${i+1} - AI 教育引发热议`,
+                        content: '这是热点内容描述，展示热点的核心信息和关键要点...',
+                        platform: ['微博', '知乎', 'B 站', '抖音'][i%4],
+                        category: ['科技', '教育', '财经', '娱乐'][i%4],
+                        heat_count: Math.floor(Math.random() * 2000000),
+                        heat_level: ['🔥100 万+', '🔥50 万+', '🔥10 万+', '正常'][i%4],
+                        source_url: 'https://example.com',
+                        publish_time: new Date().toISOString(),
+                        crawl_time: new Date().toISOString()
+                    }));
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
