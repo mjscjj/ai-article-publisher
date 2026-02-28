@@ -1,6 +1,91 @@
 # AI Article Publisher - 项目进度
 
-> 最后更新：2026-03-01 15:00 (UTC+8)
+> 最后更新：2026-03-01 23:00 (UTC+8)
+
+---
+
+## 🔥 V3 热点中心模块 - Phase 1 ✅ 完成
+
+**开发时间**: 2026-03-01 22:00-23:00 (UTC+8)
+**状态**: ✅ 已完成
+**测试**: 14/14 通过
+
+### 交付物清单
+
+| 文件 | 大小 | 说明 |
+|------|------|------|
+| `models/hotnews.py` | 9KB | 数据模型 (HotNews, Subscription) |
+| `models/__init__.py` | 0.1KB | 模型包初始化 |
+| `core/hotnews_service.py` | 14KB | 核心服务 (get_hotlist/get_trend/subscribe/search) |
+| `api/v3/hotnews.py` | 12KB | API 路由 (FastAPI) |
+| `scripts/migrate_hotnews_v3.py` | 6KB | 数据库迁移脚本 |
+| `tests/test_hotnews_v3.py` | 12KB | 测试用例 (14 个测试) |
+
+### 数据库表结构
+
+**hotnews (热点表)**:
+- `id VARCHAR(64)` - 热点唯一标识 (平台_原始 ID)
+- `title VARCHAR(500)` - 热点标题
+- `content TEXT` - 热点内容
+- `platform VARCHAR(50)` - 来源平台
+- `category VARCHAR(50)` - 分类
+- `heat_count INT` - 热度数值
+- `heat_level VARCHAR(20)` - 热度等级 (🔥100 万+/🔥50 万+/🔥10 万+)
+- `source_url VARCHAR(500)` - 原始链接
+- `publish_time DATETIME` - 发布时间
+- `crawl_time DATETIME` - 采集时间
+- `trend_data JSON` - 24 小时热度趋势
+- `extra_data JSON` - 扩展数据
+
+**hotnews_subscriptions (订阅表)**:
+- `id INT AUTO_INCREMENT` - 订阅记录 ID
+- `user_id VARCHAR(64)` - 用户 ID
+- `keyword VARCHAR(100)` - 订阅关键词
+- `platform VARCHAR(50)` - 订阅平台
+- `category VARCHAR(50)` - 订阅分类
+- `notify_enabled BOOLEAN` - 是否启用通知
+- `created_at DATETIME` - 创建时间
+
+### API 接口
+
+| 接口 | 方法 | 功能 |
+|------|------|------|
+| `/api/v3/hotnews` | GET | 获取热点列表 (支持筛选/分页) |
+| `/api/v3/hotnews/:id` | GET | 获取热点详情 |
+| `/api/v3/hotnews/:id/trend` | GET | 获取热度趋势 |
+| `/api/v3/hotnews/subscribe` | POST | 订阅热点 |
+| `/api/v3/hotnews/search` | GET | 搜索热点 |
+| `/api/v3/hotnews/subscriptions` | GET | 获取用户订阅列表 |
+| `/api/v3/hotnews/subscribe/:keyword` | DELETE | 取消订阅 |
+| `/api/v3/hotnews/statistics` | GET | 获取统计信息 |
+
+### 核心功能
+
+**HotNewsService 服务**:
+- ✅ `get_hotlist()` - 获取热点列表 (支持平台/分类/时间/热度/关键词筛选)
+- ✅ `get_trend()` - 获取热度趋势
+- ✅ `subscribe()` - 订阅热点
+- ✅ `search()` - 搜索热点
+- ✅ `get_by_id()` - 获取热点详情
+- ✅ `get_statistics()` - 获取统计信息
+
+### 测试结果
+
+```
+============================================================
+📊 测试结果：14 通过，0 失败
+============================================================
+✅ TestHotNewsModel (4 测试)
+✅ TestSubscriptionModel (2 测试)
+✅ TestPaginatedResponse (1 测试)
+✅ TestHotNewsService (6 测试)
+✅ TestIntegration (1 测试)
+```
+
+### 下一步
+
+- [ ] Phase 2: 数据采集整合 + 筛选功能
+- [ ] Phase 3: 前端界面 + 实时刷新
 
 ---
 
@@ -47,6 +132,39 @@
 **事实核查**:
 - ✅ 自动提取 5 类事实
 - ✅ 交叉验证 + 可疑模式检测
+
+---
+
+## 🏗️ 2026-03-01 V3 架构重构 (启动)
+
+**启动时间**: 2026-03-01 18:00 (UTC+8)
+**状态**: 🔄 进行中
+**目标**: 重新设计热点 + 选题 + 写作三大核心模块
+
+### V3 模块设计
+
+| 模块 | 核心能力 | 状态 |
+|------|---------|------|
+| **热点中心** | 可视化展示 + 多维度筛选 + 实时刷新 | 🔄 开发中 |
+| **智能选题** | 多行业 + 多角度 + 批量生成 + 智能评分 | ⏳ 待开发 |
+| **写作工厂** | 技巧库 + 风格定义 + 可视化配置 + 质量评估 | ⏳ 待开发 |
+
+### Phase 1: 热点中心 (3 天)
+- **Day 1**: 数据库设计 + API 框架 🔄
+- **Day 2**: 数据采集整合 + 筛选功能 ⏳
+- **Day 3**: 前端界面 + 实时刷新 ⏳
+
+### 开发进展
+- ✅ 完成 V3 模块设计方案 (`docs/V3_MODULE_DESIGN.md`)
+- ✅ 启动 Subagent 开发 Phase 1 (热点中心)
+- 🔄 等待 Phase 1 交付物
+
+### 预期交付 (Phase 1)
+1. `models/hotnews.py` - 数据模型
+2. `core/hotnews_service.py` - 核心服务
+3. `api/v3/hotnews.py` - API 路由
+4. 数据库迁移脚本
+5. 测试用例
 
 **文章评分**:
 - ✅ 4 维度评分 (内容/结构/表达/传播)
