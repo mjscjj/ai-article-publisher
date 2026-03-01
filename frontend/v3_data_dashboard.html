@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>数据看板 - V3 Analytics Dashboard</title>
+    <link rel="stylesheet" href="css/v3-design-tokens.css">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         * {
@@ -648,5 +649,164 @@
             }
         }
     </script>
+
+        <script>
+        // V3 全局命名空间
+        window.V3 = window.V3 || {};
+
+        // 工具函数
+        V3.Utils = {
+            storage: {
+                get: function(key) {
+                    try {
+                        return JSON.parse(localStorage.getItem('v3_' + key));
+                    } catch (e) {
+                        return null;
+                    }
+                },
+                set: function(key, value) {
+                    localStorage.setItem('v3_' + key, JSON.stringify(value));
+                }
+            },
+            copyToClipboard: async function(text) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+        };
+
+        // 主题管理
+        V3.Theme = {
+            toggle: function() {
+                const current = document.documentElement.getAttribute('data-theme');
+                const next = current === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', next);
+                V3.Utils.storage.set('theme', next);
+            },
+            init: function() {
+                const saved = V3.Utils.storage.get('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', saved);
+            }
+        };
+
+        // 通知系统
+        V3.Notification = {
+            show: function(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = 'v3-toast v3-toast-' + type;
+                toast.textContent = message;
+                toast.style.cssText = 'position:fixed;top:80px;right:24px;padding:12px 24px;background:var(--color-neutral-900);color:white;border-radius:8px;z-index:9999;animation:slideIn 0.3s ease;';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            },
+            info: function(msg) { this.show(msg, 'info'); },
+            success: function(msg) { this.show(msg, 'success'); },
+            error: function(msg) { this.show(msg, 'error'); }
+        };
+
+        // 用户管理
+        V3.User = {
+            isLoggedIn: function() { return true; },
+            getUser: function() { return { name: 'Admin', role: '管理员' }; },
+            logout: function() { V3.Notification.info('退出登录功能开发中...'); }
+        };
+
+        // 侧边栏管理
+        V3.Sidebar = {
+            toggle: function() {
+                const sidebar = document.querySelector('.v3-sidebar');
+                const breadcrumb = document.querySelector('.v3-breadcrumb');
+                if (sidebar) {
+                    sidebar.classList.toggle('collapsed');
+                    if (breadcrumb) {
+                        breadcrumb.classList.toggle('sidebar-collapsed');
+                    }
+                }
+            },
+            renderRecent: function() {
+                const container = document.getElementById('v3-sidebar-recent');
+                if (!container) return;
+                const recent = V3.Utils.storage.get('recent_pages') || [];
+                if (recent.length === 0) {
+                    container.innerHTML = '<div style="padding:10px 12px;color:var(--color-neutral-500);font-size:0.875rem;">暂无最近访问</div>';
+                    return;
+                }
+                container.innerHTML = recent.slice(0, 5).map(item => 
+                    '<a href="' + item.url + '" class="v3-sidebar-item" title="' + item.title + '">' +
+                    '<span class="v3-sidebar-item-icon">🕐</span>' +
+                    '<span class="v3-sidebar-item-label">' + item.title + '</span></a>'
+                ).join('');
+            },
+            clearRecent: function() {
+                V3.Utils.storage.set('recent_pages', []);
+                V3.Sidebar.renderRecent();
+                V3.Notification.success('已清空最近访问');
+            },
+            recordVisit: function(title, url) {
+                const recent = V3.Utils.storage.get('recent_pages') || [];
+                const filtered = recent.filter(item => item.url !== url);
+                filtered.unshift({ title, url, timestamp: Date.now() });
+                V3.Utils.storage.set('recent_pages', filtered.slice(0, 10));
+                V3.Sidebar.renderRecent();
+            }
+        };
+
+        // 面包屑导航
+        V3.Breadcrumb = {
+            share: async function() {
+                const url = window.location.href;
+                const success = await V3.Utils.copyToClipboard(url);
+                if (success) V3.Notification.success('链接已复制');
+                else V3.Notification.error('复制失败');
+            }
+        };
+
+        // 快捷键支持
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+K: 全局搜索（预留）
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                V3.Notification.info('全局搜索功能开发中...');
+            }
+            // Ctrl+B: 切换侧边栏
+            if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+                e.preventDefault();
+                V3.Sidebar.toggle();
+            }
+            // Ctrl+R: 刷新
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                e.preventDefault();
+                window.location.reload();
+            }
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            V3.Theme.init();
+            V3.Sidebar.renderRecent();
+            V3.Sidebar.recordVisit('数据看板', window.location.pathname);
+            
+            // 高亮当前模块
+            const currentPath = window.location.pathname.split('/').pop();
+            document.querySelectorAll('.v3-navbar-link, .v3-sidebar-item').forEach(el => {
+                const href = el.getAttribute('href');
+                if (href && href === currentPath) {
+                    el.classList.add('active');
+                }
+            });
+        });
+
+        // 用户菜单切换
+        document.addEventListener('click', function(e) {
+            const userMenu = document.querySelector('.v3-navbar-user');
+            if (userMenu && !userMenu.contains(e.target)) {
+                userMenu.setAttribute('aria-expanded', 'false');
+            }
+        });
+        </script>
+
 </body>
 </html>

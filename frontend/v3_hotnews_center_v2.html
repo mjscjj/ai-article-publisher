@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V3 热点中心 - HotNews Center</title>
+    <link rel="stylesheet" href="../../frontend/css/v3-design-tokens.css">
+    <link rel="stylesheet" href="../../frontend/css/v3-unified-v2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* 热点中心特定样式 */
+        .hotnews-stat-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 200ms ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .hotnews-stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        [data-theme="dark"] .hotnews-stat-card {
+            background: var(--gray-800);
+            border-color: var(--gray-700);
+        }
+
+        .hotnews-stat-label {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+        }
+
+        .hotnews-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .hotnews-filter-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        [data-theme="dark"] .hotnews-filter-card {
+            background: var(--gray-800);
+            border-color: var(--gray-700);
+        }
+
+        .hotnews-item {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 200ms ease;
+            cursor: pointer;
+        }
+
+        .hotnews-item:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-300);
+        }
+
+        [data-theme="dark"] .hotnews-item {
+            background: var(--gray-800);
+            border-color: var(--gray-700);
+        }
+
+        [data-theme="dark"] .hotnews-item:hover {
+            border-color: var(--primary-600);
+        }
+
+        .hotnews-grid-item {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 200ms ease;
+            cursor: pointer;
+        }
+
+        .hotnews-grid-item:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+        }
+
+        [data-theme="dark"] .hotnews-grid-item {
+            background: var(--gray-800);
+            border-color: var(--gray-700);
+        }
+
+        .v3-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 9999px;
+            white-space: nowrap;
+        }
+
+        .v3-badge-gray {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .v3-badge-info {
+            background: var(--info-50);
+            color: var(--info-700);
+        }
+
+        .v3-badge-primary {
+            background: var(--primary-100);
+            color: var(--primary-700);
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* 响应式网格 */
+        .hotnews-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .hotnews-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hotnews-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 加载动画 */
+        .v3-loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--gray-200);
+            border-top-color: var(--primary-500);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 弹窗样式 */
+        .v3-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .v3-modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-2xl);
+        }
+
+        [data-theme="dark"] .v3-modal {
+            background: var(--gray-800);
+        }
+
+        /* 快捷键提示 */
+        .shortcut-hint {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--gray-900);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            opacity: 0.9;
+            z-index: 1500;
+            box-shadow: var(--shadow-lg);
+        }
+
+        [data-theme="dark"] .shortcut-hint {
+            background: var(--gray-700);
+        }
+
+        .shortcut-key {
+            display: inline-block;
+            padding: 2px 6px;
+            background: var(--gray-700);
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 0 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="v3-layout">
+        <!-- 统一导航栏 -->
+        <nav class="v3-navbar" role="navigation" aria-label="主导航栏">
+            <!-- Logo + 品牌名 -->
+            <a href="v3_portal.html" class="v3-navbar-brand">
+                <span class="v3-navbar-brand-logo">🔥</span>
+                <span class="v3-navbar-brand-label">热点中心</span>
+            </a>
+
+            <!-- 全局搜索框 -->
+            <div class="v3-navbar-search">
+                <div class="v3-search-box">
+                    <svg class="v3-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input 
+                        type="text" 
+                        class="v3-search-input" 
+                        placeholder="搜索热点、功能... (Ctrl+K)"
+                        aria-label="全局搜索"
+                        v-model="searchQuery"
+                        @keyup.enter="performSearch"
+                    />
+                    <kbd class="v3-search-shortcut">Ctrl+K</kbd>
+                </div>
+            </div>
+
+            <!-- 模块切换菜单 -->
+            <div class="v3-navbar-nav">
+                <a href="v3_portal.html" class="v3-navbar-link" data-module="portal">门户</a>
+                <a href="v3_coordinator.html" class="v3-navbar-link" data-module="coordinator">协调</a>
+                <a href="v3_workflow.html" class="v3-navbar-link" data-module="workflow">工作流</a>
+                <a href="v3_publish_center.html" class="v3-navbar-link" data-module="publish">发布</a>
+                <a href="v3_writing_factory.html" class="v3-navbar-link" data-module="writing">写作</a>
+                <a href="v3_data_dashboard.html" class="v3-navbar-link active" data-module="dashboard">数据</a>
+            </div>
+
+            <!-- 右侧操作区 -->
+            <div class="v3-navbar-actions">
+                <!-- 通知中心 -->
+                <div class="v3-navbar-notification" role="button" tabindex="0" aria-label="通知中心" @click="showNotifications">
+                    <svg class="v3-navbar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="v3-notification-badge" data-count="3">3</span>
+                </div>
+
+                <!-- 主题切换 -->
+                <button class="v3-navbar-theme-toggle" @click="toggleTheme" aria-label="切换主题" title="切换明/暗主题">
+                    <svg class="v3-theme-icon v3-theme-icon-light" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                    </svg>
+                    <svg class="v3-theme-icon v3-theme-icon-dark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+
+                <!-- 用户菜单 -->
+                <div class="v3-navbar-user" role="button" tabindex="0" aria-haspopup="menu" aria-label="用户菜单" @click.stop="toggleUserMenu">
+                    <div class="v3-navbar-user-avatar" id="navbar-user-avatar">A</div>
+                    <div class="v3-navbar-user-info">
+                        <span class="v3-navbar-user-name" id="navbar-user-name">Admin</span>
+                        <span class="v3-navbar-user-role" id="navbar-user-role">管理员</span>
+                    </div>
+                    <svg class="v3-navbar-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m6 9 6 6 6-6"></path>
+                    </svg>
+
+                    <!-- 下拉菜单 -->
+                    <div class="v3-user-dropdown" role="menu" :class="{ 'show': showUserDropdown }">
+                        <a href="/profile" class="v3-dropdown-item" role="menuitem">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            个人中心
+                        </a>
+                        <a href="/settings" class="v3-dropdown-item" role="menuitem">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            </svg>
+                            设置
+                        </a>
+                        <a href="/help" class="v3-dropdown-item" role="menuitem">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                <path d="M12 17h.01"></path>
+                            </svg>
+                            帮助文档
+                        </a>
+                        <div class="v3-dropdown-divider"></div>
+                        <button class="v3-dropdown-item v3-dropdown-logout" role="menuitem" @click="logout">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            退出登录
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 移动端汉堡菜单 -->
+                <button class="v3-navbar-menu-toggle" aria-label="菜单" aria-expanded="false" @click="toggleMobileMenu">
+                    <span class="v3-menu-bar"></span>
+                    <span class="v3-menu-bar"></span>
+                    <span class="v3-menu-bar"></span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- 统一侧边栏 -->
+        <aside class="v3-sidebar" role="navigation" aria-label="侧边导航" :class="{ 'collapsed': sidebarCollapsed, 'open': mobileMenuOpen }">
+            <div class="v3-sidebar-content">
+                <!-- 侧边栏切换按钮 -->
+                <button class="v3-sidebar-collapse-btn" @click="toggleSidebar" aria-label="折叠侧边栏" title="折叠/展开">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+
+                <!-- 主导航菜单 -->
+                <div class="v3-sidebar-section">
+                    <h3 class="v3-sidebar-title">主菜单</h3>
+                    <nav class="v3-sidebar-menu">
+                        <a href="v3_portal.html" class="v3-sidebar-item" data-module="portal">
+                            <span class="v3-sidebar-item-icon">🏠</span>
+                            <span class="v3-sidebar-item-label">门户首页</span>
+                        </a>
+                        <a href="v3_coordinator.html" class="v3-sidebar-item" data-module="coordinator">
+                            <span class="v3-sidebar-item-icon">🤖</span>
+                            <span class="v3-sidebar-item-label">智能协调</span>
+                        </a>
+                        <a href="v3_workflow.html" class="v3-sidebar-item" data-module="workflow">
+                            <span class="v3-sidebar-item-icon">🔄</span>
+                            <span class="v3-sidebar-item-label">工作流</span>
+                        </a>
+                        <a href="v3_publish_center.html" class="v3-sidebar-item" data-module="publish">
+                            <span class="v3-sidebar-item-icon">📤</span>
+                            <span class="v3-sidebar-item-label">发布中心</span>
+                        </a>
+                        <a href="v3_writing_factory.html" class="v3-sidebar-item" data-module="writing">
+                            <span class="v3-sidebar-item-icon">✍️</span>
+                            <span class="v3-sidebar-item-label">写作工厂</span>
+                        </a>
+                        <a href="v3_data_dashboard.html" class="v3-sidebar-item active" data-module="dashboard">
+                            <span class="v3-sidebar-item-icon">📊</span>
+                            <span class="v3-sidebar-item-label">数据看板</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- 页面特定菜单 -->
+                <div class="v3-sidebar-section">
+                    <h3 class="v3-sidebar-title">热点中心</h3>
+                    <nav class="v3-sidebar-menu">
+                        <a href="#" class="v3-sidebar-item active">
+                            <span class="v3-sidebar-item-icon">🔥</span>
+                            <span class="v3-sidebar-item-label">热点列表</span>
+                        </a>
+                        <a href="#" class="v3-sidebar-item" @click.prevent="showHeatAnalysis">
+                            <span class="v3-sidebar-item-icon">📈</span>
+                            <span class="v3-sidebar-item-label">热度分析</span>
+                        </a>
+                        <a href="#" class="v3-sidebar-item" @click.prevent="showSubscription">
+                            <span class="v3-sidebar-item-icon">🔔</span>
+                            <span class="v3-sidebar-item-label">订阅管理</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- 收藏功能 -->
+                <div class="v3-sidebar-section">
+                    <div class="v3-sidebar-header">
+                        <h3 class="v3-sidebar-title">收藏夹</h3>
+                        <button class="v3-sidebar-action-btn" aria-label="管理收藏" title="管理收藏" @click.stop="manageFavorites">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <nav class="v3-sidebar-menu" id="v3-sidebar-favorites">
+                        <a href="#" class="v3-sidebar-item v3-sidebar-item-favorite" v-for="(fav, idx) in favorites" :key="idx" @click.prevent="goToFav(fav)">
+                            <span class="v3-sidebar-item-icon">⭐</span>
+                            <span class="v3-sidebar-item-label">{{ fav.name }}</span>
+                        </a>
+                        <div v-if="favorites.length === 0" style="padding: 10px 12px; color: var(--gray-400); font-size: 0.875rem;">暂无收藏</div>
+                    </nav>
+                </div>
+
+                <!-- 最近访问 -->
+                <div class="v3-sidebar-section">
+                    <div class="v3-sidebar-header">
+                        <h3 class="v3-sidebar-title">最近访问</h3>
+                        <button class="v3-sidebar-clear-btn" @click="clearRecent" aria-label="清空最近访问">清空</button>
+                    </div>
+                    <nav class="v3-sidebar-menu" id="v3-sidebar-recent">
+                        <a href="#" class="v3-sidebar-item" v-for="(item, idx) in recentVisits" :key="idx" @click.prevent="goToRecent(item)">
+                            <span class="v3-sidebar-item-icon">🕐</span>
+                            <span class="v3-sidebar-item-label">{{ item.name }}</span>
+                        </a>
+                        <div v-if="recentVisits.length === 0" style="padding: 10px 12px; color: var(--gray-400); font-size: 0.875rem;">暂无最近访问</div>
+                    </nav>
+                </div>
+
+                <!-- 快捷操作 -->
+                <div class="v3-sidebar-section">
+                    <h3 class="v3-sidebar-title">快捷操作</h3>
+                    <div class="v3-sidebar-quick-actions">
+                        <button class="v3-sidebar-action" @click="quickAction('refresh')">
+                            <span class="v3-sidebar-item-icon">🔄</span>
+                            <span class="v3-sidebar-item-label">刷新数据</span>
+                        </button>
+                        <button class="v3-sidebar-action" @click="quickAction('export')">
+                            <span class="v3-sidebar-item-icon">📥</span>
+                            <span class="v3-sidebar-item-label">导出数据</span>
+                        </button>
+                        <button class="v3-sidebar-action" @click="quickAction('settings')">
+                            <span class="v3-sidebar-item-icon">⚙️</span>
+                            <span class="v3-sidebar-item-label">设置</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 系统状态 -->
+                <div class="v3-sidebar-section">
+                    <h3 class="v3-sidebar-title">系统状态</h3>
+                    <div class="v3-sidebar-status">
+                        <div class="v3-sidebar-status-item">
+                            <span class="v3-sidebar-status-label">服务状态</span>
+                            <span class="v3-status-indicator">
+                                <span class="v3-status-dot success"></span>
+                                <span>运行中</span>
+                            </span>
+                        </div>
+                        <div class="v3-sidebar-status-item">
+                            <span class="v3-sidebar-status-label">今日热点</span>
+                            <span class="v3-sidebar-status-value">{{ stats.total || 0 }}</span>
+                        </div>
+                        <div class="v3-sidebar-status-item">
+                            <span class="v3-sidebar-status-label">待处理</span>
+                            <span class="v3-sidebar-status-value" style="color: var(--warning-600);">{{ stats.pending || 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="v3-main" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
+            <div class="v3-content">
+                <!-- 统一面包屑导航 -->
+                <nav class="v3-breadcrumb" aria-label="面包屑导航">
+                    <ol class="v3-breadcrumb-list">
+                        <li class="v3-breadcrumb-item">
+                            <a href="v3_portal.html" class="v3-breadcrumb-link">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                </svg>
+                                <span>首页</span>
+                            </a>
+                        </li>
+                        <li class="v3-breadcrumb-item">
+                            <span class="v3-breadcrumb-link">热点中心</span>
+                        </li>
+                    </ol>
+                    <div class="v3-breadcrumb-actions">
+                        <button class="v3-breadcrumb-action-btn" @click="refreshData" aria-label="刷新" title="刷新 (F5)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <polyline points="1 20 1 14 7 14"></polyline>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                            </svg>
+                        </button>
+                        <button class="v3-breadcrumb-action-btn" @click="sharePage" aria-label="分享" title="分享当前页">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="18" cy="5" r="3"></circle>
+                                <circle cx="6" cy="12" r="3"></circle>
+                                <circle cx="18" cy="19" r="3"></circle>
+                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </nav>
+
+                <!-- 统计卡片 -->
+                <div class="v3-grid v3-grid-5 v3-mb-lg" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div class="hotnews-stat-card">
+                        <div class="hotnews-stat-label">总热点数</div>
+                        <div class="hotnews-stat-value" style="color: var(--primary-600);">{{ stats.total || 0 }}</div>
+                    </div>
+                    <div class="hotnews-stat-card">
+                        <div class="hotnews-stat-label">🔥 爆款</div>
+                        <div class="hotnews-stat-value" style="color: var(--danger-600);">{{ stats.explosive || 0 }}</div>
+                    </div>
+                    <div class="hotnews-stat-card">
+                        <div class="hotnews-stat-label">热门</div>
+                        <div class="hotnews-stat-value" style="color: var(--warning-600);">{{ stats.hot || 0 }}</div>
+                    </div>
+                    <div class="hotnews-stat-card">
+                        <div class="hotnews-stat-label">平台数</div>
+                        <div class="hotnews-stat-value" style="color: var(--secondary-600);">{{ stats.platforms || 0 }}</div>
+                    </div>
+                    <div class="hotnews-stat-card">
+                        <div class="hotnews-stat-label">订阅数</div>
+                        <div class="hotnews-stat-value" style="color: var(--success-600);">{{ stats.subscriptions || 0 }}</div>
+                    </div>
+                </div>
+
+                <!-- 筛选器 -->
+                <div class="hotnews-filter-card">
+                    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;">
+                        <div style="flex: 1; min-width: 200px;">
+                            <label class="v3-form-label" style="display: block; margin-bottom: 6px; font-size: 0.875rem; font-weight: 500; color: var(--gray-700);">🔍 关键词搜索</label>
+                            <input v-model="filters.keyword" @keyup.enter="loadHotnews" type="text" 
+                                   placeholder="搜索热点..." 
+                                   style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-300); border-radius: 8px; font-size: 0.875rem; background: var(--gray-50);"
+                            />
+                        </div>
+                        <div style="min-width: 140px;">
+                            <label class="v3-form-label" style="display: block; margin-bottom: 6px; font-size: 0.875rem; font-weight: 500; color: var(--gray-700);">平台</label>
+                            <select v-model="filters.platform" @change="loadHotnews" 
+                                    style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-300); border-radius: 8px; font-size: 0.875rem; background: white;">
+                                <option value="">全部平台</option>
+                                <option v-for="p in platforms" :key="p" :value="p">{{ p }}</option>
+                            </select>
+                        </div>
+                        <div style="min-width: 140px;">
+                            <label class="v3-form-label" style="display: block; margin-bottom: 6px; font-size: 0.875rem; font-weight: 500; color: var(--gray-700);">分类</label>
+                            <select v-model="filters.category" @change="loadHotnews"
+                                    style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-300); border-radius: 8px; font-size: 0.875rem; background: white;">
+                                <option value="">全部分类</option>
+                                <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
+                            </select>
+                        </div>
+                        <div style="min-width: 140px;">
+                            <label class="v3-form-label" style="display: block; margin-bottom: 6px; font-size: 0.875rem; font-weight: 500; color: var(--gray-700);">时间</label>
+                            <select v-model="filters.timeRange" @change="loadHotnews"
+                                    style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-300); border-radius: 8px; font-size: 0.875rem; background: white;">
+                                <option value="1h">最近 1 小时</option>
+                                <option value="6h">最近 6 小时</option>
+                                <option value="24h" selected>最近 24 小时</option>
+                                <option value="7d">最近 7 天</option>
+                            </select>
+                        </div>
+                        <div style="min-width: 140px;">
+                            <label class="v3-form-label" style="display: block; margin-bottom: 6px; font-size: 0.875rem; font-weight: 500; color: var(--gray-700);">热度</label>
+                            <select v-model="filters.minHeat" @change="loadHotnews"
+                                    style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-300); border-radius: 8px; font-size: 0.875rem; background: white;">
+                                <option value="0">全部热度</option>
+                                <option value="100000">🔥 10 万+</option>
+                                <option value="500000">🔥 50 万+</option>
+                                <option value="1000000">🔥 100 万+</option>
+                            </select>
+                        </div>
+                        <button @click="loadHotnews" class="v3-btn v3-btn-primary" style="height: 40px; padding: 0 20px; background: var(--primary-600); color: white; border: none; border-radius: 8px; font-weight: 500; cursor: pointer;">
+                            筛选
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 热点列表 -->
+                <div class="v3-card" style="background: white; border: 1px solid var(--gray-200); border-radius: 12px; box-shadow: var(--shadow-sm);">
+                    <div class="v3-card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--gray-200);">
+                        <div>
+                            <h3 class="v3-card-title" style="font-size: 1.125rem; font-weight: 600; color: var(--gray-900); margin: 0;">热点列表</h3>
+                            <p class="v3-text-sm v3-text-gray" style="font-size: 0.875rem; color: var(--gray-500); margin: 4px 0 0;">共 {{ hotnews.length }} 条 · 更新于 {{ lastUpdate }}</p>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button @click="toggleView('list')" :class="viewMode==='list' ? 'v3-btn-primary' : 'v3-btn-ghost'" class="v3-btn v3-btn-sm" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--gray-300); background: white; cursor: pointer;">
+                                📋 列表
+                            </button>
+                            <button @click="toggleView('grid')" :class="viewMode==='grid' ? 'v3-btn-primary' : 'v3-btn-ghost'" class="v3-btn v3-btn-sm" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--gray-300); background: white; cursor: pointer;">
+                                📊 网格
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div v-if="loading" class="v3-card-body" style="text-align: center; padding: 40px;">
+                        <div class="v3-loading-spinner"></div>
+                        <p class="v3-text-gray v3-mt-md" style="color: var(--gray-500); margin-top: 16px;">加载中...</p>
+                    </div>
+
+                    <div v-else-if="hotnews.length === 0" class="v3-card-body" style="text-align: center; padding: 40px;">
+                        <p class="v3-text-gray" style="color: var(--gray-500);">暂无热点数据，点击刷新按钮获取最新热点</p>
+                    </div>
+
+                    <!-- 列表视图 -->
+                    <div v-else-if="viewMode==='list'" class="divide-y">
+                        <div v-for="item in hotnews" :key="item.id" 
+                             class="hotnews-item"
+                             :style="getHeatStyle(item.heat_level)"
+                             @click="showDetail(item)">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div style="flex: 1;">
+                                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                                        <span class="v3-badge v3-badge-gray">{{ item.platform }}</span>
+                                        <span class="v3-badge v3-badge-info">{{ item.category }}</span>
+                                        <span class="v3-text-xs v3-text-gray" style="font-size: 0.75rem; color: var(--gray-500);">{{ formatTime(item.publish_time) }}</span>
+                                    </div>
+                                    <h3 class="v3-font-semibold v3-text-lg v3-mb-sm" style="font-weight: 600; font-size: 1.125rem; margin-bottom: 8px; color: var(--gray-900);">{{ item.title }}</h3>
+                                    <p class="v3-text-sm v3-text-gray line-clamp-2" style="font-size: 0.875rem; color: var(--gray-600);">{{ item.content || item.description }}</p>
+                                </div>
+                                <div class="text-right ml-4" style="text-align: right; margin-left: 16px;">
+                                    <div class="v3-text-xl v3-font-bold" :class="getHeatColor(item.heat_count)" style="font-size: 1.25rem; font-weight: 700;">
+                                        🔥 {{ formatHeat(item.heat_count) }}
+                                    </div>
+                                    <div class="v3-text-xs v3-text-gray v3-mt-sm" style="font-size: 0.75rem; color: var(--gray-500); margin-top: 4px;">{{ item.heat_level }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 网格视图 -->
+                    <div v-else class="hotnews-grid" style="padding: 20px;">
+                        <div v-for="item in hotnews" :key="item.id" 
+                             class="hotnews-grid-item"
+                             :style="getHeatStyle(item.heat_level)"
+                             @click="showDetail(item)">
+                            <div style="margin-bottom: 12px;">
+                                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                                    <span class="v3-badge v3-badge-gray">{{ item.platform }}</span>
+                                    <span class="v3-badge v3-badge-info">{{ item.category }}</span>
+                                </div>
+                                <h3 class="v3-font-semibold v3-mb-md line-clamp-3" style="font-weight: 600; margin-bottom: 12px; color: var(--gray-900);">{{ item.title }}</h3>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span class="v3-text-xs v3-text-gray" style="font-size: 0.75rem; color: var(--gray-500);">{{ formatTime(item.publish_time) }}</span>
+                                <span class="v3-text-sm v3-font-bold" :class="getHeatColor(item.heat_count)" style="font-size: 0.875rem; font-weight: 700;">
+                                    🔥 {{ formatHeat(item.heat_count) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div v-if="hotnews.length > 0" class="v3-card-footer v3-flex v3-justify-between v3-items-center" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid var(--gray-200);">
+                        <button @click="changePage(-1)" :disabled="page<=1" class="v3-btn v3-btn-outline" style="padding: 8px 16px; border: 1px solid var(--gray-300); background: white; border-radius: 6px; cursor: pointer;" :disabled-style="page<=1 ? 'opacity: 0.5; cursor: not-allowed;' : ''">
+                            ← 上一页
+                        </button>
+                        <span class="v3-text-sm v3-text-gray" style="font-size: 0.875rem; color: var(--gray-500);">第 {{ page }} 页 / 共 {{ totalPages }} 页</span>
+                        <button @click="changePage(1)" class="v3-btn v3-btn-outline" style="padding: 8px 16px; border: 1px solid var(--gray-300); background: white; border-radius: 6px; cursor: pointer;">
+                            下一页 →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 热点详情弹窗 -->
+        <div v-if="selectedItem" class="v3-modal-overlay" @click.self="selectedItem=null">
+            <div class="v3-modal">
+                <div class="v3-card" style="max-width: 800px; width: 100%;">
+                    <div class="v3-card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--gray-200);">
+                        <h3 class="v3-card-title" style="font-size: 1.25rem; font-weight: 600; color: var(--gray-900); margin: 0;">热点详情</h3>
+                        <button @click="selectedItem=null" class="v3-btn v3-btn-ghost v3-btn-icon" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: none; background: transparent; border-radius: 6px; cursor: pointer;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="v3-card-body" style="padding: 20px;">
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 16px;">
+                            <span class="v3-badge v3-badge-gray">{{ selectedItem.platform }}</span>
+                            <span class="v3-badge v3-badge-info">{{ selectedItem.category }}</span>
+                        </div>
+                        
+                        <h2 class="v3-text-2xl v3-font-bold v3-mb-md" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 16px; color: var(--gray-900);">{{ selectedItem.title }}</h2>
+                        
+                        <div class="v3-flex v3-gap-md v3-items-center v3-text-sm v3-text-gray v3-mb-md" style="display: flex; gap: 16px; align-items: center; font-size: 0.875rem; color: var(--gray-500); margin-bottom: 16px;">
+                            <span>🔥 {{ formatHeat(selectedItem.heat_count) }}</span>
+                            <span>📅 {{ formatTime(selectedItem.publish_time) }}</span>
+                            <span>🕐 采集：{{ formatTime(selectedItem.crawl_time) }}</span>
+                        </div>
+
+                        <div class="v3-p-md v3-bg-gray-50 v3-rounded v3-mb-md" style="padding: 16px; background: var(--gray-50); border-radius: 8px; margin-bottom: 16px;">
+                            <p class="v3-text-gray-700" style="color: var(--gray-700); line-height: 1.6;">{{ selectedItem.content || selectedItem.description }}</p>
+                        </div>
+
+                        <a :href="selectedItem.source_url" target="_blank" class="v3-btn v3-btn-primary" style="display: inline-block; padding: 10px 20px; background: var(--primary-600); color: white; border-radius: 8px; text-decoration: none; font-weight: 500;">
+                            🔗 查看原文
+                        </a>
+
+                        <div class="v3-flex v3-gap-md v3-mt-lg" style="display: flex; gap: 16px; margin-top: 24px;">
+                            <button @click="createTopic(selectedItem)" class="v3-btn v3-btn-success flex-1" style="flex: 1; padding: 10px 20px; background: var(--success-600); color: white; border: none; border-radius: 8px; font-weight: 500; cursor: pointer;">
+                                📝 一键选题
+                            </button>
+                            <button @click="subscribe(selectedItem)" class="v3-btn v3-btn-secondary flex-1" style="flex: 1; padding: 10px 20px; background: var(--secondary-600); color: white; border: none; border-radius: 8px; font-weight: 500; cursor: pointer;">
+                                🔔 订阅
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快捷键提示 -->
+        <div class="shortcut-hint" v-if="showShortcutHint">
+            <span class="shortcut-key">Alt+1~5</span> 切换模块
+            <span class="shortcut-key" style="margin-left: 8px;">Alt+S</span> 侧边栏
+            <span class="shortcut-key" style="margin-left: 8px;">Alt+H</span> 首页
+            <span class="shortcut-key" style="margin-left: 8px;">Ctrl+K</span> 搜索
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    API_BASE: 'http://43.134.234.4:8000/api/v3',
+                    loading: false,
+                    refreshing: false,
+                    hotnews: [],
+                    selectedItem: null,
+                    viewMode: 'list',
+                    page: 1,
+                    pageSize: 50,
+                    total: 0,
+                    lastUpdate: '-',
+                    stats: { total: 0, explosive: 0, hot: 0, platforms: 0, subscriptions: 0, pending: 0 },
+                    filters: {
+                        keyword: '',
+                        platform: '',
+                        category: '',
+                        timeRange: '24h',
+                        minHeat: '0'
+                    },
+                    platforms: ['微博', '知乎', 'B 站', '抖音', '快手', '小红书', '豆瓣', '虎扑'],
+                    categories: ['科技', '教育', '财经', '娱乐', '体育', '健康', '职场', '生活'],
+                    searchQuery: '',
+                    sidebarCollapsed: false,
+                    mobileMenuOpen: false,
+                    showUserDropdown: false,
+                    favorites: [],
+                    recentVisits: [],
+                    showShortcutHint: true
+                }
+            },
+            computed: {
+                totalPages() {
+                    return Math.ceil(this.total / this.pageSize);
+                }
+            },
+            mounted() {
+                this.loadHotnews();
+                this.loadStats();
+                this.loadFavorites();
+                this.loadRecentVisits();
+                this.initTheme();
+                this.initKeyboardShortcuts();
+                
+                // 自动刷新 (5 分钟)
+                setInterval(() => {
+                    this.refreshData();
+                }, 300000);
+
+                // 3 秒后隐藏快捷键提示
+                setTimeout(() => {
+                    this.showShortcutHint = false;
+                }, 3000);
+
+                // 点击外部关闭用户菜单
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.v3-navbar-user')) {
+                        this.showUserDropdown = false;
+                    }
+                });
+            },
+            methods: {
+                getHeatStyle(level) {
+                    const styles = {
+                        '🔥100 万+': { borderLeft: '4px solid #ef4444', background: 'linear-gradient(90deg, #fef2f2 0%, transparent 100%)' },
+                        '🔥50 万+': { borderLeft: '4px solid #f97316', background: 'linear-gradient(90deg, #fff7ed 0%, transparent 100%)' },
+                        '🔥10 万+': { borderLeft: '4px solid #eab308', background: 'linear-gradient(90deg, #fefce8 0%, transparent 100%)' },
+                        '正常': { borderLeft: '4px solid #22c55e' }
+                    };
+                    return styles[level] || {};
+                },
+                getHeatColor(count) {
+                    if (count >= 1000000) return 'v3-text-danger';
+                    if (count >= 500000) return 'v3-text-warning';
+                    if (count >= 100000) return 'v3-text-yellow-600';
+                    return 'v3-text-success';
+                },
+                async loadHotnews() {
+                    this.loading = true;
+                    try {
+                        const params = new URLSearchParams({
+                            page: this.page,
+                            page_size: this.pageSize,
+                            ...this.filters
+                        });
+                        const res = await fetch(`${this.API_BASE}/hotnews?${params}`);
+                        const data = await res.json();
+                        this.hotnews = data.data || [];
+                        this.total = data.total || this.hotnews.length;
+                        this.lastUpdate = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+                        
+                        // 记录访问
+                        this.recordVisit('热点列表', window.location.href);
+                    } catch (e) {
+                        console.error('加载失败:', e);
+                        this.hotnews = this.getMockData();
+                        this.total = this.hotnews.length;
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                async loadStats() {
+                    try {
+                        const res = await fetch(`${this.API_BASE}/hotnews/statistics`);
+                        const data = await res.json();
+                        this.stats = data.data || this.stats;
+                    } catch (e) {
+                        console.error('统计加载失败:', e);
+                        // 使用模拟数据
+                        this.stats = {
+                            total: Math.floor(Math.random() * 1000) + 500,
+                            explosive: Math.floor(Math.random() * 50) + 10,
+                            hot: Math.floor(Math.random() * 200) + 50,
+                            platforms: 8,
+                            subscriptions: Math.floor(Math.random() * 100) + 20,
+                            pending: Math.floor(Math.random() * 20) + 5
+                        };
+                    }
+                },
+                async refreshData() {
+                    this.refreshing = true;
+                    await this.loadHotnews();
+                    await this.loadStats();
+                    this.refreshing = false;
+                },
+                showDetail(item) {
+                    this.selectedItem = item;
+                    this.recordVisit(item.title.substring(0, 20) + '...', '#detail');
+                },
+                createTopic(item) {
+                    this.showToast('success', `已创建选题：${item.title.substring(0, 20)}...`);
+                    // window.location.href = 'v3_topic_intelligence.html';
+                },
+                async subscribe(item) {
+                    try {
+                        await fetch(`${this.API_BASE}/hotnews/subscribe`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                keyword: item.title,
+                                category: item.category
+                            })
+                        });
+                        this.showToast('success', '订阅成功');
+                        this.stats.subscriptions++;
+                    } catch (e) {
+                        this.showToast('error', '订阅失败');
+                    }
+                },
+                toggleView(mode) {
+                    this.viewMode = mode;
+                },
+                changePage(delta) {
+                    const newPage = this.page + delta;
+                    if (newPage >= 1 && newPage <= this.totalPages) {
+                        this.page = newPage;
+                        this.loadHotnews();
+                    }
+                },
+                performSearch() {
+                    if (this.searchQuery.trim()) {
+                        this.filters.keyword = this.searchQuery.trim();
+                        this.loadHotnews();
+                    }
+                },
+                toggleTheme() {
+                    const html = document.documentElement;
+                    const currentTheme = html.getAttribute('data-theme');
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    html.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('v3_theme', newTheme);
+                    this.showToast('info', `已切换到${newTheme === 'dark' ? '暗色' : '明色'}模式`);
+                },
+                initTheme() {
+                    const savedTheme = localStorage.getItem('v3_theme') || 'light';
+                    document.documentElement.setAttribute('data-theme', savedTheme);
+                },
+                toggleSidebar() {
+                    this.sidebarCollapsed = !this.sidebarCollapsed;
+                    localStorage.setItem('v3_sidebar_collapsed', this.sidebarCollapsed);
+                },
+                toggleMobileMenu() {
+                    this.mobileMenuOpen = !this.mobileMenuOpen;
+                },
+                toggleUserMenu() {
+                    this.showUserDropdown = !this.showUserDropdown;
+                },
+                logout() {
+                    this.showToast('info', '退出登录功能开发中...');
+                    this.showUserDropdown = false;
+                },
+                showNotifications() {
+                    this.showToast('info', '通知中心开发中...');
+                },
+                showHeatAnalysis() {
+                    this.showToast('info', '热度分析功能开发中...');
+                },
+                showSubscription() {
+                    this.showToast('info', '订阅管理功能开发中...');
+                },
+                manageFavorites() {
+                    this.showToast('info', '收藏管理功能开发中...');
+                },
+                goToFav(fav) {
+                    this.showToast('info', `跳转到：${fav.name}`);
+                },
+                goToRecent(item) {
+                    this.showToast('info', `跳转到：${item.name}`);
+                },
+                clearRecent() {
+                    this.recentVisits = [];
+                    localStorage.removeItem('v3_recent_visits');
+                    this.showToast('success', '已清空最近访问');
+                },
+                quickAction(action) {
+                    const actions = {
+                        refresh: () => {
+                            this.refreshData();
+                            this.showToast('success', '数据已刷新');
+                        },
+                        export: () => {
+                            this.showToast('info', '导出功能开发中...');
+                        },
+                        settings: () => {
+                            this.showToast('info', '设置功能开发中...');
+                        }
+                    };
+                    if (actions[action]) actions[action]();
+                },
+                sharePage() {
+                    const url = window.location.href;
+                    navigator.clipboard.writeText(url).then(() => {
+                        this.showToast('success', '链接已复制到剪贴板');
+                    }).catch(() => {
+                        this.showToast('error', '复制失败');
+                    });
+                },
+                refreshData() {
+                    this.loadHotnews();
+                    this.loadStats();
+                    this.showToast('success', '数据已刷新');
+                },
+                formatHeat(count) {
+                    if (count >= 1000000) return (count/1000000).toFixed(1) + '万';
+                    if (count >= 10000) return (count/10000).toFixed(1) + '万';
+                    return count.toLocaleString();
+                },
+                formatTime(timeStr) {
+                    if (!timeStr) return '-';
+                    const date = new Date(timeStr);
+                    return date.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                },
+                getMockData() {
+                    return Array.from({length: 30}, (_, i) => ({
+                        id: `mock_${i}`,
+                        title: `热点标题示例 ${i+1} - AI 教育引发热议，行业专家深度解读最新趋势`,
+                        content: '这是热点内容描述，展示热点的核心信息和关键要点。人工智能在教育领域的应用正在改变传统教学模式...',
+                        platform: ['微博', '知乎', 'B 站', '抖音'][i%4],
+                        category: ['科技', '教育', '财经', '娱乐'][i%4],
+                        heat_count: Math.floor(Math.random() * 2000000),
+                        heat_level: ['🔥100 万+', '🔥50 万+', '🔥10 万+', '正常'][i%4],
+                        source_url: 'https://example.com',
+                        publish_time: new Date(Date.now() - Math.random() * 86400000).toISOString(),
+                        crawl_time: new Date().toISOString()
+                    }));
+                },
+                showToast(type, message) {
+                    // 简化的 toast 实现
+                    const toast = document.createElement('div');
+                    toast.style.cssText = `
+                        position: fixed;
+                        top: 80px;
+                        right: 20px;
+                        padding: 12px 20px;
+                        background: ${type === 'success' ? 'var(--success-600)' : type === 'error' ? 'var(--danger-600)' : 'var(--gray-700)'};
+                        color: white;
+                        border-radius: 8px;
+                        box-shadow: var(--shadow-lg);
+                        z-index: 3000;
+                        animation: slideIn 0.3s ease;
+                    `;
+                    toast.textContent = message;
+                    document.body.appendChild(toast);
+                    setTimeout(() => {
+                        toast.style.opacity = '0';
+                        toast.style.transition = 'opacity 0.3s ease';
+                        setTimeout(() => toast.remove(), 300);
+                    }, 2000);
+                },
+                initKeyboardShortcuts() {
+                    document.addEventListener('keydown', (e) => {
+                        // Alt + 1~5: 快速切换模块
+                        if (e.altKey && e.key >= '1' && e.key <= '5') {
+                            e.preventDefault();
+                            const pages = ['v3_portal.html', 'v3_coordinator.html', 'v3_workflow.html', 'v3_publish_center.html', 'v3_data_dashboard.html'];
+                            const index = parseInt(e.key) - 1;
+                            if (pages[index]) {
+                                window.location.href = pages[index];
+                            }
+                        }
+                        
+                        // Alt + S: 切换侧边栏
+                        if (e.altKey && e.key === 's') {
+                            e.preventDefault();
+                            this.toggleSidebar();
+                        }
+                        
+                        // Alt + H: 返回首页
+                        if (e.altKey && e.key === 'h') {
+                            e.preventDefault();
+                            window.location.href = 'v3_portal.html';
+                        }
+                        
+                        // Ctrl + K: 聚焦搜索框
+                        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                            e.preventDefault();
+                            const searchInput = document.querySelector('.v3-search-input');
+                            if (searchInput) {
+                                searchInput.focus();
+                            }
+                        }
+                        
+                        // F5: 刷新数据
+                        if (e.key === 'F5') {
+                            e.preventDefault();
+                            this.refreshData();
+                        }
+                        
+                        // Escape: 关闭弹窗
+                        if (e.key === 'Escape') {
+                            this.selectedItem = null;
+                            this.showUserDropdown = false;
+                        }
+                    });
+                },
+                loadFavorites() {
+                    const saved = localStorage.getItem('v3_favorites');
+                    if (saved) {
+                        this.favorites = JSON.parse(saved);
+                    }
+                },
+                loadRecentVisits() {
+                    const saved = localStorage.getItem('v3_recent_visits');
+                    if (saved) {
+                        this.recentVisits = JSON.parse(saved);
+                    }
+                },
+                recordVisit(name, url) {
+                    const visit = { name, url, timestamp: Date.now() };
+                    const existing = this.recentVisits.findIndex(v => v.url === url);
+                    if (existing > -1) {
+                        this.recentVisits.splice(existing, 1);
+                    }
+                    this.recentVisits.unshift(visit);
+                    this.recentVisits = this.recentVisits.slice(0, 10);
+                    localStorage.setItem('v3_recent_visits', JSON.stringify(this.recentVisits));
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
