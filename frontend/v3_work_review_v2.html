@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作 Review - V3 统一门户</title>
+    <link rel="stylesheet" href="../css/v3-design-tokens.css">
+    <link rel="stylesheet" href="../css/v3-unified.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
+        <!-- 导航栏 -->
+        <nav class="navbar bg-white shadow-md fixed top-0 left-0 right-0 z-50">
+            <div class="navbar-brand px-4 flex items-center justify-between">
+                <div class="flex items-center space-x-3"><span class="text-2xl">🔍</span><span class="text-xl font-bold text-gray-900">工作 Review</span></div>
+                <button @click="toggleSidebar" class="md:hidden p-2 rounded hover:bg-gray-100"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            </div>
+            <div class="navbar-menu hidden md:flex px-4 space-x-4">
+                <a v-for="module in modules" :key="module.id" :href="module.url" class="px-3 py-2 rounded hover:bg-gray-100">{{module.icon}} {{module.name}}</a>
+            </div>
+            <div class="navbar-actions px-4 flex items-center space-x-3">
+                <button @click="toggleTheme" class="p-2 rounded hover:bg-gray-100">{{isDark ? '☀️' : '🌙'}}</button>
+                <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-white font-semibold">U</div>
+            </div>
+        </nav>
+
+        <!-- 侧边栏 -->
+        <aside :class="['sidebar fixed left-0 top-16 bottom-0 w-64 bg-white shadow-lg transform transition-transform z-40', isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0']">
+            <div class="sidebar-menu p-4 space-y-2">
+                <a v-for="item in sidebarItems" :key="item.id" :href="item.url" class="block px-4 py-2 rounded hover:bg-gray-100">{{item.icon}} {{item.name}}</a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content ml-0 md:ml-64 mt-16 p-6">
+            <div class="breadcrumb mb-4 flex items-center space-x-2 text-sm text-gray-600">
+                <a href="v3_portal_v2.html" class="hover:text-primary-500">首页</a><span>/</span><span class="text-gray-900 font-medium">工作 Review</span>
+            </div>
+
+            <div class="page-content space-y-6">
+                <!-- 统计卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div class="bg-white rounded-lg shadow p-4"><div class="text-sm text-gray-500">平均评分</div><div class="text-2xl font-bold" :class="getScoreColor(avgScore)">{{avgScore}}</div></div>
+                    <div class="bg-white rounded-lg shadow p-4"><div class="text-sm text-gray-500">代码质量</div><div class="text-2xl font-bold" :class="getScoreColor(codeScore)">{{codeScore || '-'}}</div></div>
+                    <div class="bg-white rounded-lg shadow p-4"><div class="text-sm text-gray-500">文档质量</div><div class="text-2xl font-bold" :class="getScoreColor(docScore)">{{docScore || '-'}}</div></div>
+                    <div class="bg-white rounded-lg shadow p-4"><div class="text-sm text-gray-500">项目进度</div><div class="text-2xl font-bold" :class="getScoreColor(progressScore)">{{progressScore || '-'}}</div></div>
+                    <div class="bg-white rounded-lg shadow p-4"><div class="text-sm text-gray-500">测试覆盖</div><div class="text-2xl font-bold" :class="getScoreColor(testScore)">{{testScore || '-'}}</div></div>
+                </div>
+
+                <!-- Review 类型选择 -->
+                <div class="bg-white rounded-lg shadow p-4">
+                    <h2 class="text-lg font-semibold mb-4">📋 Review 类型</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <button @click="runCodeReview" :disabled="reviewing" class="p-4 rounded-lg border-2 hover:border-blue-500 hover:bg-blue-50"><div class="text-2xl mb-2">💻</div><div class="font-semibold">代码 Review</div><div class="text-xs text-gray-500">代码质量/架构/规范</div></button>
+                        <button @click="runDocReview" :disabled="reviewing" class="p-4 rounded-lg border-2 hover:border-blue-500 hover:bg-blue-50"><div class="text-2xl mb-2">📄</div><div class="font-semibold">文档 Review</div><div class="text-xs text-gray-500">完整性/清晰度</div></button>
+                        <button @click="runProgressReview" :disabled="reviewing" class="p-4 rounded-lg border-2 hover:border-blue-500 hover:bg-blue-50"><div class="text-2xl mb-2">📊</div><div class="font-semibold">进度 Review</div><div class="text-xs text-gray-500">开发效率/里程碑</div></button>
+                        <button @click="runTestReview" :disabled="reviewing" class="p-4 rounded-lg border-2 hover:border-blue-500 hover:bg-blue-50"><div class="text-2xl mb-2">🧪</div><div class="font-semibold">测试 Review</div><div class="text-xs text-gray-500">覆盖率/质量</div></button>
+                        <button @click="runComprehensiveReview" :disabled="reviewing" class="p-4 rounded-lg border-2 hover:border-blue-500 hover:bg-blue-50 bg-blue-50"><div class="text-2xl mb-2">🚀</div><div class="font-semibold">全面 Review</div><div class="text-xs text-gray-500">全部维度</div></button>
+                    </div>
+                </div>
+
+                <!-- Review 结果 -->
+                <div v-if="currentResult" class="bg-white rounded-lg shadow p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900 mb-2">{{currentResult.review_type === 'comprehensive' ? '🚀 全面 Review' : '📝 ' + getReviewTypeName(currentResult.review_type)}}</h2>
+                            <p class="text-sm text-gray-500">Review 时间：{{formatTime(currentResult.reviewed_at)}}</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-4xl font-bold" :class="getScoreColor(currentResult.total_score)">{{currentResult.total_score}}</div>
+                            <div class="text-lg font-semibold">{{currentResult.grade}}级 - {{currentResult.recommendation}}</div>
+                        </div>
+                    </div>
+
+                    <!-- 子评价 -->
+                    <div v-if="currentResult.sub_reviews" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div v-for="(sub, key) in currentResult.sub_reviews" :key="key" class="p-4 rounded-lg border">
+                            <div class="text-sm text-gray-500 mb-1">{{getSubReviewName(key)}}</div>
+                            <div class="text-2xl font-bold" :class="getScoreColor(sub.total_score)">{{sub.total_score}}</div>
+                            <div class="text-xs">{{sub.grade}}级</div>
+                        </div>
+                    </div>
+
+                    <!-- 雷达图 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div><h3 class="text-sm font-semibold text-gray-700 mb-2">📊 评分维度</h3><canvas ref="radarChart"></canvas></div>
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-700 mb-2">📈 详细评分</h3>
+                            <div class="space-y-3">
+                                <div v-for="(score, dim) in getScores(currentResult)" :key="dim" class="flex items-center gap-2">
+                                    <span class="text-xs w-20">{{getDimensionName(dim)}}</span>
+                                    <div class="flex-1 bg-gray-200 rounded-full h-3"><div class="bg-blue-500 h-3 rounded-full" :style="{width: score + '%'}"></div></div>
+                                    <span class="text-xs w-10 text-right font-semibold">{{score}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 优点和建议 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><h3 class="text-sm font-semibold text-gray-700 mb-2">✅ 优点</h3><ul class="space-y-2"><li v-for="(s, i) in currentResult.overall_strengths" :key="i" class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-1">✓</span><span>{{s}}</span></li></ul></div>
+                        <div><h3 class="text-sm font-semibold text-gray-700 mb-2">💡 改进建议</h3><ul class="space-y-2"><li v-for="(s, i) in currentResult.overall_improvements" :key="i" class="flex items-start gap-2 text-sm text-gray-700"><span class="text-orange-500 mt-1">!</span><span>{{s}}</span></li></ul></div>
+                    </div>
+                </div>
+
+                <!-- Review 历史 -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-4 py-3 border-b"><h2 class="text-lg font-semibold">Review 历史</h2><p class="text-sm text-gray-500">最近 {{history.length}} 次 Review</p></div>
+                    <div class="divide-y">
+                        <div v-for="(item, i) in history" :key="i" class="p-4 hover:bg-gray-50 cursor-pointer" @click="loadReviewDetail(item)">
+                            <div class="flex justify-between items-center">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-xs px-2 py-0.5 rounded bg-blue-100">{{getReviewTypeName(item.review_type)}}</span>
+                                        <span class="text-xs text-gray-500">{{formatTime(item.reviewed_at)}}</span>
+                                    </div>
+                                    <div class="text-sm text-gray-600">{{item.recommendation || 'Review 记录'}}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-bold" :class="getScoreColor(item.total_score)">{{item.total_score}}</div>
+                                    <div class="text-sm font-semibold">{{item.grade}}级</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/components-loader.js"></script>
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    isDark: false, isSidebarOpen: false,
+                    reviewing: false, currentResult: null, history: [], chart: null,
+                    scores: {code: 0, doc: 0, progress: 0, test: 0},
+                    modules: [{id:'hotnews',name:'热点中心',icon:'🔥',url:'v3_hotnews_center_v2.html'},{id:'topics',name:'智能选题',icon:'🎯',url:'v3_topic_intelligence_v2.html'},{id:'evaluation',name:'工作评价',icon:'📊',url:'v3_evaluation_v2.html'},{id:'publish',name:'自动发布',icon:'📝',url:'v3_publish_center_v2.html'},{id:'dashboard',name:'数据看板',icon:'📈',url:'v3_data_dashboard_v2.html'}],
+                    sidebarItems: [{id:'home',name:'返回首页',icon:'🏠',url:'v3_portal_v2.html'},{id:'favorite',name:'我的收藏',icon:'⭐',url:'#'},{id:'recent',name:'最近访问',icon:'🕐',url:'#'},{id:'settings',name:'系统设置',icon:'⚙️',url:'v3_user_center_v2.html'}]
+                }
+            },
+            computed: {
+                avgScore() { const scores = [this.codeScore, this.docScore, this.progressScore, this.testScore].filter(s => s); return scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0; },
+                codeScore() { return this.currentResult?.sub_reviews?.code?.total_score || this.scores.code; },
+                docScore() { return this.currentResult?.sub_reviews?.documentation?.total_score || this.scores.doc; },
+                progressScore() { return this.currentResult?.sub_reviews?.progress?.total_score || this.scores.progress; },
+                testScore() { return this.currentResult?.sub_reviews?.tests?.total_score || this.scores.test; }
+            },
+            methods: {
+                toggleSidebar() { this.isSidebarOpen = !this.isSidebarOpen; },
+                toggleTheme() { this.isDark = !this.isDark; document.documentElement.classList.toggle('dark', this.isDark); localStorage.setItem('theme', this.isDark ? 'dark' : 'light'); },
+                runComprehensiveReview() { this.reviewing = true; setTimeout(() => { this.currentResult = this.getMockResult('comprehensive'); this.history.unshift(this.currentResult); this.reviewing = false; this.$nextTick(() => this.renderRadarChart()); }, 2000); },
+                runCodeReview() { this.reviewing = true; setTimeout(() => { this.currentResult = this.getMockResult('code'); this.history.unshift(this.currentResult); this.reviewing = false; }, 2000); },
+                runDocReview() { this.reviewing = true; setTimeout(() => { this.currentResult = this.getMockResult('doc'); this.reviewing = false; }, 2000); },
+                runProgressReview() { this.reviewing = true; setTimeout(() => { this.currentResult = this.getMockResult('progress'); this.reviewing = false; }, 2000); },
+                runTestReview() { this.reviewing = true; setTimeout(() => { this.currentResult = this.getMockResult('test'); this.reviewing = false; }, 2000); },
+                getMockResult(type) { return {review_type: type, total_score: 75+Math.random()*25, grade: ['S','A','B'][Math.floor(Math.random()*3)], recommendation: '持续改进', overall_strengths: ['代码质量高', '文档完善', '测试覆盖好'], overall_improvements: ['增加注释', '优化性能', '补充用例'], reviewed_at: new Date().toISOString(), sub_reviews: type === 'comprehensive' ? {code: {total_score: 85, grade: 'A'}, documentation: {total_score: 80, grade: 'A'}, progress: {total_score: 75, grade: 'B'}, tests: {total_score: 70, grade: 'B'}} : null}; },
+                getReviewTypeName(type) { const names = {code:'代码 Review', documentation:'文档 Review', progress:'进度 Review', tests:'测试 Review', comprehensive:'全面 Review'}; return names[type] || type; },
+                getSubReviewName(key) { const names = {code:'代码', documentation:'文档', progress:'进度', tests:'测试'}; return names[key] || key; },
+                getDimensionName(dim) { const names = {code_quality:'代码质量', architecture:'架构设计', error_handling:'错误处理', performance:'性能优化', test_coverage:'测试覆盖'}; return names[dim] || dim; },
+                getScores(result) { if (!result) return {}; if (result.scores) return result.scores; if (result.sub_reviews) return {code: result.sub_reviews.code?.total_score || 0, doc: result.sub_reviews.documentation?.total_score || 0, progress: result.sub_reviews.progress?.total_score || 0, test: result.sub_reviews.tests?.total_score || 0}; return {}; },
+                getScoreColor(score) { if (!score) return 'text-gray-400'; if (score >= 90) return 'text-yellow-600'; if (score >= 80) return 'text-blue-600'; if (score >= 70) return 'text-green-600'; if (score >= 60) return 'text-orange-600'; return 'text-red-600'; },
+                formatTime(timeStr) { if (!timeStr) return '-'; return new Date(timeStr).toLocaleString('zh-CN', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); },
+                loadReviewDetail(item) { this.currentResult = item; this.$nextTick(() => this.renderRadarChart()); },
+                renderRadarChart() { const ctx = this.$refs.radarChart; if (!ctx) return; if (this.chart) this.chart.destroy(); const scores = this.getScoreValues(this.currentResult); this.chart = new Chart(ctx, {type: 'radar', data: {labels: Object.keys(scores).map(k => this.getDimensionName(k)), datasets: [{label: '评分', data: Object.values(scores), backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: 'rgb(59, 130, 246)'}]}, options: {scales: {r: {suggestedMin: 0, suggestedMax: 100}}, plugins: {legend: {display: false}}}}); },
+                getScoreValues(result) { if (!result) return {}; return {code_quality: 85, architecture: 80, error_handling: 75, performance: 90, test_coverage: 70}; }
+            },
+            mounted() { loadComponents({title: '工作 Review', breadcrumbs: ['首页', '工作 Review']}); this.history = Array.from({length: 10}, (_, i) => ({review_type: ['comprehensive','code','doc'][i%3], total_score: 60+Math.random()*40, grade: ['S','A','B','C'][i%4], recommendation: '持续改进', reviewed_at: new Date().toISOString()})); }
+        }).mount('#app');
+    </script>
+</body>
+</html>

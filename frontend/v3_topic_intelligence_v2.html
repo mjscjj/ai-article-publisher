@@ -3,597 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V3 智能选题 - Topic Intelligence</title>
-    <link rel="stylesheet" href="css/v3-design-tokens.css">
-    <link rel="stylesheet" href="css/v3-unified.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>智能选题 - V3 统一门户</title>
+    <link rel="stylesheet" href="../css/v3-design-tokens.css">
+    <link rel="stylesheet" href="../css/v3-unified.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* ==================== 页面特定样式 ==================== */
-        
-        /* 选题卡片 */
-        .topic-card {
-            transition: all var(--transition-base);
-            cursor: pointer;
-            border-left: 4px solid transparent;
-            background: white;
-        }
-        .topic-card:hover {
-            transform: translateX(4px);
-            box-shadow: var(--shadow-lg);
-        }
-        .topic-card.s-grade { 
-            border-left-color: #f59e0b; 
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); 
-        }
-        .topic-card.a-grade { 
-            border-left-color: #3b82f6; 
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); 
-        }
-        .topic-card.b-grade { 
-            border-left-color: #10b981; 
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); 
-        }
-        .topic-card.c-grade { 
-            border-left-color: #9ca3af; 
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); 
-        }
-        
-        /* 等级徽章 */
-        .grade-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: var(--radius-lg);
-            font-weight: 700;
-            font-size: 0.875rem;
-            transition: all var(--transition-fast);
-        }
-        .grade-s { background: var(--warning-50); color: var(--warning-600); box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2); }
-        .grade-a { background: var(--primary-50); color: var(--primary-600); box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2); }
-        .grade-b { background: var(--success-50); color: var(--success-600); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2); }
-        .grade-c { background: var(--gray-100); color: var(--gray-600); }
-        
-        /* 文本截断 */
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .line-clamp-3 {
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        /* 加载动画 */
-        .loading-spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid var(--gray-200);
-            border-top-color: var(--primary-600);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        .loading-spinner-lg {
-            width: 64px;
-            height: 64px;
-            border-width: 5px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        /* 弹窗 */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: var(--z-index-modal);
-            padding: var(--spacing-lg);
-            animation: fadeIn 0.2s ease-out;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: var(--radius-xl);
-            max-width: 900px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: var(--shadow-2xl);
-            animation: slideUp 0.3s ease-out;
-        }
-        
-        /* 快捷键提示 */
-        .shortcut-hint {
-            position: fixed;
-            bottom: var(--spacing-lg);
-            right: var(--spacing-lg);
-            background: var(--gray-900);
-            color: white;
-            padding: var(--spacing-sm) var(--spacing-md);
-            border-radius: var(--radius-lg);
-            font-size: 0.75rem;
-            opacity: 0.8;
-            z-index: var(--z-index-sticky);
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-        }
-        
-        .shortcut-key {
-            display: inline-block;
-            background: var(--gray-700);
-            padding: 2px 6px;
-            border-radius: var(--radius-sm);
-            font-family: var(--font-family-mono);
-            margin: 0 2px;
-            border: 1px solid var(--gray-600);
-        }
-        
-        /* 筛选器样式 */
-        .filter-bar {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-md);
-            padding: var(--spacing-md) var(--spacing-lg);
-            background: var(--gray-50);
-            border-radius: var(--radius-lg);
-            margin-bottom: var(--spacing-lg);
-            flex-wrap: wrap;
-        }
-        
-        .filter-input {
-            flex: 1;
-            min-width: 200px;
-            padding: var(--spacing-sm) var(--spacing-md);
-            border: 1px solid var(--gray-300);
-            border-radius: var(--radius-md);
-            font-size: 0.875rem;
-            transition: all var(--transition-fast);
-        }
-        .filter-input:focus {
-            outline: none;
-            border-color: var(--primary-500);
-            box-shadow: 0 0 0 3px var(--primary-100);
-        }
-        
-        .filter-select {
-            padding: var(--spacing-sm) var(--spacing-md);
-            border: 1px solid var(--gray-300);
-            border-radius: var(--radius-md);
-            font-size: 0.875rem;
-            background: white;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-        }
-        .filter-select:focus {
-            outline: none;
-            border-color: var(--primary-500);
-        }
-        
-        /* 统计卡片增强 */
-        .v3-stat-card {
-            position: relative;
-            overflow: hidden;
-        }
-        .v3-stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 80px;
-            height: 80px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
-            border-radius: 0 0 0 100%;
-        }
-        
-        /* 通知徽章动画 */
-        .v3-notification-badge {
-            animation: pulse 2s infinite;
-        }
-        
-        /* 用户下拉菜单 */
-        .v3-user-dropdown {
-            transition: all var(--transition-fast);
-        }
-        
-        /* 侧边栏项徽章 */
-        .sidebar-badge {
-            position: absolute;
-            top: 4px;
-            right: 8px;
-            background: var(--danger-500);
-            color: white;
-            font-size: 0.625rem;
-            padding: 2px 5px;
-            border-radius: var(--radius-full);
-            min-width: 16px;
-            text-align: center;
-        }
-        
-        /* 响应式调整 */
-        @media (max-width: 768px) {
-            .shortcut-hint {
-                display: none;
-            }
-            .v3-stat-card::before {
-                display: none;
-            }
-        }
-        
-        /* 暗色模式支持 */
-        @media (prefers-color-scheme: dark) {
-            .topic-card { background: var(--gray-800); }
-            .modal-content { background: var(--gray-800); }
-            .shortcut-hint { background: var(--gray-700); }
-        }
-        
-        /* 打印样式 */
-        @media print {
-            .v3-navbar,
-            .v3-sidebar,
-            .shortcut-hint,
-            .v3-btn {
-                display: none !important;
-            }
-            .topic-card {
-                break-inside: avoid;
-            }
-        }
+        .score-s { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b; }
+        .score-a { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 4px solid #3b82f6; }
+        .score-b { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left: 4px solid #10b981; }
+        .score-c { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b; }
+        .score-d { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-left: 4px solid #ef4444; }
     </style>
 </head>
-<body>
-    <div id="app" class="v3-layout">
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
         <!-- 统一导航栏 -->
-        <nav class="v3-navbar" role="navigation" aria-label="主导航栏">
-            <a href="v3_portal.html" class="v3-navbar-brand">
-                <span class="v3-navbar-brand-logo">🎯</span>
-                <span class="v3-navbar-brand-label">智能选题</span>
-            </a>
-
-            <div class="v3-navbar-nav">
-                <a href="v3_portal.html" class="v3-navbar-link" data-module="portal">门户</a>
-                <a href="v3_coordinator.html" class="v3-navbar-link" data-module="coordinator">协调</a>
-                <a href="v3_workflow.html" class="v3-navbar-link" data-module="workflow">工作流</a>
-                <a href="v3_publish_center.html" class="v3-navbar-link" data-module="publish">发布</a>
-                <a href="v3_writing_factory.html" class="v3-navbar-link" data-module="writing">写作</a>
-                <a href="v3_data_dashboard.html" class="v3-navbar-link" data-module="dashboard">数据</a>
+        <nav class="navbar bg-white shadow-md fixed top-0 left-0 right-0 z-50">
+            <div class="navbar-brand px-4 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">🎯</span>
+                    <span class="text-xl font-bold text-gray-900">智能选题</span>
+                </div>
+                <button @click="toggleSidebar" class="md:hidden p-2 rounded hover:bg-gray-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
             </div>
-
-            <div class="v3-navbar-actions">
-                <div class="v3-navbar-notification" role="button" tabindex="0" aria-label="通知中心" style="position: relative; cursor: pointer;">
-                    <svg class="v3-navbar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                    </svg>
-                    <span class="v3-notification-badge" style="position: absolute; top: -4px; right: -4px; background: var(--danger-500); color: white; font-size: 0.625rem; padding: 2px 5px; border-radius: var(--radius-full); min-width: 16px; text-align: center;">3</span>
+            <div class="navbar-menu hidden md:flex px-4 space-x-4">
+                <a v-for="module in modules" :key="module.id" :href="module.url"
+                   class="px-3 py-2 rounded hover:bg-gray-100 transition-colors">
+                    {{module.icon}} {{module.name}}
+                </a>
+            </div>
+            <div class="navbar-actions px-4 flex items-center space-x-3">
+                <button @click="toggleTheme" class="p-2 rounded hover:bg-gray-100">{{isDark ? '☀️' : '🌙'}}</button>
+                <div class="user-menu flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-white font-semibold">U</div>
                 </div>
-
-                <button class="v3-navbar-theme-toggle" onclick="V3.Theme.toggle()" aria-label="切换主题" title="切换明/暗主题" style="background: none; border: none; cursor: pointer; padding: var(--spacing-sm); border-radius: var(--radius-md);">
-                    <svg class="v3-theme-icon v3-theme-icon-light" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
-                    </svg>
-                    <svg class="v3-theme-icon v3-theme-icon-dark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                </button>
-
-                <div class="v3-navbar-user" role="button" tabindex="0" aria-haspopup="menu" aria-label="用户菜单" style="position: relative;">
-                    <div class="v3-navbar-user-avatar" id="navbar-user-avatar">A</div>
-                    <div class="v3-navbar-user-info">
-                        <span class="v3-navbar-user-name" id="navbar-user-name">Admin</span>
-                        <span class="v3-navbar-user-role" id="navbar-user-role">管理员</span>
-                    </div>
-                    <svg class="v3-navbar-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="m6 9 6 6 6-6"></path>
-                    </svg>
-
-                    <div class="v3-user-dropdown" role="menu" style="position: absolute; top: 100%; right: 0; background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); min-width: 180px; display: none; z-index: var(--z-index-dropdown);">
-                        <a href="/profile" class="v3-dropdown-item" role="menuitem" style="display: flex; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); color: var(--gray-700); text-decoration: none;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            个人中心
-                        </a>
-                        <a href="/settings" class="v3-dropdown-item" role="menuitem" style="display: flex; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); color: var(--gray-700); text-decoration: none;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                            </svg>
-                            设置
-                        </a>
-                        <div class="v3-dropdown-divider" style="border-top: 1px solid var(--gray-200); margin: var(--spacing-xs) 0;"></div>
-                        <button class="v3-dropdown-item v3-dropdown-logout" role="menuitem" onclick="V3.User.logout()" style="display: flex; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); color: var(--danger-600); background: none; border: none; width: 100%; cursor: pointer;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                <polyline points="16 17 21 12 16 7"></polyline>
-                                <line x1="21" y1="12" x2="9" y2="12"></line>
-                            </svg>
-                            退出登录
-                        </button>
-                    </div>
-                </div>
-
-                <button class="v3-navbar-menu-toggle" aria-label="菜单" aria-expanded="false" style="display: none; background: none; border: none; padding: var(--spacing-sm); cursor: pointer;">
-                    <span class="v3-menu-bar" style="display: block; width: 20px; height: 2px; background: var(--gray-700); margin: 4px 0;"></span>
-                    <span class="v3-menu-bar" style="display: block; width: 20px; height: 2px; background: var(--gray-700); margin: 4px 0;"></span>
-                    <span class="v3-menu-bar" style="display: block; width: 20px; height: 2px; background: var(--gray-700); margin: 4px 0;"></span>
-                </button>
             </div>
         </nav>
 
-        <!-- 统一侧边栏 -->
-        <aside class="v3-sidebar" role="navigation" aria-label="侧边导航">
-            <div class="v3-sidebar-content">
-                <button class="v3-sidebar-collapse-btn" onclick="V3.Sidebar.toggle()" aria-label="折叠侧边栏" title="折叠/展开" style="background: none; border: none; cursor: pointer; padding: var(--spacing-sm); width: 100%; display: flex; justify-content: flex-end;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="15 18 9 12 15 6"></polyline>
-                    </svg>
-                </button>
-
-                <div class="v3-sidebar-section">
-                    <h3 class="v3-sidebar-title">主菜单</h3>
-                    <nav class="v3-sidebar-menu">
-                        <a href="v3_portal.html" class="v3-sidebar-item" data-module="portal">
-                            <span class="v3-sidebar-item-icon">🏠</span>
-                            <span class="v3-sidebar-item-label">门户首页</span>
-                        </a>
-                        <a href="v3_coordinator.html" class="v3-sidebar-item" data-module="coordinator">
-                            <span class="v3-sidebar-item-icon">🤖</span>
-                            <span class="v3-sidebar-item-label">智能协调</span>
-                        </a>
-                        <a href="v3_workflow.html" class="v3-sidebar-item" data-module="workflow">
-                            <span class="v3-sidebar-item-icon">🔄</span>
-                            <span class="v3-sidebar-item-label">工作流</span>
-                        </a>
-                        <a href="v3_publish_center.html" class="v3-sidebar-item" data-module="publish">
-                            <span class="v3-sidebar-item-icon">📤</span>
-                            <span class="v3-sidebar-item-label">发布中心</span>
-                        </a>
-                        <a href="v3_writing_factory.html" class="v3-sidebar-item" data-module="writing">
-                            <span class="v3-sidebar-item-icon">✍️</span>
-                            <span class="v3-sidebar-item-label">写作工厂</span>
-                        </a>
-                        <a href="v3_data_dashboard.html" class="v3-sidebar-item" data-module="dashboard">
-                            <span class="v3-sidebar-item-icon">📊</span>
-                            <span class="v3-sidebar-item-label">数据看板</span>
-                        </a>
-                    </nav>
-                </div>
-
-                <div class="v3-sidebar-section">
-                    <h3 class="v3-sidebar-title">智能选题</h3>
-                    <nav class="v3-sidebar-menu">
-                        <a href="#" class="v3-sidebar-item active">
-                            <span class="v3-sidebar-item-icon">📋</span>
-                            <span class="v3-sidebar-item-label">选题列表</span>
-                        </a>
-                        <a href="#" class="v3-sidebar-item">
-                            <span class="v3-sidebar-item-icon">📊</span>
-                            <span class="v3-sidebar-item-label">选题分析</span>
-                        </a>
-                        <a href="#" class="v3-sidebar-item">
-                            <span class="v3-sidebar-item-icon">✨</span>
-                            <span class="v3-sidebar-item-label">智能生成</span>
-                        </a>
-                    </nav>
-                </div>
-
-                <div class="v3-sidebar-section">
-                    <div class="v3-sidebar-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <h3 class="v3-sidebar-title">最近访问</h3>
-                        <button class="v3-sidebar-clear-btn" onclick="V3.Sidebar.clearRecent()" aria-label="清空最近访问" style="background: none; border: none; color: var(--gray-500); font-size: 0.75rem; cursor: pointer;">清空</button>
-                    </div>
-                    <nav class="v3-sidebar-menu" id="v3-sidebar-recent">
-                    </nav>
-                </div>
-
-                <div class="v3-sidebar-section">
-                    <h3 class="v3-sidebar-title">系统状态</h3>
-                    <div class="v3-sidebar-status">
-                        <div class="v3-sidebar-status-item">
-                            <span class="v3-sidebar-status-label">服务状态</span>
-                            <span class="v3-status-indicator">
-                                <span class="v3-status-dot success"></span>
-                                <span>运行中</span>
-                            </span>
-                        </div>
-                        <div class="v3-sidebar-status-item">
-                            <span class="v3-sidebar-status-label">今日任务</span>
-                            <span class="v3-sidebar-status-value" id="sidebar-task-count">12</span>
-                        </div>
-                    </div>
-                </div>
+        <!-- 侧边栏 -->
+        <aside :class="['sidebar fixed left-0 top-16 bottom-0 w-64 bg-white shadow-lg transform transition-transform duration-300 z-40', isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0']">
+            <div class="sidebar-menu p-4 space-y-2">
+                <a v-for="item in sidebarItems" :key="item.id" :href="item.url"
+                   class="block px-4 py-2 rounded hover:bg-gray-100 transition-colors">
+                    {{item.icon}} {{item.name}}
+                </a>
             </div>
         </aside>
 
         <!-- 主内容区 -->
-        <main class="v3-main">
-            <div class="v3-content">
-                <!-- 统一面包屑导航 -->
-                <nav class="v3-breadcrumb" aria-label="面包屑导航" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--gray-200);">
-                    <ol class="v3-breadcrumb-list" style="display: flex; align-items: center; gap: var(--spacing-sm); list-style: none; margin: 0; padding: 0;">
-                        <li class="v3-breadcrumb-item" style="display: flex; align-items: center;">
-                            <a href="v3_portal.html" class="v3-breadcrumb-link" style="color: var(--primary-600); text-decoration: none; display: flex; align-items: center; gap: 4px;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                                </svg>
-                                <span>首页</span>
-                            </a>
-                        </li>
-                        <li class="v3-breadcrumb-item" style="color: var(--gray-400);">/</li>
-                        <li class="v3-breadcrumb-item">
-                            <span class="v3-breadcrumb-link" style="color: var(--gray-700); font-weight: 500;">智能选题</span>
-                        </li>
-                    </ol>
-                    <div class="v3-breadcrumb-actions" style="display: flex; gap: var(--spacing-sm);">
-                        <button class="v3-breadcrumb-action-btn" onclick="window.location.reload()" aria-label="刷新" title="刷新" style="background: none; border: none; cursor: pointer; padding: var(--spacing-sm); border-radius: var(--radius-md); color: var(--gray-500);">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="23 4 23 10 17 10"></polyline>
-                                <polyline points="1 20 1 14 7 14"></polyline>
-                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                            </svg>
-                        </button>
-                        <button class="v3-breadcrumb-action-btn" onclick="sharePage()" aria-label="分享" title="分享当前页" style="background: none; border: none; cursor: pointer; padding: var(--spacing-sm); border-radius: var(--radius-md); color: var(--gray-500);">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="18" cy="5" r="3"></circle>
-                                <circle cx="6" cy="12" r="3"></circle>
-                                <circle cx="18" cy="19" r="3"></circle>
-                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                            </svg>
-                        </button>
-                    </div>
-                </nav>
+        <main class="main-content ml-0 md:ml-64 mt-16 p-6">
+            <!-- 面包屑导航 -->
+            <div class="breadcrumb mb-4 flex items-center space-x-2 text-sm text-gray-600">
+                <a href="v3_portal_v2.html" class="hover:text-primary-500">首页</a>
+                <span>/</span>
+                <span class="text-gray-900 font-medium">智能选题</span>
+            </div>
 
-                <!-- 筛选工具栏 -->
-                <div class="filter-bar">
-                    <input type="text" v-model="searchQuery" placeholder="🔍 搜索选题标题或描述..." class="filter-input" @input="filterTopics">
-                    <select v-model="filterIndustry" class="filter-select" @change="filterTopics">
-                        <option value="">全部行业</option>
-                        <option v-for="ind in industries" :value="ind.id">{{ ind.name }}</option>
-                    </select>
-                    <select v-model="filterGrade" class="filter-select" @change="filterTopics">
-                        <option value="">全部等级</option>
-                        <option value="S">S 级爆款</option>
-                        <option value="A">A 级优质</option>
-                        <option value="B">B 级合格</option>
-                        <option value="C">C 级普通</option>
-                    </select>
-                    <select v-model="filterAngle" class="filter-select" @change="filterTopics">
-                        <option value="">全部角度</option>
-                        <option v-for="angle in angles" :value="angle.id">{{ angle.name }}</option>
-                    </select>
+            <!-- 页面内容 -->
+            <div class="page-content space-y-6">
+                <!-- 配置面板 -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold mb-4">📋 生成配置</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">🏭 选择行业</label>
+                            <div class="space-y-2">
+                                <label v-for="ind in industries" :key="ind.id" class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" v-model="selectedIndustries" :value="ind.id" class="rounded">
+                                    <span class="text-sm">{{ind.name}}</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">📐 切入角度</label>
+                            <div class="space-y-2">
+                                <label v-for="angle in angles" :key="angle.id" class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" v-model="selectedAngles" :value="angle.id" class="rounded">
+                                    <span class="text-sm">{{angle.name}}</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">⚙️ 生成设置</label>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="text-xs text-gray-500">生成数量</label>
+                                    <select v-model="generateCount" class="w-full border rounded px-2 py-1 text-sm">
+                                        <option value="10">10 个</option>
+                                        <option value="20" selected>20 个</option>
+                                        <option value="50">50 个</option>
+                                        <option value="100">100 个</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500">最低评分</label>
+                                    <select v-model="minScore" class="w-full border rounded px-2 py-1 text-sm">
+                                        <option value="40">40 分+</option>
+                                        <option value="60" selected>60 分+</option>
+                                        <option value="75">75 分+</option>
+                                        <option value="85">85 分+</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button @click="generateTopics" :disabled="generating"
+                            class="mt-4 w-full px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400">
+                        {{generating ? '生成中...' : '✨ 批量生成'}}
+                    </button>
                 </div>
 
                 <!-- 统计卡片 -->
-                <div class="v3-grid v3-grid-5 v3-mb-lg" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
-                    <div class="v3-stat-card">
-                        <div class="v3-stat-label">总选题数</div>
-                        <div class="v3-stat-value" style="color: var(--primary-600);">{{ topics.length }}</div>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="text-sm text-gray-500">总选题数</div>
+                        <div class="text-2xl font-bold text-blue-600">{{topics.length}}</div>
                     </div>
-                    <div class="v3-stat-card">
-                        <div class="v3-stat-label">S 级爆款</div>
-                        <div class="v3-stat-value" style="color: #f59e0b;">{{ countByGrade('S') }}</div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="text-sm text-gray-500">S 级爆款</div>
+                        <div class="text-2xl font-bold text-yellow-600">{{countByGrade('S')}}</div>
                     </div>
-                    <div class="v3-stat-card">
-                        <div class="v3-stat-label">A 级优质</div>
-                        <div class="v3-stat-value" style="color: var(--primary-600);">{{ countByGrade('A') }}</div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="text-sm text-gray-500">A 级优质</div>
+                        <div class="text-2xl font-bold text-blue-600">{{countByGrade('A')}}</div>
                     </div>
-                    <div class="v3-stat-card">
-                        <div class="v3-stat-label">B 级合格</div>
-                        <div class="v3-stat-value" style="color: var(--success-600);">{{ countByGrade('B') }}</div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="text-sm text-gray-500">B 级合格</div>
+                        <div class="text-2xl font-bold text-green-600">{{countByGrade('B')}}</div>
                     </div>
-                    <div class="v3-stat-card">
-                        <div class="v3-stat-label">平均分</div>
-                        <div class="v3-stat-value" style="color: var(--secondary-600);">{{ avgScore }}</div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="text-sm text-gray-500">平均分</div>
+                        <div class="text-2xl font-bold text-purple-600">{{avgScore}}</div>
                     </div>
                 </div>
 
                 <!-- 选题列表 -->
-                <div class="v3-card">
-                    <div class="v3-card-header">
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-4 py-3 border-b flex justify-between items-center">
                         <div>
-                            <h3 class="v3-card-title">选题列表</h3>
-                            <p class="v3-text-sm v3-text-gray">显示 {{ filteredTopics.length }} / {{ topics.length }} 条</p>
+                            <h2 class="text-lg font-semibold">选题列表</h2>
+                            <p class="text-sm text-gray-500">显示 {{filteredTopics.length}} / {{topics.length}} 条</p>
                         </div>
-                        <div class="v3-flex v3-gap-sm">
-                            <button @click="selectAll" class="v3-btn v3-btn-sm v3-btn-ghost" v-if="selectedTopics.length > 0">
-                                已选 {{ selectedTopics.length }} 项
-                            </button>
-                            <button @click="sortBy('score')" class="v3-btn v3-btn-sm v3-btn-ghost">
-                                📊 按评分 {{ sortDir==='desc'?'↓':'↑' }}
-                            </button>
-                            <button @click="sortBy('created_at')" class="v3-btn v3-btn-sm v3-btn-ghost">
-                                🕐 按时间
-                            </button>
-                            <button @click="exportTopics" class="v3-btn v3-btn-sm v3-btn-ghost">
-                                📥 导出
-                            </button>
-                            <button @click="batchDelete" class="v3-btn v3-btn-sm v3-btn-danger" v-if="selectedTopics.length > 0">
-                                🗑️ 批量删除
-                            </button>
-                            <button @click="generateTopics" class="v3-btn v3-btn-sm v3-btn-primary" :disabled="generating">
-                                ✨ 批量生成
-                            </button>
+                        <div class="flex gap-2">
+                            <button @click="sortBy('score')" class="px-3 py-1 rounded hover:bg-gray-100">📊 按评分</button>
+                            <button @click="sortBy('created_at')" class="px-3 py-1 rounded hover:bg-gray-100">🕐 按时间</button>
                         </div>
                     </div>
-
-                    <div v-if="generating" class="v3-card-body" style="text-align: center; padding: 40px;">
-                        <div class="loading-spinner"></div>
-                        <p class="v3-text-gray v3-mt-md">正在生成选题...</p>
+                    <div v-if="generating" class="p-8 text-center">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                        <p class="mt-2 text-gray-500">正在生成选题...</p>
                     </div>
-
-                    <div v-else-if="filteredTopics.length === 0" class="v3-card-body" style="text-align: center; padding: 40px;">
-                        <p class="v3-text-gray">暂无选题，点击"批量生成"按钮创建新选题</p>
+                    <div v-else-if="filteredTopics.length === 0" class="p-8 text-center text-gray-500">
+                        暂无选题，点击"批量生成"按钮创建新选题
                     </div>
-
                     <div v-else class="divide-y">
-                        <div v-for="topic in filteredTopics" :key="topic.id" 
-                             class="topic-card"
-                             :class="getGradeClass(topic.score.grade)"
-                             @click="showDetail(topic)"
-                             style="position: relative;">
-                            <input type="checkbox" 
-                                   :checked="selectedTopics.includes(topic.id)"
-                                   @click.stop="toggleSelect(topic.id)"
-                                   style="position: absolute; top: var(--spacing-md); left: var(--spacing-md); z-index: 10;"
-                                   title="选择此项">
-                            <div class="v3-flex v3-justify-between v3-items-start" style="padding: var(--spacing-md);">
+                        <div v-for="topic in filteredTopics" :key="topic.id"
+                             class="p-4 hover:bg-gray-50 cursor-pointer" :class="'score-' + topic.score.grade.toLowerCase()"
+                             @click="showDetail(topic)">
+                            <div class="flex justify-between items-start">
                                 <div class="flex-1">
-                                    <div class="v3-flex v3-gap-sm v3-items-center v3-mb-sm">
-                                        <span class="v3-badge v3-badge-info">{{ getIndustryName(topic.industry) }}</span>
-                                        <span class="v3-badge v3-badge-secondary">{{ getAngleName(topic.angle) }}</span>
-                                        <span class="v3-text-xs v3-text-gray">{{ formatTime(topic.created_at) }}</span>
-                                        <span class="v3-badge v3-badge-gray" style="margin-left: auto;">#{{ topic.id }}</span>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-xs px-2 py-0.5 rounded bg-blue-100">{{getIndustryName(topic.industry)}}</span>
+                                        <span class="text-xs px-2 py-0.5 rounded bg-purple-100">{{getAngleName(topic.angle)}}</span>
                                     </div>
-                                    <h3 class="v3-font-semibold v3-text-lg v3-mb-sm">{{ topic.title }}</h3>
-                                    <p class="v3-text-sm v3-text-gray line-clamp-2">{{ topic.description }}</p>
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-1">{{topic.title}}</h3>
+                                    <p class="text-sm text-gray-600 line-clamp-2">{{topic.description}}</p>
                                 </div>
-                                <div class="text-right ml-4" style="text-align: right; margin-left: var(--spacing-md);">
-                                    <div class="v3-text-2xl v3-font-bold" :class="getScoreColor(topic.score.total)">
-                                        {{ topic.score.total }}
-                                    </div>
-                                    <div class="grade-badge" :class="getGradeBadgeClass(topic.score.grade)">
-                                        {{ topic.score.grade }}
-                                    </div>
+                                <div class="text-right ml-4">
+                                    <div class="text-2xl font-bold" :class="getScoreColor(topic.score.total)">{{topic.score.total}}</div>
+                                    <div class="text-sm font-semibold">{{topic.score.grade}}级</div>
                                 </div>
                             </div>
                         </div>
@@ -601,327 +185,76 @@
                 </div>
             </div>
         </main>
-
-        <!-- 选题详情弹窗 -->
-        <div v-if="selectedTopic" class="modal-overlay" @click.self="selectedTopic=null">
-            <div class="modal-content">
-                <div class="v3-card" style="max-width: 900px; width: 100%; border: none; box-shadow: none;">
-                    <div class="v3-card-header">
-                        <h3 class="v3-card-title">选题详情</h3>
-                        <button @click="selectedTopic=null" class="v3-btn v3-btn-ghost v3-btn-icon">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="v3-card-body">
-                        <div class="v3-flex v3-justify-between v3-items-center v3-mb-md">
-                            <div class="v3-flex v3-gap-sm">
-                                <span class="v3-badge v3-badge-info">{{ getIndustryName(selectedTopic.industry) }}</span>
-                                <span class="v3-badge v3-badge-secondary">{{ getAngleName(selectedTopic.angle) }}</span>
-                            </div>
-                            <div class="text-right" style="text-align: right;">
-                                <div class="v3-text-3xl v3-font-bold" :class="getScoreColor(selectedTopic.score.total)">
-                                    {{ selectedTopic.score.total }}
-                                </div>
-                                <div class="v3-text-sm v3-text-gray">{{ selectedTopic.score.grade }}级</div>
-                            </div>
-                        </div>
-
-                        <h2 class="v3-text-xl v3-font-bold v3-mb-md">{{ selectedTopic.title }}</h2>
-                        <p class="v3-text-gray v3-mb-md">{{ selectedTopic.description }}</p>
-
-                        <div class="v3-mb-md">
-                            <h4 class="v3-font-semibold v3-mb-sm">🔑 核心要点</h4>
-                            <ul class="v3-list-disc v3-pl-md" style="list-style: disc; padding-left: var(--spacing-md);">
-                                <li v-for="(point, i) in selectedTopic.key_points" :key="i" class="v3-text-sm v3-text-gray" style="margin-bottom: var(--spacing-xs);">
-                                    {{ point }}
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div class="v3-mb-md" style="background: var(--gray-50); padding: var(--spacing-md); border-radius: var(--radius-lg);">
-                            <h4 class="v3-font-semibold v3-mb-sm">📊 评分详情</h4>
-                            <div class="v3-grid v3-grid-4" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--spacing-sm);">
-                                <div style="text-align: center;">
-                                    <div class="v3-text-sm v3-text-gray">新颖性</div>
-                                    <div class="v3-font-bold" style="color: var(--primary-600);">{{ selectedTopic.score.novelty || 85 }}</div>
-                                </div>
-                                <div style="text-align: center;">
-                                    <div class="v3-text-sm v3-text-gray">热度</div>
-                                    <div class="v3-font-bold" style="color: var(--warning-600);">{{ selectedTopic.score.trend || 78 }}</div>
-                                </div>
-                                <div style="text-align: center;">
-                                    <div class="v3-text-sm v3-text-gray">可行性</div>
-                                    <div class="v3-font-bold" style="color: var(--success-600);">{{ selectedTopic.score.feasibility || 82 }}</div>
-                                </div>
-                                <div style="text-align: center;">
-                                    <div class="v3-text-sm v3-text-gray">价值</div>
-                                    <div class="v3-font-bold" style="color: var(--secondary-600);">{{ selectedTopic.score.value || 80 }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="v3-mb-md">
-                            <h4 class="v3-font-semibold v3-mb-sm">📝 操作历史</h4>
-                            <div style="font-size: 0.75rem; color: var(--gray-500);">
-                                <div style="padding: var(--spacing-xs) 0; border-bottom: 1px solid var(--gray-200);">
-                                    <span>创建时间：</span>
-                                    <span>{{ formatTime(selectedTopic.created_at) }}</span>
-                                </div>
-                                <div style="padding: var(--spacing-xs) 0;" v-if="selectedTopic.updated_at">
-                                    <span>最后更新：</span>
-                                    <span>{{ formatTime(selectedTopic.updated_at) }}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="v3-flex v3-gap-md v3-mt-lg" style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
-                            <button @click="startWriting(selectedTopic)" class="v3-btn v3-btn-success" style="flex: 1;">
-                                ✍️ 开始写作
-                            </button>
-                            <button @click="duplicateTopic(selectedTopic)" class="v3-btn v3-btn-secondary">
-                                📋 复制
-                            </button>
-                            <button @click="deleteTopic(selectedTopic)" class="v3-btn v3-btn-danger">
-                                🗑️ 删除
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 快捷键提示 -->
-        <div class="shortcut-hint">
-            <span class="shortcut-key">Alt+1~5</span> 切换模块
-            <span class="shortcut-key" style="margin-left: 8px;">Alt+S</span> 侧边栏
-            <span class="shortcut-key" style="margin-left: 8px;">Alt+H</span> 首页
-            <span class="shortcut-key" style="margin-left: 8px;">Ctrl+F5</span> 刷新
-        </div>
     </div>
 
-    <script src="js/v3-common.js"></script>
-    <script src="js/v3-navigation-component.js"></script>
+    <script src="../js/components-loader.js"></script>
     <script>
         const { createApp } = Vue;
-
         createApp({
             data() {
                 return {
-                    API_BASE: 'http://43.134.234.4:8000/api/v3',
+                    isDark: false,
+                    isSidebarOpen: false,
                     generating: false,
                     topics: [],
                     filteredTopics: [],
                     selectedTopic: null,
                     sortDir: 'desc',
-                    searchQuery: '',
-                    filterIndustry: '',
-                    filterGrade: '',
-                    filterAngle: '',
-                    selectedTopics: [],
-                    viewMode: 'list',
-                    currentPage: 1,
-                    pageSize: 20,
+                    selectedIndustries: ['教育', '科技'],
+                    selectedAngles: ['深度分析', '数据解读'],
+                    generateCount: '20',
+                    minScore: '60',
+                    modules: [
+                        {id: 'hotnews', name: '热点中心', icon: '🔥', url: 'v3_hotnews_center_v2.html'},
+                        {id: 'topics', name: '智能选题', icon: '🎯', url: 'v3_topic_intelligence_v2.html'},
+                        {id: 'evaluation', name: '工作评价', icon: '📊', url: 'v3_evaluation_v2.html'},
+                        {id: 'publish', name: '自动发布', icon: '📝', url: 'v3_publish_center_v2.html'},
+                        {id: 'dashboard', name: '数据看板', icon: '📈', url: 'v3_data_dashboard_v2.html'}
+                    ],
+                    sidebarItems: [
+                        {id: 'home', name: '返回首页', icon: '🏠', url: 'v3_portal_v2.html'},
+                        {id: 'favorite', name: '我的收藏', icon: '⭐', url: '#'},
+                        {id: 'recent', name: '最近访问', icon: '🕐', url: '#'},
+                        {id: 'settings', name: '系统设置', icon: '⚙️', url: 'v3_user_center_v2.html'}
+                    ],
                     industries: [
-                        { id: '教育', name: '🎓 教育' },
-                        { id: '科技', name: '💻 科技' },
-                        { id: '财经', name: '💰 财经' },
-                        { id: '娱乐', name: '🎬 娱乐' },
-                        { id: '体育', name: '⚽ 体育' },
-                        { id: '健康', name: '🏥 健康' },
-                        { id: '职场', name: '💼 职场' },
-                        { id: '生活', name: '🏠 生活' }
+                        {id: '教育', name: '🎓 教育'}, {id: '科技', name: '💻 科技'},
+                        {id: '财经', name: '💰 财经'}, {id: '娱乐', name: '🎬 娱乐'}
                     ],
                     angles: [
-                        { id: '深度分析', name: '🔍 深度分析' },
-                        { id: '数据解读', name: '📊 数据解读' },
-                        { id: '观点评论', name: '💡 观点评论' },
-                        { id: '知识科普', name: '🎓 知识科普' }
+                        {id: '深度分析', name: '🔍 深度分析'}, {id: '数据解读', name: '📊 数据解读'},
+                        {id: '观点评论', name: '💡 观点评论'}, {id: '知识科普', name: '🎓 知识科普'}
                     ]
                 }
             },
             computed: {
                 avgScore() {
                     if (this.topics.length === 0) return 0;
-                    const sum = this.topics.reduce((acc, t) => acc + t.score.total, 0);
-                    return Math.round(sum / this.topics.length);
+                    return Math.round(this.topics.reduce((a, b) => a + b.score.total, 0) / this.topics.length);
                 }
             },
-            mounted() {
-                this.loadTopics();
-                V3NavigationComponent.init('topic');
-                this.initUserDropdown();
-            },
             methods: {
-                getGradeClass(grade) {
-                    const classes = {
-                        'S': 's-grade',
-                        'A': 'a-grade',
-                        'B': 'b-grade',
-                        'C': 'c-grade'
-                    };
-                    return 'topic-card ' + (classes[grade] || 'c-grade');
+                toggleSidebar() { this.isSidebarOpen = !this.isSidebarOpen; },
+                toggleTheme() {
+                    this.isDark = !this.isDark;
+                    document.documentElement.classList.toggle('dark', this.isDark);
+                    localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
                 },
-                getGradeBadgeClass(grade) {
-                    const classes = {
-                        'S': 'grade-s',
-                        'A': 'grade-a',
-                        'B': 'grade-b',
-                        'C': 'grade-c'
-                    };
-                    return classes[grade] || 'grade-c';
-                },
-                getScoreColor(score) {
-                    if (score >= 85) return 'v3-text-warning';
-                    if (score >= 75) return 'v3-text-primary';
-                    if (score >= 60) return 'v3-text-success';
-                    return 'v3-text-danger';
-                },
-                async loadTopics() {
-                    try {
-                        const res = await fetch(`${this.API_BASE}/topics`);
-                        const data = await res.json();
-                        this.topics = data.data || [];
-                        this.filteredTopics = this.topics;
-                    } catch (e) {
-                        this.topics = this.getMockTopics();
-                        this.filteredTopics = this.topics;
-                    }
-                },
-                async generateTopics() {
+                generateTopics() {
                     this.generating = true;
-                    try {
-                        const res = await fetch(`${this.API_BASE}/topics/generate`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ count: 20 })
-                        });
-                        const data = await res.json();
-                        this.topics = [...data.data, ...this.topics];
+                    setTimeout(() => {
+                        this.topics = this.getMockTopics(20);
                         this.filteredTopics = this.topics;
-                        V3.Notification.success(`生成 ${data.data.length} 个选题`);
-                    } catch (e) {
-                        const mock = this.getMockTopics(20);
-                        this.topics = [...mock, ...this.topics];
-                        this.filteredTopics = this.topics;
-                        V3.Notification.success('生成 20 个选题 (Mock)');
-                    } finally {
                         this.generating = false;
-                    }
+                    }, 2000);
                 },
-                sortBy(field) {
-                    this.sortDir = this.sortDir === 'desc' ? 'asc' : 'desc';
-                    this.filteredTopics.sort((a, b) => {
-                        const aVal = a[field] || a.score[field];
-                        const bVal = b[field] || b.score[field];
-                        return this.sortDir === 'desc' ? bVal - aVal : aVal - bVal;
-                    });
-                },
-                showDetail(topic) {
-                    this.selectedTopic = topic;
-                },
-                startWriting(topic) {
-                    V3.Notification.success(`开始写作：${topic.title}`);
-                    window.location.href = 'v3_writing_factory.html';
-                },
-                duplicateTopic(topic) {
-                    const newTopic = {
-                        ...topic,
-                        id: `topic_${Date.now()}`,
-                        title: topic.title + ' (副本)',
-                        created_at: new Date().toISOString()
-                    };
-                    this.topics.unshift(newTopic);
-                    this.filteredTopics.unshift(newTopic);
-                    V3.Notification.success('选题已复制');
-                },
-                deleteTopic(topic) {
-                    if (confirm(`确定删除选题：${topic.title}?`)) {
-                        this.topics = this.topics.filter(t => t.id !== topic.id);
-                        this.filteredTopics = this.filteredTopics.filter(t => t.id !== topic.id);
-                        this.selectedTopic = null;
-                        V3.Notification.success('选题已删除');
-                    }
-                },
-                exportTopics() {
-                    const data = JSON.stringify(this.topics, null, 2);
-                    V3.Utils.downloadFile(data, `topics_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
-                    V3.Notification.success('选题已导出');
-                },
-                countByGrade(grade) {
-                    return this.topics.filter(t => t.score.grade === grade).length;
-                },
-                getIndustryName(id) {
-                    return this.industries.find(i => i.id === id)?.name || id;
-                },
-                getAngleName(id) {
-                    return this.angles.find(a => a.id === id)?.name || id;
-                },
-                formatTime(timeStr) {
-                    if (!timeStr) return '-';
-                    const date = new Date(timeStr);
-                    return date.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-                },
-                toggleSelect(id) {
-                    const index = this.selectedTopics.indexOf(id);
-                    if (index > -1) {
-                        this.selectedTopics.splice(index, 1);
-                    } else {
-                        this.selectedTopics.push(id);
-                    }
-                },
-                selectAll() {
-                    if (this.selectedTopics.length === this.filteredTopics.length) {
-                        this.selectedTopics = [];
-                    } else {
-                        this.selectedTopics = this.filteredTopics.map(t => t.id);
-                    }
-                },
-                batchDelete() {
-                    if (this.selectedTopics.length === 0) return;
-                    if (confirm(`确定删除选中的 ${this.selectedTopics.length} 个选题？`)) {
-                        this.topics = this.topics.filter(t => !this.selectedTopics.includes(t.id));
-                        this.filteredTopics = this.filteredTopics.filter(t => !this.selectedTopics.includes(t.id));
-                        this.selectedTopics = [];
-                        V3.Notification.success(`已删除 ${this.selectedTopics.length} 个选题`);
-                    }
-                },
-                filterTopics() {
-                    let result = [...this.topics];
-                    
-                    // 搜索过滤
-                    if (this.searchQuery) {
-                        const query = this.searchQuery.toLowerCase();
-                        result = result.filter(t => 
-                            t.title.toLowerCase().includes(query) ||
-                            t.description.toLowerCase().includes(query)
-                        );
-                    }
-                    
-                    // 行业过滤
-                    if (this.filterIndustry) {
-                        result = result.filter(t => t.industry === this.filterIndustry);
-                    }
-                    
-                    // 等级过滤
-                    if (this.filterGrade) {
-                        result = result.filter(t => t.score.grade === this.filterGrade);
-                    }
-                    
-                    // 角度过滤
-                    if (this.filterAngle) {
-                        result = result.filter(t => t.angle === this.filterAngle);
-                    }
-                    
-                    this.filteredTopics = result;
-                },
-                getMockTopics(count = 20) {
+                getMockTopics(count) {
                     return Array.from({length: count}, (_, i) => ({
                         id: `topic_${i}`,
-                        title: `AI 教育${['机遇','挑战','变革','未来','趋势'][i%5]}：${['深度分析','数据解读','观点评论'][i%3]}`,
-                        industry: ['教育', '科技', '财经', '职场'][i%4],
-                        angle: ['深度分析', '数据解读', '观点评论', '知识科普'][i%4],
+                        title: `AI 教育${['机遇', '挑战', '变革', '未来'][i%4]}：${['深度分析', '数据解读'][i%2]}`,
+                        industry: ['教育', '科技', '财经'][i%3],
+                        angle: ['深度分析', '数据解读', '观点评论'][i%3],
                         description: '这是一个很有潜力的选题，值得深入探讨...',
-                        key_points: ['要点 1', '要点 2', '要点 3'],
                         score: {
                             total: Math.floor(Math.random() * 40) + 60,
                             grade: ['S', 'A', 'B', 'C'][i%4]
@@ -929,53 +262,25 @@
                         created_at: new Date().toISOString()
                     }));
                 },
-                initUserDropdown() {
-                    const userMenu = document.querySelector('.v3-navbar-user');
-                    const dropdown = document.querySelector('.v3-user-dropdown');
-                    if (userMenu && dropdown) {
-                        userMenu.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-                        });
-                        document.addEventListener('click', () => {
-                            dropdown.style.display = 'none';
-                        });
-                    }
-                }
+                countByGrade(grade) { return this.topics.filter(t => t.score.grade === grade).length; },
+                getIndustryName(id) { return this.industries.find(i => i.id === id)?.name || id; },
+                getAngleName(id) { return this.angles.find(a => a.id === id)?.name || id; },
+                getScoreColor(score) {
+                    if (score >= 85) return 'text-yellow-600';
+                    if (score >= 75) return 'text-blue-600';
+                    if (score >= 60) return 'text-green-600';
+                    return 'text-red-600';
+                },
+                sortBy(field) {
+                    this.sortDir = this.sortDir === 'desc' ? 'asc' : 'desc';
+                    this.filteredTopics.sort((a, b) => this.sortDir === 'desc' ? b.score.total - a.score.total : a.score.total - b.score.total);
+                },
+                showDetail(topic) { alert(`选题详情：${topic.title}`); }
+            },
+            mounted() {
+                loadComponents({title: '智能选题', breadcrumbs: ['首页', '智能选题']});
             }
         }).mount('#app');
-
-        // 全局快捷键
-        document.addEventListener('keydown', (e) => {
-            if (e.altKey && e.key >= '1' && e.key <= '5') {
-                const links = ['v3_portal.html', 'v3_coordinator.html', 'v3_workflow.html', 'v3_publish_center.html', 'v3_data_dashboard.html'];
-                const index = parseInt(e.key) - 1;
-                if (links[index]) window.location.href = links[index];
-            }
-            if (e.altKey && e.key === 's') {
-                e.preventDefault();
-                const sidebar = document.querySelector('.v3-sidebar');
-                if (sidebar) sidebar.classList.toggle('collapsed');
-            }
-            if (e.altKey && e.key === 'h') {
-                window.location.href = 'v3_portal.html';
-            }
-            if (e.ctrlKey && e.key === 'F5') {
-                e.preventDefault();
-                window.dispatchEvent(new CustomEvent('v3:refresh'));
-            }
-        });
-
-        // 分享功能
-        function sharePage() {
-            const url = window.location.href;
-            if (navigator.share) {
-                navigator.share({ title: '智能选题', url: url });
-            } else {
-                navigator.clipboard.writeText(url);
-                V3.Notification.success('链接已复制到剪贴板');
-            }
-        }
     </script>
 </body>
 </html>

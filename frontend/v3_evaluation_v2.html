@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作评价 - V3 统一门户</title>
+    <link rel="stylesheet" href="../css/v3-design-tokens.css">
+    <link rel="stylesheet" href="../css/v3-unified.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
+        <!-- 统一导航栏 -->
+        <nav class="navbar bg-white shadow-md fixed top-0 left-0 right-0 z-50">
+            <div class="navbar-brand px-4 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">📊</span>
+                    <span class="text-xl font-bold text-gray-900">工作评价</span>
+                </div>
+                <button @click="toggleSidebar" class="md:hidden p-2 rounded hover:bg-gray-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+            </div>
+            <div class="navbar-menu hidden md:flex px-4 space-x-4">
+                <a v-for="module in modules" :key="module.id" :href="module.url" class="px-3 py-2 rounded hover:bg-gray-100">{{module.icon}} {{module.name}}</a>
+            </div>
+            <div class="navbar-actions px-4 flex items-center space-x-3">
+                <button @click="toggleTheme" class="p-2 rounded hover:bg-gray-100">{{isDark ? '☀️' : '🌙'}}</button>
+                <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-white font-semibold">U</div>
+            </div>
+        </nav>
+
+        <!-- 侧边栏 -->
+        <aside :class="['sidebar fixed left-0 top-16 bottom-0 w-64 bg-white shadow-lg transform transition-transform z-40', isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0']">
+            <div class="sidebar-menu p-4 space-y-2">
+                <a v-for="item in sidebarItems" :key="item.id" :href="item.url" class="block px-4 py-2 rounded hover:bg-gray-100">{{item.icon}} {{item.name}}</a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content ml-0 md:ml-64 mt-16 p-6">
+            <div class="breadcrumb mb-4 flex items-center space-x-2 text-sm text-gray-600">
+                <a href="v3_portal_v2.html" class="hover:text-primary-500">首页</a><span>/</span><span class="text-gray-900 font-medium">工作评价</span>
+            </div>
+
+            <div class="page-content space-y-6">
+                <!-- 评价输入 -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold mb-4">📝 新建评价</h2>
+                    <div class="flex gap-4 mb-4">
+                        <button @click="evalType='article'" :class="evalType==='article'?'bg-blue-600 text-white':'bg-gray-100'" class="px-4 py-2 rounded">📄 文章评价</button>
+                        <button @click="evalType='topic'" :class="evalType==='topic'?'bg-blue-600 text-white':'bg-gray-100'" class="px-4 py-2 rounded">🎯 选题评价</button>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">标题</label>
+                            <input v-model="inputTitle" type="text" class="w-full border rounded px-3 py-2" placeholder="输入标题...">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{evalType==='article'?'文章内容':'选题描述'}}</label>
+                            <textarea v-model="inputContent" rows="6" class="w-full border rounded px-3 py-2" placeholder="输入内容..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">评价模型</label>
+                            <select v-model="evalModel" class="w-full border rounded px-3 py-2">
+                                <option value="free">DeepSeek 免费模型</option>
+                                <option value="chat">DeepSeek Chat (付费)</option>
+                                <option value="v3">DeepSeek V3</option>
+                            </select>
+                        </div>
+                        <button @click="evaluate" :disabled="evaluating" class="w-full px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400">
+                            {{evaluating ? '评价中...' : '✨ 开始评价'}}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 评价结果 -->
+                <div v-if="currentResult" class="bg-white rounded-lg shadow p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900 mb-2">{{currentResult.title}}</h2>
+                            <p class="text-sm text-gray-500">评价时间：{{currentResult.evaluated_at}}</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-4xl font-bold" :class="getScoreColor(currentResult.total_score)">{{currentResult.total_score}}</div>
+                            <div class="text-lg font-semibold">{{currentResult.grade}}级 - {{currentResult.recommendation}}</div>
+                        </div>
+                    </div>
+
+                    <!-- 5 维雷达图 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div><h3 class="text-sm font-semibold text-gray-700 mb-2">📊 5 维评分</h3><canvas ref="radarChart"></canvas></div>
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-700 mb-2">📈 详细评分</h3>
+                            <div class="space-y-3">
+                                <div v-for="(score, dim) in currentResult.scores" :key="dim" class="flex items-center gap-2">
+                                    <span class="text-xs w-20">{{getDimensionName(dim)}}</span>
+                                    <div class="flex-1 bg-gray-200 rounded-full h-3"><div class="bg-blue-500 h-3 rounded-full" :style="{width: score + '%'}"></div></div>
+                                    <span class="text-xs w-10 text-right font-semibold">{{score}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 优点和建议 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-700 mb-2">✅ 优点</h3>
+                            <ul class="space-y-2">
+                                <li v-for="(s, i) in currentResult.strengths" :key="i" class="flex items-start gap-2 text-sm text-gray-700">
+                                    <span class="text-green-500 mt-1">✓</span><span>{{s}}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-700 mb-2">💡 改进建议</h3>
+                            <ul class="space-y-2">
+                                <li v-for="(s, i) in currentResult.improvements" :key="i" class="flex items-start gap-2 text-sm text-gray-700">
+                                    <span class="text-orange-500 mt-1">!</span><span>{{s}}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 统计卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="text-sm text-gray-500">评价总数</div>
+                        <div class="text-2xl font-bold text-blue-600">{{stats.total || 0}}</div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="text-sm text-gray-500">平均评分</div>
+                        <div class="text-2xl font-bold text-green-600">{{stats.avg_score || 0}}</div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="text-sm text-gray-500">S 级爆款</div>
+                        <div class="text-2xl font-bold text-yellow-600">{{stats.grades?.S || 0}}</div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="text-sm text-gray-500">A 级优质</div>
+                        <div class="text-2xl font-bold text-blue-600">{{stats.grades?.A || 0}}</div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="text-sm text-gray-500">统计周期</div>
+                        <div class="text-2xl font-bold text-purple-600">{{stats.period || '7 天'}}</div>
+                    </div>
+                </div>
+
+                <!-- 评价历史 -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-4 py-3 border-b">
+                        <h2 class="text-lg font-semibold">评价历史</h2>
+                        <p class="text-sm text-gray-500">最近 {{history.length}} 条评价</p>
+                    </div>
+                    <div class="divide-y">
+                        <div v-for="(item, i) in history" :key="i" class="p-4 hover:bg-gray-50 cursor-pointer" @click="showHistoryDetail(item)">
+                            <div class="flex justify-between items-center">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-xs px-2 py-0.5 rounded" :class="item.target_type==='article'?'bg-blue-100':'bg-purple-100'">{{item.target_type==='article'?'📄 文章':'🎯 选题'}}</span>
+                                        <span class="text-xs text-gray-500">{{formatTime(item.created_at)}}</span>
+                                    </div>
+                                    <h3 class="font-semibold">{{item.comment?.substring(0, 80) || '评价记录'}}...</h3>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-bold" :class="getScoreColor(item.total_score)">{{item.total_score}}</div>
+                                    <div class="text-sm font-semibold">{{item.grade}}级</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/components-loader.js"></script>
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    isDark: false, isSidebarOpen: false,
+                    evalType: 'article', evalModel: 'v3',
+                    inputTitle: '', inputContent: '',
+                    evaluating: false, currentResult: null,
+                    stats: {}, history: [], chart: null,
+                    modules: [{id:'hotnews',name:'热点中心',icon:'🔥',url:'v3_hotnews_center_v2.html'},{id:'topics',name:'智能选题',icon:'🎯',url:'v3_topic_intelligence_v2.html'},{id:'evaluation',name:'工作评价',icon:'📊',url:'v3_evaluation_v2.html'},{id:'publish',name:'自动发布',icon:'📝',url:'v3_publish_center_v2.html'},{id:'dashboard',name:'数据看板',icon:'📈',url:'v3_data_dashboard_v2.html'}],
+                    sidebarItems: [{id:'home',name:'返回首页',icon:'🏠',url:'v3_portal_v2.html'},{id:'favorite',name:'我的收藏',icon:'⭐',url:'#'},{id:'recent',name:'最近访问',icon:'🕐',url:'#'},{id:'settings',name:'系统设置',icon:'⚙️',url:'v3_user_center_v2.html'}]
+                }
+            },
+            methods: {
+                toggleSidebar() { this.isSidebarOpen = !this.isSidebarOpen; },
+                toggleTheme() { this.isDark = !this.isDark; document.documentElement.classList.toggle('dark', this.isDark); localStorage.setItem('theme', this.isDark ? 'dark' : 'light'); },
+                async evaluate() {
+                    if (!this.inputTitle || !this.inputContent) { alert('请填写标题和内容'); return; }
+                    this.evaluating = true;
+                    setTimeout(() => {
+                        this.currentResult = this.getMockResult();
+                        this.stats = {total: 10, avg_score: 75.5, grades: {S: 2, A: 3, B: 4}, period: '7 天'};
+                        this.evaluating = false;
+                        this.$nextTick(() => this.renderRadarChart());
+                    }, 2000);
+                },
+                getMockResult() {
+                    return {
+                        title: this.inputTitle,
+                        scores: {content: 85, structure: 80, expression: 75, viral: 90, innovation: 70},
+                        total_score: 82, grade: 'A',
+                        strengths: ['内容充实', '结构清晰', '数据支撑充分'],
+                        improvements: ['增加案例', '优化开头', '升华结尾'],
+                        recommendation: '正常发布',
+                        evaluated_at: new Date().toISOString()
+                    };
+                },
+                renderRadarChart() {
+                    const ctx = this.$refs.radarChart; if (!ctx) return;
+                    if (this.chart) this.chart.destroy();
+                    const scores = this.currentResult.scores || {};
+                    this.chart = new Chart(ctx, {
+                        type: 'radar',
+                        data: {
+                            labels: Object.keys(scores).map(k => this.getDimensionName(k)),
+                            datasets: [{label: '评分', data: Object.values(scores), backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: 'rgb(59, 130, 246)', pointBackgroundColor: 'rgb(59, 130, 246)'}]
+                        },
+                        options: {scales: {r: {suggestedMin: 0, suggestedMax: 100}}, plugins: {legend: {display: false}}}
+                    });
+                },
+                getDimensionName(dim) { const names = {content:'内容', structure:'结构', expression:'表达', viral:'传播', innovation:'创新', heat:'热度', potential:'潜力', match:'匹配', novelty:'新颖', feasibility:'可行'}; return names[dim] || dim; },
+                getScoreColor(score) { if (!score) return 'text-gray-400'; if (score >= 90) return 'text-yellow-600'; if (score >= 80) return 'text-blue-600'; if (score >= 70) return 'text-green-600'; if (score >= 60) return 'text-orange-600'; return 'text-red-600'; },
+                formatTime(timeStr) { if (!timeStr) return '-'; return new Date(timeStr).toLocaleString('zh-CN', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); },
+                showHistoryDetail(item) { this.currentResult = {...item, scores: {content: item.content_score, structure: item.structure_score, expression: item.expression_score, viral: item.viral_score, innovation: item.innovation_score}}; this.$nextTick(() => this.renderRadarChart()); }
+            },
+            mounted() { loadComponents({title: '工作评价', breadcrumbs: ['首页', '工作评价']}); this.stats = {total: 10, avg_score: 75.5, grades: {S: 2, A: 3, B: 4}, period: '7 天'}; this.history = Array.from({length: 10}, (_, i) => ({id: i, target_type: i%2?'article':'topic', total_score: 60+Math.random()*40, grade: ['S','A','B','C'][i%4], comment: '评价示例', created_at: new Date().toISOString()})); }
+        }).mount('#app');
+    </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {
-  "last_update": "2026-03-02 00:01:20",
-  "total_items": 27251,
+  "last_update": "2026-03-02 06:01:08",
+  "total_items": 27514,
   "sources": {
     "weibo": {
       "name": "微博热搜",
@@ -166,11 +166,11 @@
   },
   "unified": {
     "2026-03-02": {
-      "total_items": 265,
+      "total_items": 263,
       "platforms": 11,
       "dailyhot_items": 0,
-      "rsshub_items": 266,
-      "crawl_time": "2026-03-02 00:01:20"
+      "rsshub_items": 264,
+      "crawl_time": "2026-03-02 06:01:08"
     }
   }
 }
