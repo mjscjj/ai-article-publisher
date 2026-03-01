@@ -225,7 +225,7 @@ class PublishQueue:
     
     def get_pending_tasks(self, limit: int = 10) -> List[PublishTask]:
         """
-        获取待处理任务
+        获取待处理任务（包括 pending 和 retrying 状态）
         
         Args:
             limit: 数量限制
@@ -240,7 +240,7 @@ class PublishQueue:
             now = datetime.now().isoformat()
             cursor.execute('''
                 SELECT * FROM tasks 
-                WHERE status = 'pending' 
+                WHERE status IN ('pending', 'retrying')
                 AND (scheduled_at IS NULL OR scheduled_at <= ?)
                 ORDER BY created_at ASC
                 LIMIT ?
