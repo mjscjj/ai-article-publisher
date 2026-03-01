@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户中心 - YouMind V3</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .username {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .email {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .logout-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 101, 101, 0.3);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-free { background: #e2e8f0; color: #4a5568; }
+        .badge-basic { background: #bee3f8; color: #2c5282; }
+        .badge-pro { background: #90cdf4; color: #2c5282; }
+        .badge-enterprise { background: #63b3ed; color: #fff; }
+        .badge-active { background: #c6f6d5; color: #22543d; }
+        .badge-expired { background: #fed7d7; color: #742a2a; }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+        
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #38a169;
+        }
+        
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .stat-item {
+            background: #f7fafc;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #718096;
+        }
+        
+        .permission-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .permission-tag {
+            background: #edf2f7;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+        
+        .alert-success {
+            background: #f0fff4;
+            border-color: #48bb78;
+            color: #22543d;
+        }
+        
+        .alert-error {
+            background: #fff5f5;
+            border-color: #f56565;
+            color: #742a2a;
+        }
+        
+        .alert-info {
+            background: #ebf8ff;
+            border-color: #4299e1;
+            color: #2c5282;
+        }
+        
+        .hidden { display: none; }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .login-title {
+            text-align: center;
+            margin-bottom: 32px;
+            color: #333;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #718096;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            background: #f7fafc;
+        }
+        
+        .tab:hover:not(.active) {
+            color: #4a5568;
+            background: #edf2f7;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录界面 -->
+    <div id="loginSection" class="login-container hidden">
+        <h2 class="login-title">🔐 YouMind V3 用户中心</h2>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('login')">登录</button>
+            <button class="tab" onclick="showTab('register')">注册</button>
+        </div>
+        
+        <!-- 登录表单 -->
+        <div id="loginForm">
+            <div class="form-group">
+                <label>用户名 / 邮箱</label>
+                <input type="text" id="loginUsername" class="form-control" placeholder="请输入用户名或邮箱">
+            </div>
+            
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="loginPassword" class="form-control" placeholder="请输入密码">
+            </div>
+            
+            <button class="btn btn-primary btn-block" onclick="handleLogin()">
+                登录
+            </button>
+        </div>
+        
+        <!-- 注册表单 -->
+        <div id="registerForm" class="hidden">
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="regUsername" class="form-control" placeholder="3-50 个字符">
+            </div>
+            
+            <div class="form-group">
+                <label>邮箱</label>
+                <input type="email" id="regEmail" class="form-control" placeholder="example@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="regPassword" class="form-control" placeholder="至少 8 位，包含大小写字母、数字、特殊字符">
+            </div>
+            
+            <button class="btn btn-success btn-block" onclick="handleRegister()">
+                注册
+            </button>
+        </div>
+        
+        <div id="loginMessage" class="alert hidden" style="margin-top: 20px;"></div>
+    </div>
+    
+    <!-- 主界面 -->
+    <div id="mainSection" class="container hidden">
+        <!-- 头部 -->
+        <div class="header">
+            <div>
+                <h1>👤 用户中心</h1>
+                <p style="color: #666; margin-top: 4px;">YouMind V3 - 智能内容创作平台</p>
+            </div>
+            
+            <div class="user-info">
+                <div class="avatar" id="userAvatar">U</div>
+                <div class="user-details">
+                    <span class="username" id="displayUsername">-</span>
+                    <span class="email" id="displayEmail">-</span>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()">退出登录</button>
+            </div>
+        </div>
+        
+        <!-- 信息提示 -->
+        <div id="mainMessage" class="alert hidden"></div>
+        
+        <!-- 主要内容网格 -->
+        <div class="grid">
+            <!-- 订阅信息 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📊 订阅计划</h3>
+                    <span class="badge badge-free" id="subscriptionBadge">FREE</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>当前计划</label>
+                    <div style="font-size: 24px; font-weight: 700; color: #667eea;" id="currentPlan">Free</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>状态</label>
+                    <div>
+                        <span class="badge badge-active" id="subscriptionStatus">Active</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>有效期至</label>
+                    <div id="subscriptionEnd">-</div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="subscriptionProgress" style="width: 100%"></div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-primary btn-block" onclick="showUpgradeModal()">
+                        ⬆️ 升级订阅
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 用户统计 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📈 使用统计</h3>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="statArticles">0</div>
+                        <div class="stat-label">生成文章</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statTopics">0</div>
+                        <div class="stat-label">收藏选题</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statDays">0</div>
+                        <div class="stat-label">使用天数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statSaved">0</div>
+                        <div class="stat-label">节省时间 (h)</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #f0f0f0;">
+                    <h4 style="margin-bottom: 12px; color: #555;">🔑 权限列表</h4>
+                    <div class="permission-list" id="permissionList">
+                        <span class="permission-tag">加载中...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 个人信息 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">⚙️ 个人设置</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label>主题</label>
+                    <select class="form-control" id="settingTheme">
+                        <option value="light">☀️ 浅色模式</option>
+                        <option value="dark">🌙 深色模式</option>
+                        <option value="auto">🔄 跟随系统</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>语言</label>
+                    <select class="form-control" id="settingLanguage">
+                        <option value="zh-CN">🇨🇳 简体中文</option>
+                        <option value="en-US">🇺🇸 English</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>时区</label>
+                    <select class="form-control" id="settingTimezone">
+                        <option value="Asia/Shanghai">🇨🇳 北京时间 (UTC+8)</option>
+                        <option value="America/New_York">🇺🇸 纽约时间 (UTC-5)</option>
+                        <option value="Europe/London">🇬🇧 伦敦时间 (UTC+0)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="settingNotifications" checked>
+                        启用通知
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="settingAutoSave" checked>
+                        自动保存
+                    </label>
+                </div>
+                
+                <button class="btn btn-primary btn-block" onclick="saveSettings()">
+                    💾 保存设置
+                </button>
+            </div>
+            
+            <!-- 修改密码 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🔒 账户安全</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label>当前密码</label>
+                    <input type="password" id="currentPassword" class="form-control" placeholder="请输入当前密码">
+                </div>
+                
+                <div class="form-group">
+                    <label>新密码</label>
+                    <input type="password" id="newPassword" class="form-control" placeholder="至少 8 位，包含大小写字母、数字、特殊字符">
+                </div>
+                
+                <div class="form-group">
+                    <label>确认新密码</label>
+                    <input type="password" id="confirmPassword" class="form-control" placeholder="请再次输入新密码">
+                </div>
+                
+                <button class="btn btn-primary btn-block" onclick="changePassword()">
+                    🔐 修改密码
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // API 基础 URL
+        const API_BASE = '/api/v3/auth';
+        
+        // 存储 Token
+        let accessToken = localStorage.getItem('access_token');
+        let refreshToken = localStorage.getItem('refresh_token');
+        let currentUser = null;
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            if (accessToken) {
+                loadUserInfo();
+            } else {
+                showLogin();
+            }
+        });
+        
+        // 显示/隐藏界面
+        function showLogin() {
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('mainSection').classList.add('hidden');
+        }
+        
+        function showMain() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('mainSection').classList.remove('hidden');
+        }
+        
+        // Tab 切换
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (tab === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+            } else {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+            }
+        }
+        
+        // 显示消息
+        function showMessage(elementId, message, type = 'info') {
+            const el = document.getElementById(elementId);
+            el.className = `alert alert-${type}`;
+            el.textContent = message;
+            el.classList.remove('hidden');
+            
+            setTimeout(() => {
+                el.classList.add('hidden');
+            }, 5000);
+        }
+        
+        // API 请求封装
+        async function apiRequest(endpoint, options = {}) {
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            if (accessToken) {
+                headers['Authorization'] = `Bearer ${accessToken}`;
+            }
+            
+            const response = await fetch(`${API_BASE}${endpoint}`, {
+                ...options,
+                headers
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.detail || '请求失败');
+            }
+            
+            return data;
+        }
+        
+        // 加载用户信息
+        async function loadUserInfo() {
+            try {
+                const data = await apiRequest('/me');
+                currentUser = data.data;
+                
+                // 更新 UI
+                document.getElementById('displayUsername').textContent = currentUser.user.username;
+                document.getElementById('displayEmail').textContent = currentUser.user.email;
+                document.getElementById('userAvatar').textContent = currentUser.user.username.charAt(0).toUpperCase();
+                
+                // 加载订阅信息
+                loadSubscription();
+                
+                // 加载权限列表
+                loadPermissions();
+                
+                // 加载用户配置
+                loadUserConfig();
+                
+                showMain();
+            } catch (error) {
+                console.error('加载用户信息失败:', error);
+                logout();
+            }
+        }
+        
+        // 加载订阅信息
+        async function loadSubscription() {
+            try {
+                const data = await apiRequest('/subscription');
+                const sub = data.data.subscription;
+                
+                document.getElementById('currentPlan').textContent = sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1);
+                document.getElementById('subscriptionBadge').className = `badge badge-${sub.plan}`;
+                document.getElementById('subscriptionBadge').textContent = sub.plan.toUpperCase();
+                
+                document.getElementById('subscriptionStatus').className = `badge badge-${sub.status}`;
+                document.getElementById('subscriptionStatus').textContent = sub.status;
+                
+                document.getElementById('subscriptionEnd').textContent = new Date(sub.end_date).toLocaleDateString('zh-CN');
+                
+                // 计算进度条
+                const start = new Date(sub.start_date);
+                const end = new Date(sub.end_date);
+                const now = new Date();
+                const total = end - start;
+                const elapsed = now - start;
+                const percent = Math.min(100, Math.max(0, (elapsed / total) * 100));
+                document.getElementById('subscriptionProgress').style.width = `${percent}%`;
+                
+            } catch (error) {
+                console.error('加载订阅信息失败:', error);
+            }
+        }
+        
+        // 加载权限列表
+        function loadPermissions() {
+            const permissions = currentUser.permissions || [];
+            const container = document.getElementById('permissionList');
+            
+            if (permissions.length === 0) {
+                container.innerHTML = '<span class="permission-tag">暂无权限</span>';
+                return;
+            }
+            
+            container.innerHTML = permissions.map(p => 
+                `<span class="permission-tag">${p}</span>`
+            ).join('');
+        }
+        
+        // 加载用户配置
+        async function loadUserConfig() {
+            try {
+                const data = await apiRequest('/config');
+                const config = data.data.config;
+                
+                document.getElementById('settingTheme').value = config.theme || 'light';
+                document.getElementById('settingLanguage').value = config.language || 'zh-CN';
+                document.getElementById('settingTimezone').value = config.timezone || 'Asia/Shanghai';
+                document.getElementById('settingNotifications').checked = config.notifications_enabled !== false;
+                document.getElementById('settingAutoSave').checked = config.auto_save !== false;
+                
+            } catch (error) {
+                console.error('加载配置失败:', error);
+            }
+        }
+        
+        // 登录
+        async function handleLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                showMessage('loginMessage', '请输入用户名和密码', 'error');
+                return;
+            }
+            
+            try {
+                const data = await apiRequest('/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password })
+                });
+                
+                accessToken = data.access_token;
+                refreshToken = data.refresh_token;
+                
+                localStorage.setItem('access_token', accessToken);
+                localStorage.setItem('refresh_token', refreshToken);
+                
+                showMessage('loginMessage', '登录成功！', 'success');
+                setTimeout(() => loadUserInfo(), 500);
+                
+            } catch (error) {
+                showMessage('loginMessage', error.message, 'error');
+            }
+        }
+        
+        // 注册
+        async function handleRegister() {
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            if (!username || !email || !password) {
+                showMessage('loginMessage', '请填写所有字段', 'error');
+                return;
+            }
+            
+            try {
+                const data = await apiRequest('/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                accessToken = data.data.tokens.access_token;
+                refreshToken = data.data.tokens.refresh_token;
+                
+                localStorage.setItem('access_token', accessToken);
+                localStorage.setItem('refresh_token', refreshToken);
+                
+                showMessage('loginMessage', '注册成功！', 'success');
+                setTimeout(() => loadUserInfo(), 500);
+                
+            } catch (error) {
+                showMessage('loginMessage', error.message, 'error');
+            }
+        }
+        
+        // 登出
+        function handleLogout() {
+            logout();
+        }
+        
+        function logout() {
+            accessToken = null;
+            refreshToken = null;
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            currentUser = null;
+            showLogin();
+        }
+        
+        // 保存设置
+        async function saveSettings() {
+            const config = {
+                theme: document.getElementById('settingTheme').value,
+                language: document.getElementById('settingLanguage').value,
+                timezone: document.getElementById('settingTimezone').value,
+                notifications_enabled: document.getElementById('settingNotifications').checked,
+                auto_save: document.getElementById('settingAutoSave').checked
+            };
+            
+            try {
+                await apiRequest('/config', {
+                    method: 'PUT',
+                    body: JSON.stringify(config)
+                });
+                
+                showMessage('mainMessage', '设置已保存', 'success');
+                
+            } catch (error) {
+                showMessage('mainMessage', error.message, 'error');
+            }
+        }
+        
+        // 修改密码
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showMessage('mainMessage', '请填写所有字段', 'error');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showMessage('mainMessage', '两次输入的新密码不一致', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                showMessage('mainMessage', '新密码长度至少 8 位', 'error');
+                return;
+            }
+            
+            try {
+                await apiRequest('/change-password', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        old_password: currentPassword,
+                        new_password: newPassword
+                    })
+                });
+                
+                showMessage('mainMessage', '密码修改成功', 'success');
+                
+                // 清空输入框
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                
+            } catch (error) {
+                showMessage('mainMessage', error.message, 'error');
+            }
+        }
+        
+        // 显示升级订阅模态框
+        function showUpgradeModal() {
+            const plan = prompt('请输入要升级的订阅计划 (basic/pro/enterprise):');
+            if (!plan) return;
+            
+            const duration = prompt('请输入订阅天数 (默认 30):', '30');
+            
+            apiRequest('/subscription/upgrade', {
+                method: 'POST',
+                body: JSON.stringify({
+                    plan: plan.toLowerCase(),
+                    duration_days: parseInt(duration) || 30
+                })
+            })
+            .then(() => {
+                showMessage('mainMessage', '订阅升级成功', 'success');
+                loadSubscription();
+            })
+            .catch(error => {
+                showMessage('mainMessage', error.message, 'error');
+            });
+        }
+    </script>
+</body>
+</html>
