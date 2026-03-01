@@ -4,237 +4,316 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>V3 热点中心 - HotNews Center</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/v3-unified.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .heat-explosive { border-left: 4px solid #ef4444; background: linear-gradient(90deg, #fef2f2 0%, transparent 100%); }
-        .heat-hot { border-left: 4px solid #f97316; background: linear-gradient(90deg, #fff7ed 0%, transparent 100%); }
-        .heat-warm { border-left: 4px solid #eab308; background: linear-gradient(90deg, #fefce8 0%, transparent 100%); }
-        .heat-normal { border-left: 4px solid #22c55e; }
-        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s; }
-        .fade-enter-from, .fade-leave-to { opacity: 0; }
-    </style>
 </head>
-<body class="bg-gray-50">
-    <div id="app" class="min-h-screen">
+<body>
+    <div id="app" class="v3-layout">
         <!-- 顶部导航 -->
-        <header class="bg-white shadow-sm sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 py-4">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-900">🔥 V3 热点中心</h1>
-                        <p class="text-sm text-gray-500 mt-1">HotNews Center - 实时热榜聚合</p>
+        <nav class="v3-navbar">
+            <a href="v3_portal.html" class="v3-navbar-brand">
+                <span class="v3-navbar-brand-logo">🔥</span>
+                <span class="v3-navbar-brand-label">热点中心</span>
+            </a>
+            
+            <div class="v3-navbar-nav">
+                <a href="v3_portal.html" class="v3-navbar-link" data-module="portal">门户</a>
+                <a href="v3_coordinator.html" class="v3-navbar-link" data-module="coordinator">协调</a>
+                <a href="v3_workflow.html" class="v3-navbar-link" data-module="workflow">工作流</a>
+                <a href="v3_publish_center.html" class="v3-navbar-link" data-module="publish">发布</a>
+                <a href="v3_data_dashboard.html" class="v3-navbar-link active" data-module="data">数据</a>
+            </div>
+            
+            <div class="v3-navbar-actions">
+                <button @click="refresh" :disabled="refreshing" class="v3-btn v3-btn-sm v3-btn-primary">
+                    <i class="fas fa-sync" :class="{ 'fa-spin': refreshing }"></i> 刷新
+                </button>
+                <span class="v3-text-sm v3-text-gray">最后更新：{{ lastUpdate }}</span>
+                <div class="v3-navbar-user">
+                    <div class="v3-navbar-user-avatar">A</div>
+                    <div class="v3-navbar-user-info">
+                        <span class="v3-navbar-user-name">Admin</span>
+                        <span class="v3-navbar-user-role">管理员</span>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <button @click="refresh" :disabled="refreshing" 
-                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400">
-                            {{ refreshing ? '刷新中...' : '🔄 刷新' }}
-                        </button>
-                        <div class="text-sm text-gray-500">
-                            最后更新：{{ lastUpdate }}
-                        </div>
-                    </div>
+                </div>
+                <div class="v3-navbar-settings">
+                    <i class="fas fa-cog"></i>
                 </div>
             </div>
-        </header>
+        </nav>
 
-        <main class="max-w-7xl mx-auto px-4 py-6">
-            <!-- 统计卡片 -->
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-                <div class="bg-white rounded-lg shadow p-4">
-                    <div class="text-sm text-gray-500">总热点数</div>
-                    <div class="text-2xl font-bold text-blue-600">{{ stats.total || 0 }}</div>
-                </div>
-                <div class="bg-white rounded-lg shadow p-4">
-                    <div class="text-sm text-gray-500">🔥 爆款</div>
-                    <div class="text-2xl font-bold text-red-600">{{ stats.explosive || 0 }}</div>
-                </div>
-                <div class="bg-white rounded-lg shadow p-4">
-                    <div class="text-sm text-gray-500">热门</div>
-                    <div class="text-2xl font-bold text-orange-600">{{ stats.hot || 0 }}</div>
-                </div>
-                <div class="bg-white rounded-lg shadow p-4">
-                    <div class="text-sm text-gray-500">平台数</div>
-                    <div class="text-2xl font-bold text-purple-600">{{ stats.platforms || 0 }}</div>
-                </div>
-                <div class="bg-white rounded-lg shadow p-4">
-                    <div class="text-sm text-gray-500">订阅数</div>
-                    <div class="text-2xl font-bold text-green-600">{{ stats.subscriptions || 0 }}</div>
-                </div>
-            </div>
-
-            <!-- 筛选器 -->
-            <div class="bg-white rounded-lg shadow p-4 mb-6">
-                <div class="flex flex-wrap gap-4 items-end">
-                    <div class="flex-1 min-w-[200px]">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">🔍 关键词搜索</label>
-                        <input v-model="filters.keyword" @keyup.enter="loadHotnews" type="text" 
-                               placeholder="搜索热点..." class="w-full border rounded px-3 py-2">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">平台</label>
-                        <select v-model="filters.platform" @change="loadHotnews" class="border rounded px-3 py-2">
-                            <option value="">全部平台</option>
-                            <option v-for="p in platforms" :key="p" :value="p">{{ p }}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
-                        <select v-model="filters.category" @change="loadHotnews" class="border rounded px-3 py-2">
-                            <option value="">全部分类</option>
-                            <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">时间</label>
-                        <select v-model="filters.timeRange" @change="loadHotnews" class="border rounded px-3 py-2">
-                            <option value="1h">最近 1 小时</option>
-                            <option value="6h">最近 6 小时</option>
-                            <option value="24h" selected>最近 24 小时</option>
-                            <option value="7d">最近 7 天</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">热度</label>
-                        <select v-model="filters.minHeat" @change="loadHotnews" class="border rounded px-3 py-2">
-                            <option value="0">全部热度</option>
-                            <option value="100000">🔥 10 万+</option>
-                            <option value="500000">🔥 50 万+</option>
-                            <option value="1000000">🔥 100 万+</option>
-                        </select>
-                    </div>
-                    <button @click="loadHotnews" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        筛选
-                    </button>
-                </div>
-            </div>
-
-            <!-- 热点列表 -->
-            <div class="bg-white rounded-lg shadow">
-                <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
-                    <div>
-                        <h2 class="text-lg font-semibold">热点列表</h2>
-                        <p class="text-sm text-gray-500">共 {{ hotnews.length }} 条</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <button @click="toggleView('list')" :class="viewMode==='list'?'bg-blue-100':''" class="px-3 py-1 rounded">
-                            📋 列表
-                        </button>
-                        <button @click="toggleView('grid')" :class="viewMode==='grid'?'bg-blue-100':''" class="px-3 py-1 rounded">
-                            📊 网格
-                        </button>
+        <!-- 侧边栏 -->
+        <aside class="v3-sidebar">
+            <div class="v3-sidebar-content">
+                <div class="v3-sidebar-section">
+                    <div class="v3-sidebar-title">热点管理</div>
+                    <div class="v3-sidebar-menu">
+                        <a href="#" class="v3-sidebar-item active">
+                            <span class="v3-sidebar-item-icon"><i class="fas fa-fire"></i></span>
+                            <span class="v3-sidebar-item-label">热点列表</span>
+                        </a>
+                        <a href="#" class="v3-sidebar-item">
+                            <span class="v3-sidebar-item-icon"><i class="fas fa-chart-line"></i></span>
+                            <span class="v3-sidebar-item-label">热度分析</span>
+                        </a>
+                        <a href="#" class="v3-sidebar-item">
+                            <span class="v3-sidebar-item-icon"><i class="fas fa-bell"></i></span>
+                            <span class="v3-sidebar-item-label">订阅管理</span>
+                        </a>
                     </div>
                 </div>
                 
-                <div v-if="loading" class="p-8 text-center">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                    <p class="mt-2 text-gray-500">加载中...</p>
+                <div class="v3-sidebar-section">
+                    <div class="v3-sidebar-title">快捷入口</div>
+                    <div class="v3-sidebar-menu">
+                        <a href="v3_topic_intelligence.html" class="v3-sidebar-item">
+                            <span class="v3-sidebar-item-icon"><i class="fas fa-lightbulb"></i></span>
+                            <span class="v3-sidebar-item-label">智能选题</span>
+                        </a>
+                        <a href="v3_writing_factory.html" class="v3-sidebar-item">
+                            <span class="v3-sidebar-item-icon"><i class="fas fa-pen-fancy"></i></span>
+                            <span class="v3-sidebar-item-label">写作工厂</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="v3-sidebar-status">
+                    <div class="v3-sidebar-status-item">
+                        <span class="v3-sidebar-status-label">数据源</span>
+                        <span class="v3-status-indicator">
+                            <span class="v3-status-dot success"></span>
+                            <span class="v3-sidebar-status-value">正常</span>
+                        </span>
+                    </div>
+                    <div class="v3-sidebar-status-item">
+                        <span class="v3-sidebar-status-label">平台数</span>
+                        <span class="v3-sidebar-status-value">{{ stats.platforms || 8 }}</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="v3-main">
+            <div class="v3-content">
+                <!-- 面包屑导航 -->
+                <div class="v3-breadcrumbs v3-mb-md">
+                    <span style="display: flex; align-items: center; gap: 8px;">
+                        <a href="v3_portal.html" class="v3-text-primary">门户</a>
+                        <span class="v3-text-gray">/</span>
+                        <span class="v3-font-medium">热点中心</span>
+                    </span>
                 </div>
 
-                <div v-else-if="hotnews.length === 0" class="p-8 text-center text-gray-500">
-                    暂无热点数据，点击刷新按钮获取最新热点
+                <!-- 统计卡片 -->
+                <div class="v3-grid v3-grid-5 v3-mb-lg">
+                    <div class="v3-stat-card">
+                        <div class="v3-stat-label">总热点数</div>
+                        <div class="v3-stat-value" style="color: var(--primary-600);">{{ stats.total || 0 }}</div>
+                    </div>
+                    <div class="v3-stat-card">
+                        <div class="v3-stat-label">🔥 爆款</div>
+                        <div class="v3-stat-value" style="color: var(--danger-600);">{{ stats.explosive || 0 }}</div>
+                    </div>
+                    <div class="v3-stat-card">
+                        <div class="v3-stat-label">热门</div>
+                        <div class="v3-stat-value" style="color: var(--warning-600);">{{ stats.hot || 0 }}</div>
+                    </div>
+                    <div class="v3-stat-card">
+                        <div class="v3-stat-label">平台数</div>
+                        <div class="v3-stat-value" style="color: var(--secondary-600);">{{ stats.platforms || 0 }}</div>
+                    </div>
+                    <div class="v3-stat-card">
+                        <div class="v3-stat-label">订阅数</div>
+                        <div class="v3-stat-value" style="color: var(--success-600);">{{ stats.subscriptions || 0 }}</div>
+                    </div>
                 </div>
 
-                <!-- 列表视图 -->
-                <div v-else-if="viewMode==='list'" class="divide-y divide-gray-200">
-                    <div v-for="item in hotnews" :key="item.id" 
-                         class="p-4 hover:bg-gray-50 cursor-pointer heat-{{ item.heat_level }}"
-                         @click="showDetail(item)">
-                        <div class="flex justify-between items-start">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="text-xs px-2 py-0.5 rounded bg-gray-100">{{ item.platform }}</span>
-                                    <span class="text-xs px-2 py-0.5 rounded bg-blue-100">{{ item.category }}</span>
-                                    <span class="text-xs text-gray-500">{{ formatTime(item.publish_time) }}</span>
-                                </div>
-                                <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ item.title }}</h3>
-                                <p class="text-sm text-gray-600 line-clamp-2">{{ item.content || item.description }}</p>
+                <!-- 筛选器 -->
+                <div class="v3-card v3-mb-lg">
+                    <div class="v3-card-body">
+                        <div class="v3-flex v3-flex-col v3-gap-md" style="flex-wrap: wrap;">
+                            <div class="v3-form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                                <label class="v3-form-label">🔍 关键词搜索</label>
+                                <input v-model="filters.keyword" @keyup.enter="loadHotnews" type="text" 
+                                       placeholder="搜索热点..." class="v3-form-input">
                             </div>
-                            <div class="text-right ml-4">
-                                <div class="text-lg font-bold" :class="getHeatColor(item.heat_count)">
-                                    🔥 {{ formatHeat(item.heat_count) }}
-                                </div>
-                                <div class="text-xs text-gray-500 mt-1">{{ item.heat_level }}</div>
+                            <div class="v3-form-group" style="margin-bottom: 0;">
+                                <label class="v3-form-label">平台</label>
+                                <select v-model="filters.platform" @change="loadHotnews" class="v3-form-select">
+                                    <option value="">全部平台</option>
+                                    <option v-for="p in platforms" :key="p" :value="p">{{ p }}</option>
+                                </select>
                             </div>
+                            <div class="v3-form-group" style="margin-bottom: 0;">
+                                <label class="v3-form-label">分类</label>
+                                <select v-model="filters.category" @change="loadHotnews" class="v3-form-select">
+                                    <option value="">全部分类</option>
+                                    <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
+                                </select>
+                            </div>
+                            <div class="v3-form-group" style="margin-bottom: 0;">
+                                <label class="v3-form-label">时间</label>
+                                <select v-model="filters.timeRange" @change="loadHotnews" class="v3-form-select">
+                                    <option value="1h">最近 1 小时</option>
+                                    <option value="6h">最近 6 小时</option>
+                                    <option value="24h" selected>最近 24 小时</option>
+                                    <option value="7d">最近 7 天</option>
+                                </select>
+                            </div>
+                            <div class="v3-form-group" style="margin-bottom: 0;">
+                                <label class="v3-form-label">热度</label>
+                                <select v-model="filters.minHeat" @change="loadHotnews" class="v3-form-select">
+                                    <option value="0">全部热度</option>
+                                    <option value="100000">🔥 10 万+</option>
+                                    <option value="500000">🔥 50 万+</option>
+                                    <option value="1000000">🔥 100 万+</option>
+                                </select>
+                            </div>
+                            <button @click="loadHotnews" class="v3-btn v3-btn-primary" style="align-self: flex-end;">
+                                筛选
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- 网格视图 -->
-                <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-                    <div v-for="item in hotnews" :key="item.id" 
-                         class="p-4 rounded-lg shadow hover:shadow-md cursor-pointer heat-{{ item.heat_level }}"
-                         @click="showDetail(item)">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-xs px-2 py-0.5 rounded bg-gray-100">{{ item.platform }}</span>
-                            <span class="text-xs px-2 py-0.5 rounded bg-blue-100">{{ item.category }}</span>
+                <!-- 热点列表 -->
+                <div class="v3-card">
+                    <div class="v3-card-header">
+                        <div>
+                            <h3 class="v3-card-title">热点列表</h3>
+                            <p class="v3-text-sm v3-text-gray">共 {{ hotnews.length }} 条</p>
                         </div>
-                        <h3 class="text-base font-semibold text-gray-900 mb-2 line-clamp-2">{{ item.title }}</h3>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs text-gray-500">{{ formatTime(item.publish_time) }}</span>
-                            <span class="text-sm font-bold" :class="getHeatColor(item.heat_count)">
-                                🔥 {{ formatHeat(item.heat_count) }}
-                            </span>
+                        <div class="v3-flex v3-gap-sm">
+                            <button @click="toggleView('list')" :class="viewMode==='list' ? 'v3-btn-primary' : 'v3-btn-ghost'" class="v3-btn v3-btn-sm">
+                                📋 列表
+                            </button>
+                            <button @click="toggleView('grid')" :class="viewMode==='grid' ? 'v3-btn-primary' : 'v3-btn-ghost'" class="v3-btn v3-btn-sm">
+                                📊 网格
+                            </button>
                         </div>
                     </div>
-                </div>
+                    
+                    <div v-if="loading" class="v3-card-body" style="text-align: center; padding: 40px;">
+                        <div class="v3-loading-spinner"></div>
+                        <p class="v3-text-gray v3-mt-md">加载中...</p>
+                    </div>
 
-                <!-- 分页 -->
-                <div v-if="hotnews.length > 0" class="px-4 py-3 border-t border-gray-200 flex justify-between items-center">
-                    <button @click="changePage(-1)" :disabled="page<=1" class="px-4 py-2 rounded border disabled:opacity-50">
-                        ← 上一页
-                    </button>
-                    <span class="text-sm text-gray-500">第 {{ page }} 页</span>
-                    <button @click="changePage(1)" class="px-4 py-2 rounded border">
-                        下一页 →
-                    </button>
+                    <div v-else-if="hotnews.length === 0" class="v3-card-body" style="text-align: center; padding: 40px;">
+                        <p class="v3-text-gray">暂无热点数据，点击刷新按钮获取最新热点</p>
+                    </div>
+
+                    <!-- 列表视图 -->
+                    <div v-else-if="viewMode==='list'" class="divide-y">
+                        <div v-for="item in hotnews" :key="item.id" 
+                             class="p-4 hover:bg-gray-50 cursor-pointer"
+                             :style="getHeatStyle(item.heat_level)"
+                             @click="showDetail(item)">
+                            <div class="v3-flex v3-justify-between v3-items-start">
+                                <div class="flex-1">
+                                    <div class="v3-flex v3-gap-sm v3-items-center v3-mb-sm">
+                                        <span class="v3-badge v3-badge-gray">{{ item.platform }}</span>
+                                        <span class="v3-badge v3-badge-info">{{ item.category }}</span>
+                                        <span class="v3-text-xs v3-text-gray">{{ formatTime(item.publish_time) }}</span>
+                                    </div>
+                                    <h3 class="v3-font-semibold v3-text-lg v3-mb-sm">{{ item.title }}</h3>
+                                    <p class="v3-text-sm v3-text-gray line-clamp-2">{{ item.content || item.description }}</p>
+                                </div>
+                                <div class="text-right ml-4">
+                                    <div class="v3-text-xl v3-font-bold" :class="getHeatColor(item.heat_count)">
+                                        🔥 {{ formatHeat(item.heat_count) }}
+                                    </div>
+                                    <div class="v3-text-xs v3-text-gray v3-mt-sm">{{ item.heat_level }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 网格视图 -->
+                    <div v-else class="v3-grid v3-grid-3 v3-p-lg">
+                        <div v-for="item in hotnews" :key="item.id" 
+                             class="v3-card v3-card-hover"
+                             :style="getHeatStyle(item.heat_level)"
+                             @click="showDetail(item)">
+                            <div class="v3-card-body">
+                                <div class="v3-flex v3-gap-sm v3-items-center v3-mb-md">
+                                    <span class="v3-badge v3-badge-gray">{{ item.platform }}</span>
+                                    <span class="v3-badge v3-badge-info">{{ item.category }}</span>
+                                </div>
+                                <h3 class="v3-font-semibold v3-mb-md line-clamp-2">{{ item.title }}</h3>
+                                <div class="v3-flex v3-justify-between v3-items-center">
+                                    <span class="v3-text-xs v3-text-gray">{{ formatTime(item.publish_time) }}</span>
+                                    <span class="v3-text-sm v3-font-bold" :class="getHeatColor(item.heat_count)">
+                                        🔥 {{ formatHeat(item.heat_count) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div v-if="hotnews.length > 0" class="v3-card-footer v3-flex v3-justify-between v3-items-center">
+                        <button @click="changePage(-1)" :disabled="page<=1" class="v3-btn v3-btn-outline">
+                            ← 上一页
+                        </button>
+                        <span class="v3-text-sm v3-text-gray">第 {{ page }} 页</span>
+                        <button @click="changePage(1)" class="v3-btn v3-btn-outline">
+                            下一页 →
+                        </button>
+                    </div>
                 </div>
             </div>
         </main>
 
         <!-- 热点详情弹窗 -->
-        <div v-if="selectedItem" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" @click.self="selectedItem=null">
-            <div class="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm px-2 py-1 rounded bg-gray-100">{{ selectedItem.platform }}</span>
-                            <span class="text-sm px-2 py-1 rounded bg-blue-100">{{ selectedItem.category }}</span>
+        <div v-if="selectedItem" class="v3-modal-overlay" @click.self="selectedItem=null">
+            <div class="v3-modal">
+                <div class="v3-card" style="max-width: 800px; width: 100%;">
+                    <div class="v3-card-header">
+                        <h3 class="v3-card-title">热点详情</h3>
+                        <button @click="selectedItem=null" class="v3-btn v3-btn-ghost v3-btn-icon">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="v3-card-body">
+                        <div class="v3-flex v3-gap-sm v3-items-center v3-mb-md">
+                            <span class="v3-badge v3-badge-gray">{{ selectedItem.platform }}</span>
+                            <span class="v3-badge v3-badge-info">{{ selectedItem.category }}</span>
                         </div>
-                        <button @click="selectedItem=null" class="text-gray-400 hover:text-gray-600">✕</button>
-                    </div>
-                    
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ selectedItem.title }}</h2>
-                    
-                    <div class="flex items-center gap-4 mb-4 text-sm text-gray-500">
-                        <span>🔥 {{ formatHeat(selectedItem.heat_count) }}</span>
-                        <span>📅 {{ formatTime(selectedItem.publish_time) }}</span>
-                        <span>🕐 采集：{{ formatTime(selectedItem.crawl_time) }}</span>
-                    </div>
+                        
+                        <h2 class="v3-text-2xl v3-font-bold v3-mb-md">{{ selectedItem.title }}</h2>
+                        
+                        <div class="v3-flex v3-gap-md v3-items-center v3-text-sm v3-text-gray v3-mb-md">
+                            <span>🔥 {{ formatHeat(selectedItem.heat_count) }}</span>
+                            <span>📅 {{ formatTime(selectedItem.publish_time) }}</span>
+                            <span>🕐 采集：{{ formatTime(selectedItem.crawl_time) }}</span>
+                        </div>
 
-                    <div class="prose max-w-none mb-4">
-                        <p class="text-gray-700">{{ selectedItem.content || selectedItem.description }}</p>
-                    </div>
+                        <div class="v3-p-md v3-bg-gray-50 v3-rounded v3-mb-md">
+                            <p class="v3-text-gray-700">{{ selectedItem.content || selectedItem.description }}</p>
+                        </div>
 
-                    <a :href="selectedItem.source_url" target="_blank" 
-                       class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        🔗 查看原文
-                    </a>
+                        <a :href="selectedItem.source_url" target="_blank" class="v3-btn v3-btn-primary">
+                            🔗 查看原文
+                        </a>
 
-                    <div class="mt-6 flex gap-3">
-                        <button @click="createTopic(selectedItem)" class="flex-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                            📝 一键选题
-                        </button>
-                        <button @click="subscribe(selectedItem)" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
-                            🔔 订阅
-                        </button>
+                        <div class="v3-flex v3-gap-md v3-mt-lg">
+                            <button @click="createTopic(selectedItem)" class="v3-btn v3-btn-success flex-1">
+                                📝 一键选题
+                            </button>
+                            <button @click="subscribe(selectedItem)" class="v3-btn v3-btn-secondary flex-1">
+                                🔔 订阅
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="js/v3-common.js"></script>
     <script>
         const { createApp } = Vue;
 
@@ -268,8 +347,28 @@
                 setInterval(() => {
                     this.refresh();
                 }, 300000);
+                
+                // 初始化导航
+                if (window.V3NavigationComponent) {
+                    V3NavigationComponent.init('data');
+                }
             },
             methods: {
+                getHeatStyle(level) {
+                    const styles = {
+                        '🔥100 万+': { borderLeft: '4px solid #ef4444', background: 'linear-gradient(90deg, #fef2f2 0%, transparent 100%)' },
+                        '🔥50 万+': { borderLeft: '4px solid #f97316', background: 'linear-gradient(90deg, #fff7ed 0%, transparent 100%)' },
+                        '🔥10 万+': { borderLeft: '4px solid #eab308', background: 'linear-gradient(90deg, #fefce8 0%, transparent 100%)' },
+                        '正常': { borderLeft: '4px solid #22c55e' }
+                    };
+                    return styles[level] || {};
+                },
+                getHeatColor(count) {
+                    if (count >= 1000000) return 'v3-text-danger';
+                    if (count >= 500000) return 'v3-text-warning';
+                    if (count >= 100000) return 'v3-text-yellow-600';
+                    return 'v3-text-success';
+                },
                 async loadHotnews() {
                     this.loading = true;
                     try {
@@ -284,7 +383,6 @@
                         this.lastUpdate = new Date().toLocaleTimeString();
                     } catch (e) {
                         console.error('加载失败:', e);
-                        // Mock 数据 (API 未就绪时)
                         this.hotnews = this.getMockData();
                     } finally {
                         this.loading = false;
@@ -309,8 +407,8 @@
                     this.selectedItem = item;
                 },
                 createTopic(item) {
-                    alert(`已创建选题：${item.title}\n(跳转到选题模块)`);
-                    // TODO: 跳转到选题模块
+                    V3.Notification.success(`已创建选题：${item.title}`);
+                    window.location.href = 'v3_topic_intelligence.html';
                 },
                 async subscribe(item) {
                     try {
@@ -322,10 +420,10 @@
                                 category: item.category
                             })
                         });
-                        alert('✅ 订阅成功');
+                        V3.Notification.success('订阅成功');
                         this.stats.subscriptions++;
                     } catch (e) {
-                        alert('订阅失败');
+                        V3.Notification.error('订阅失败');
                     }
                 },
                 toggleView(mode) {
@@ -340,19 +438,12 @@
                     if (count >= 10000) return (count/10000).toFixed(1) + '万';
                     return count.toLocaleString();
                 },
-                getHeatColor(count) {
-                    if (count >= 1000000) return 'text-red-600';
-                    if (count >= 500000) return 'text-orange-600';
-                    if (count >= 100000) return 'text-yellow-600';
-                    return 'text-green-600';
-                },
                 formatTime(timeStr) {
                     if (!timeStr) return '-';
                     const date = new Date(timeStr);
                     return date.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
                 },
                 getMockData() {
-                    // Mock 数据用于演示
                     return Array.from({length: 20}, (_, i) => ({
                         id: `mock_${i}`,
                         title: `热点标题示例 ${i+1} - AI 教育引发热议`,
