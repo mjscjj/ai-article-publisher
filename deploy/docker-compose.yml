@@ -1,0 +1,244 @@
+version: '3.8'
+
+services:
+  # API Gateway (统一入口)
+  gateway:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - hotnews
+      - topics
+      - evaluation
+      - review
+      - coordinator
+      - publish
+      - analytics
+      - workflow
+      - auth
+    networks:
+      - v3-network
+    restart: always
+
+  # 热点中心 API
+  hotnews:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    command: uvicorn api.v3.hotnews:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ..:/app
+    environment:
+      - DB_HOST=mysql
+      - DB_NAME=youmind
+      - DB_USER=youmind
+      - DB_PASSWORD=YouMind2026
+    depends_on:
+      - mysql
+    networks:
+      - v3-network
+    restart: always
+
+  # 智能选题 API
+  topics:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    command: uvicorn api.v3.topics:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8001:8000"
+    volumes:
+      - ..:/app
+    environment:
+      - DB_HOST=mysql
+      - DB_NAME=youmind
+      - DB_USER=youmind
+      - DB_PASSWORD=YouMind2026
+    depends_on:
+      - mysql
+    networks:
+      - v3-network
+    restart: always
+
+  # 工作评价 API (DeepSeek V3)
+  evaluation:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    command: uvicorn api.v3.evaluation:app --host 0.0.0.0 --port 8001
+    ports:
+      - "8002:8001"
+    volumes:
+      - ..:/app
+    environment:
+      - DB_HOST=mysql
+      - AI_BASE_URL=http://ai-base:3001
+    depends_on:
+      - mysql
+      - ai-base
+    networks:
+      - v3-network
+    restart: always
+
+  # 工作 Review API
+  review:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    command: uvicorn api.v3.review_api:app --host 0.0.0.0 --port 8002
+    ports:
+      - "8003:8002"
+    volumes:
+      - ..:/app
+    environment:
+      - DB_HOST=mysql
+    depends_on:
+      - mysql
+    networks:
+      - v3-network
+    restart: always
+
+  # 项目协调者 API (DeepSeek V3)
+  coordinator:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    command: uvicorn api.v3.coordinator_api:app --host 0.0.0.0 --port 8003
+    ports:
+      - "8004:8003"
+    volumes:
+      - ..:/app
+    environment:
+      - DB_HOST=mysql
+    depends_on:
+      - mysql
+    networks:
+      - v3-network
+    restart: always
+
+  # 自动发布 API
+  publish:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    command: uvicorn api.v3.publish:app --host 0.0.0.0 --port 8004
+    ports:
+      - "8005:8004"
+    volumes:
+      - ..:/app
+    environment:
+      - DB_HOST=mysql
+    depends_on:
+      - mysql
+    networks:
+      - v3-network
+    restart: always
+
+  # 数据看板 API
+  analytics:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    command: uvicorn api.v3.analytics:app --host 0.0.0.0 --port 8005
+    ports:
+      - "8006:8005"
+    volumes:
+      - ..:/app
+    environment:
+      - DB_HOST=mysql
+    depends_on:
+      - mysql
+    networks:
+      - v3-network
+    restart: always
+
+  # 工作流引擎 API
+  workflow:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    command: uvicorn api.v3.workflow:app --host 0.0.0.0 --port 8006
+    ports:
+      - "8007:8006"
+    volumes:
+      - ..:/app
+    environment:
+      - DB_HOST=mysql
+    depends_on:
+      - mysql
+    networks:
+      - v3-network
+    restart: always
+
+  # 用户认证 API
+  auth:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    command: uvicorn api.v3.auth:app --host 0.0.0.0 --port 8007
+    ports:
+      - "8008:8007"
+    volumes:
+      - ..:/app
+    environment:
+      - DB_HOST=mysql
+      - JWT_SECRET_KEY=your-secret-key-change-in-production
+    depends_on:
+      - mysql
+    networks:
+      - v3-network
+    restart: always
+
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=YouMind2026
+      - MYSQL_DATABASE=youmind
+      - MYSQL_USER=youmind
+      - MYSQL_PASSWORD=YouMind2026
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./deploy/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - v3-network
+    restart: always
+
+  # Redis 缓存
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - v3-network
+    restart: always
+
+  # AnythingLLM AI Base
+  ai-base:
+    image: anythingllm/anythingllm:latest
+    ports:
+      - "3001:3001"
+    volumes:
+      - ai-base-data:/app/storage
+    environment:
+      - PORT=3001
+    networks:
+      - v3-network
+    restart: always
+
+volumes:
+  mysql-data:
+  redis-data:
+  ai-base-data:
+
+networks:
+  v3-network:
+    driver: bridge

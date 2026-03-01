@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # 统一 API 服务
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    command: uvicorn api.v3.unified_api:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ..:/app
+    environment:
+      - DB_HOST=mysql
+      - DB_NAME=youmind
+      - DB_USER=youmind
+      - DB_PASSWORD=YouMind2026
+    depends_on:
+      - mysql
+    networks:
+      - v3-network
+    restart: always
+
+  # 前端门户 (Nginx)
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ../frontend:/usr/share/nginx/html:ro
+      - ./nginx.unified.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+    networks:
+      - v3-network
+    restart: always
+
+  # MySQL
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=YouMind2026
+      - MYSQL_DATABASE=youmind
+      - MYSQL_USER=youmind
+      - MYSQL_PASSWORD=YouMind2026
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - v3-network
+    restart: always
+
+  # Redis
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - v3-network
+    restart: always
+
+volumes:
+  mysql-data:
+  redis-data:
+
+networks:
+  v3-network:
+    driver: bridge

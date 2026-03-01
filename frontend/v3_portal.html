@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>V3 统一门户 - AI Article Publisher</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div id="app" class="p-8">
+        <!-- 顶部 -->
+        <header class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">🚀 V3 统一门户</h1>
+            <p class="text-gray-600">AI Article Publisher - 全流程自动化写作平台</p>
+        </header>
+
+        <!-- 模块网格 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="module in modules" :key="module.name"
+                 @click="openModule(module.url)"
+                 class="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-2xl hover:scale-105 transition-all">
+                <div class="text-4xl mb-4">{{ module.icon }}</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">{{ module.name }}</h3>
+                <p class="text-gray-600 text-sm mb-4">{{ module.description }}</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs px-2 py-1 rounded" :class="module.status === 'online' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
+                        {{ module.status }}
+                    </span>
+                    <span class="text-blue-600 text-sm">打开 →</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 服务状态 -->
+        <div class="mt-8 bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold mb-4">📊 服务状态</h2>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div v-for="service in services" :key="service.name" class="text-center p-4 rounded-lg" :class="service.online ? 'bg-green-50' : 'bg-gray-50'">
+                    <div class="text-2xl mb-2">{{ service.online ? '✅' : '❌' }}</div>
+                    <div class="font-semibold">{{ service.name }}</div>
+                    <div class="text-xs text-gray-500">{{ service.port }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    API_BASE: 'http://43.134.234.4:8000',
+                    modules: [
+                        { name: '热点中心', icon: '🔥', description: '实时热榜聚合，多维度筛选', url: 'v3_hotnews_center.html', status: 'online' },
+                        { name: '智能选题', icon: '🎯', description: '多行业多角度，5 维评分', url: 'v3_topic_intelligence.html', status: 'online' },
+                        { name: '工作评价', icon: '📊', description: 'DeepSeek V3 智能评价', url: 'v3_evaluation.html', status: 'online' },
+                        { name: '工作 Review', icon: '🔍', description: '全面 Review + 改进计划', url: 'v3_work_review.html', status: 'online' },
+                        { name: '自动发布', icon: '📝', description: '多平台一键发布', url: 'v3_publish_center.html', status: 'online' },
+                        { name: '数据看板', icon: '📈', description: '数据统计 + 可视化', url: 'v3_data_dashboard.html', status: 'online' },
+                        { name: '项目协调者', icon: '🤖', description: 'AI 决策 + 每日站会', url: 'v3_coordinator.html', status: 'online' },
+                        { name: '工作流引擎', icon: '🔗', description: '可视化流程配置', url: 'v3_workflow.html', status: 'online' },
+                        { name: '写作工厂', icon: '✍️', description: '大纲生成 + 初稿撰写', url: 'v3_writing_factory.html', status: 'online' },
+                        { name: '用户中心', icon: '👥', description: '登录 + 配置 + 权限', url: 'v3_user_center.html', status: 'online' }
+                    ],
+                    services: []
+                }
+            },
+            mounted() {
+                this.checkServices();
+                setInterval(() => this.checkServices(), 30000);
+            },
+            methods: {
+                openModule(url) {
+                    window.open(url, '_blank');
+                },
+                async checkServices() {
+                    const ports = [8000];
+                    this.services = await Promise.all(ports.map(async port => {
+                        try {
+                            const r = await fetch(`http://43.134.234.4:${port}/health`);
+                            const d = await r.json();
+                            return { name: '统一 API', port: port, online: true };
+                        } catch {
+                            return { name: '统一 API', port: port, online: false };
+                        }
+                    }));
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

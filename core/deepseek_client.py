@@ -186,7 +186,7 @@ class DeepSeekClient:
         response.raise_for_status()
         
         data = response.json()
-        return data.get('response', '')
+        return data.get('textResponse', '')
     
     def _parse_evaluation_result(self, response: str) -> Dict[str, Any]:
         """解析评价结果"""

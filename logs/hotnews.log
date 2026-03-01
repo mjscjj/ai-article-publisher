@@ -1,0 +1,16 @@
+INFO:     Started server process [647828]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+[HotNewsService] ✅ 数据库连接成功
+✅ V3 HotNews API 启动成功
+[HotNewsService] ✅ 数据库连接已关闭
+✅ V3 HotNews API 已关闭
+Exception ignored in: <function HotNewsService.__del__ at 0x7f3ba11cfd80>
+Traceback (most recent call last):
+  File "/root/.openclaw/workspace-writer/ai-article-publisher/core/hotnews_service.py", line 470, in __del__
+  File "/root/.openclaw/workspace-writer/ai-article-publisher/core/hotnews_service.py", line 465, in close
+  File "/usr/local/lib/python3.11/site-packages/pymysql/connections.py", line 424, in close
+pymysql.err.Error: Already closed

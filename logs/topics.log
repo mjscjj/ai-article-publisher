@@ -1,0 +1,8 @@
+/root/.openclaw/workspace-writer/ai-article-publisher/api/v3/topics.py:226: FastAPIDeprecationWarning: `example` has been deprecated, please use `examples` instead
+  ids: str = Query(..., description="选题 ID 列表，逗号分隔", example="topic_001,topic_002,topic_003")
+INFO:     Started server process [647833]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8001): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.

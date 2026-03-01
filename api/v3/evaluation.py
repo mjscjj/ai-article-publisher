@@ -17,10 +17,8 @@ from typing import List, Optional
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from fastapi import FastAPI, HTTPException, Query, Body
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, HTTPException, Query, Body
 from pydantic import BaseModel, Field
-import uvicorn
 
 from core.evaluation_service import EvaluationService
 from models.evaluation import EvaluationResult, EvaluationHistory
@@ -30,21 +28,7 @@ from models.evaluation import EvaluationResult, EvaluationHistory
 # FastAPI 应用初始化
 # ============================================
 
-app = FastAPI(
-    title="V3 Evaluation API",
-    description="工作评价模块 API - 基于 DeepSeek V3 的智能评价",
-    version="3.0.0",
-    docs_url="/api/v3/evaluation/docs",
-    redoc_url="/api/v3/evaluation/redoc"
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+router = APIRouter()
 
 # 全局服务实例 (使用 DeepSeek V3)
 evaluation_service: Optional[EvaluationService] = None
@@ -74,7 +58,7 @@ class BatchEvaluateRequest(BaseModel):
 # 初始化事件
 # ============================================
 
-@app.on_event("startup")
+@router.on_event("startup")
 async def startup_event():
     """启动时初始化服务"""
     global evaluation_service
@@ -86,7 +70,7 @@ async def startup_event():
         evaluation_service = None
 
 
-@app.on_event("shutdown")
+@router.on_event("shutdown")
 async def shutdown_event():
     """关闭时清理资源"""
     global evaluation_service
@@ -98,7 +82,7 @@ async def shutdown_event():
 # API 路由
 # ============================================
 
-@app.post("/evaluate", response_model=dict)
+@router.post("/evaluate", response_model=dict)
 async def evaluate(request: EvaluateRequest):
     """
     评价文章/选题
@@ -135,7 +119,7 @@ async def evaluate(request: EvaluateRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/history", response_model=dict)
+@router.get("/history", response_model=dict)
 async def get_history(
     target_type: Optional[str] = Query(None, description="类型 (article|topic)"),
     limit: int = Query(50, description="返回数量")
@@ -159,7 +143,7 @@ async def get_history(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/statistics", response_model=dict)
+@router.get("/statistics", response_model=dict)
 async def get_statistics(
     days: int = Query(7, description="统计天数")
 ):
@@ -179,7 +163,7 @@ async def get_statistics(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/batch", response_model=dict)
+@router.post("/batch", response_model=dict)
 async def batch_evaluate(request: BatchEvaluateRequest):
     """批量评价"""
     if not evaluation_service:
@@ -205,7 +189,7 @@ async def batch_evaluate(request: BatchEvaluateRequest):
 # 健康检查
 # ============================================
 
-@app.get("/health")
+@router.get("/health")
 async def health_check():
     """健康检查"""
     return {
@@ -219,10 +203,3 @@ async def health_check():
 # 主程序
 # ============================================
 
-if __name__ == "__main__":
-    uvicorn.run(
-        "evaluation:app",
-        host="0.0.0.0",
-        port=8001,
-        reload=True
-    )

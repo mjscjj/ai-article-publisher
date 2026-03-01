@@ -1,0 +1,68 @@
+INFO:     Started server process [744712]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+[EvaluationService] ✅ 数据库连接成功
+[Evaluation API] ✅ 服务初始化成功 (DeepSeek V3)
+[Review API] ✅ 服务初始化成功 (DeepSeek V3)
+[Coordinator API] ✅ 服务初始化成功
+[EvaluationService] ✅ 数据库连接成功
+[Evaluation API] ✅ 服务初始化成功 (DeepSeek V3)
+[Review API] ✅ 服务初始化成功 (DeepSeek V3)
+[Coordinator API] ✅ 服务初始化成功
+INFO:     127.0.0.1:52346 - "GET /health HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+ERROR:    Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 694, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+  File "/usr/lib64/python3.11/contextlib.py", line 211, in __aexit__
+    await anext(self.gen)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 204, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/usr/lib64/python3.11/contextlib.py", line 211, in __aexit__
+    await anext(self.gen)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 204, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/usr/lib64/python3.11/contextlib.py", line 211, in __aexit__
+    await anext(self.gen)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 204, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/usr/lib64/python3.11/contextlib.py", line 211, in __aexit__
+    await anext(self.gen)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 204, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/usr/lib64/python3.11/contextlib.py", line 211, in __aexit__
+    await anext(self.gen)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 204, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/usr/lib64/python3.11/contextlib.py", line 211, in __aexit__
+    await anext(self.gen)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 204, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/usr/lib64/python3.11/contextlib.py", line 211, in __aexit__
+    await anext(self.gen)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 204, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/usr/lib64/python3.11/contextlib.py", line 211, in __aexit__
+    await anext(self.gen)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 204, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/usr/lib64/python3.11/contextlib.py", line 211, in __aexit__
+    await anext(self.gen)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 204, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 232, in __aexit__
+    await self._router._shutdown()
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 4746, in _shutdown
+    await handler()
+  File "/root/.openclaw/workspace-writer/ai-article-publisher/api/v3/evaluation.py", line 78, in shutdown_event
+    evaluation_service.close()
+  File "/root/.openclaw/workspace-writer/ai-article-publisher/core/evaluation_service.py", line 269, in close
+    self.conn.close()
+  File "/usr/local/lib/python3.11/site-packages/pymysql/connections.py", line 424, in close
+    raise err.Error("Already closed")
+pymysql.err.Error: Already closed
+
+ERROR:    Application shutdown failed. Exiting.
+INFO:     Finished server process [744712]

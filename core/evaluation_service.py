@@ -81,7 +81,7 @@ class EvaluationService:
             评价结果
         """
         # 调用 DeepSeek 评价
-        result = self.client.evaluate_article(title, content, eval_type='article')
+        result = self.client.evaluate_article(title, content, evaluation_type='article')
         
         # 保存到数据库
         if save and 'error' not in result:
@@ -102,7 +102,7 @@ class EvaluationService:
         Returns:
             评价结果
         """
-        result = self.client.evaluate_article(title, description, eval_type='topic')
+        result = self.client.evaluate_article(title, description, evaluation_type='topic')
         
         if save and 'error' not in result:
             self._save_evaluation('topic', '', result)
@@ -218,7 +218,7 @@ class EvaluationService:
             SELECT grade, COUNT(*) as count FROM evaluations 
             WHERE created_at >= DATE_SUB(NOW(), INTERVAL %s DAY)
             GROUP BY grade
-        """)
+        """, (days,))
         grades = {row['grade']: row['count'] for row in cursor.fetchall()}
         
         cursor.close()
@@ -265,9 +265,12 @@ class EvaluationService:
     
     def close(self):
         """关闭数据库连接"""
-        if self.conn:
-            self.conn.close()
-            print("[EvaluationService] ✅ 数据库连接已关闭")
+        try:
+            if self.conn:
+                self.conn.close()
+                print("[EvaluationService] ✅ 数据库连接已关闭")
+        except Exception as e:
+            print(f"[EvaluationService] ⚠️ 关闭连接失败：{e}")
 
 
 # 使用示例

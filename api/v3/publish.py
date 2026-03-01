@@ -18,7 +18,8 @@ from core.publish.publish_queue import (
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/publish", tags=["publish"])
+# 路由器
+router = APIRouter()
 
 # 全局发布队列实例
 _publish_queue: Optional[PublishQueue] = None
@@ -432,4 +433,18 @@ async def get_available_platforms():
         Platform.WECHAT.value: Platform.WECHAT.value in _publishers,
         Platform.ZHIHU.value: Platform.ZHIHU.value in _publishers,
         Platform.XIAOHONGSHU.value: Platform.XIAOHONGSHU.value in _publishers
+    }
+
+
+# ============================================
+# 健康检查
+# ============================================
+
+@router.get("/health")
+async def health_check():
+    """健康检查"""
+    return {
+        "status": "healthy",
+        "service": "Publish Service",
+        "version": "3.0.0"
     }

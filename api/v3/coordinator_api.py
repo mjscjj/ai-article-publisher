@@ -19,10 +19,8 @@ from typing import Optional
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from fastapi import FastAPI, HTTPException, Query, Body
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, HTTPException, Query, Body
 from pydantic import BaseModel, Field
-import uvicorn
 
 from core.project_coordinator import ProjectCoordinator
 
@@ -31,20 +29,7 @@ from core.project_coordinator import ProjectCoordinator
 # FastAPI 应用
 # ============================================
 
-app = FastAPI(
-    title="V3 Project Coordinator API",
-    description="项目协调者 API - DeepSeek V3 智能决策",
-    version="3.0.0",
-    docs_url="/api/v3/coordinator/docs"
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+router = APIRouter()
 
 coordinator: Optional[ProjectCoordinator] = None
 
@@ -69,7 +54,7 @@ class EmergencyRequest(BaseModel):
 # 初始化
 # ============================================
 
-@app.on_event("startup")
+@router.on_event("startup")
 async def startup():
     global coordinator
     coordinator = ProjectCoordinator(model='v3')
@@ -80,7 +65,7 @@ async def startup():
 # API 路由
 # ============================================
 
-@app.post("/daily-standup", response_model=dict)
+@router.post("/daily-standup", response_model=dict)
 async def daily_standup():
     """
     每日站会
@@ -101,7 +86,7 @@ async def daily_standup():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/decide", response_model=dict)
+@router.post("/decide", response_model=dict)
 async def make_decision(request: DecisionRequest):
     """
     做出决策
@@ -122,7 +107,7 @@ async def make_decision(request: DecisionRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/evaluate", response_model=dict)
+@router.post("/evaluate", response_model=dict)
 async def evaluate_and_improve():
     """
     评价并改进
@@ -143,7 +128,7 @@ async def evaluate_and_improve():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/emergency", response_model=dict)
+@router.post("/emergency", response_model=dict)
 async def emergency_mode(request: EmergencyRequest):
     """
     紧急模式
@@ -164,7 +149,7 @@ async def emergency_mode(request: EmergencyRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/status", response_model=dict)
+@router.get("/status", response_model=dict)
 async def get_status(days: int = Query(7, description="天数")):
     """获取项目状态"""
     if not coordinator:
@@ -181,7 +166,7 @@ async def get_status(days: int = Query(7, description="天数")):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/decisions", response_model=dict)
+@router.get("/decisions", response_model=dict)
 async def get_decisions(limit: int = Query(10, description="返回数量")):
     """获取决策历史"""
     if not coordinator:
@@ -199,7 +184,7 @@ async def get_decisions(limit: int = Query(10, description="返回数量")):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/save-decisions", response_model=dict)
+@router.post("/save-decisions", response_model=dict)
 async def save_decisions():
     """保存决策日志"""
     if not coordinator:
@@ -219,7 +204,7 @@ async def save_decisions():
 # 健康检查
 # ============================================
 
-@app.get("/health")
+@router.get("/health")
 async def health():
     return {
         "status": "healthy" if coordinator else "unhealthy",
@@ -232,10 +217,3 @@ async def health():
 # 主程序
 # ============================================
 
-if __name__ == "__main__":
-    uvicorn.run(
-        "coordinator_api:app",
-        host="0.0.0.0",
-        port=8003,
-        reload=True
-    )

@@ -20,10 +20,8 @@ from typing import Optional, List
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from fastapi import FastAPI, HTTPException, Query, Body
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, HTTPException, Query, Body
 from pydantic import BaseModel, Field
-import uvicorn
 
 from core.work_review_system import WorkReviewSystem
 
@@ -32,21 +30,7 @@ from core.work_review_system import WorkReviewSystem
 # FastAPI 应用初始化
 # ============================================
 
-app = FastAPI(
-    title="V3 Work Review API",
-    description="工作 Review API - 基于 DeepSeek V3 的全面评价系统",
-    version="3.0.0",
-    docs_url="/api/v3/review/docs",
-    redoc_url="/api/v3/review/redoc"
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+router = APIRouter()
 
 # 全局 Review 系统实例
 review_system: Optional[WorkReviewSystem] = None
@@ -89,7 +73,7 @@ class ImprovementPlanRequest(BaseModel):
 # 初始化事件
 # ============================================
 
-@app.on_event("startup")
+@router.on_event("startup")
 async def startup_event():
     """启动时初始化"""
     global review_system
@@ -97,7 +81,7 @@ async def startup_event():
     print("[Review API] ✅ 服务初始化成功 (DeepSeek V3)")
 
 
-@app.on_event("shutdown")
+@router.on_event("shutdown")
 async def shutdown_event():
     """关闭时清理"""
     global review_system
@@ -109,7 +93,7 @@ async def shutdown_event():
 # API 路由
 # ============================================
 
-@app.post("/comprehensive", response_model=dict)
+@router.post("/comprehensive", response_model=dict)
 async def comprehensive_review(model: str = "v3"):
     """
     全面综合评价
@@ -130,7 +114,7 @@ async def comprehensive_review(model: str = "v3"):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/code", response_model=dict)
+@router.post("/code", response_model=dict)
 async def review_code(request: CodeReviewRequest):
     """代码质量 Review"""
     if not review_system:
@@ -147,7 +131,7 @@ async def review_code(request: CodeReviewRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/docs", response_model=dict)
+@router.post("/docs", response_model=dict)
 async def review_docs(request: DocReviewRequest):
     """文档质量 Review"""
     if not review_system:
@@ -164,7 +148,7 @@ async def review_docs(request: DocReviewRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/progress", response_model=dict)
+@router.post("/progress", response_model=dict)
 async def review_progress(request: ProgressReviewRequest):
     """项目进度 Review"""
     if not review_system:
@@ -181,7 +165,7 @@ async def review_progress(request: ProgressReviewRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/tests", response_model=dict)
+@router.post("/tests", response_model=dict)
 async def review_tests(request: TestReviewRequest):
     """测试覆盖 Review"""
     if not review_system:
@@ -198,7 +182,7 @@ async def review_tests(request: TestReviewRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/improvement-plan", response_model=dict)
+@router.post("/improvement-plan", response_model=dict)
 async def generate_improvement_plan(request: ImprovementPlanRequest):
     """生成改进计划"""
     if not review_system:
@@ -215,7 +199,7 @@ async def generate_improvement_plan(request: ImprovementPlanRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/history", response_model=dict)
+@router.get("/history", response_model=dict)
 async def get_review_history(limit: int = Query(10, description="返回数量")):
     """获取 Review 历史"""
     if not review_system:
@@ -233,7 +217,7 @@ async def get_review_history(limit: int = Query(10, description="返回数量"))
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/save-report", response_model=dict)
+@router.post("/save-report", response_model=dict)
 async def save_report(output_path: Optional[str] = None):
     """保存 Review 报告"""
     if not review_system:
@@ -254,7 +238,7 @@ async def save_report(output_path: Optional[str] = None):
 # 健康检查
 # ============================================
 
-@app.get("/health")
+@router.get("/health")
 async def health_check():
     """健康检查"""
     return {
@@ -268,7 +252,7 @@ async def health_check():
 # 定时 Review 任务
 # ============================================
 
-@app.post("/schedule-daily-review", response_model=dict)
+@router.post("/schedule-daily-review", response_model=dict)
 async def schedule_daily_review():
     """
     调度每日 Review (可配合 cron 使用)
@@ -304,10 +288,3 @@ async def schedule_daily_review():
 # 主程序
 # ============================================
 
-if __name__ == "__main__":
-    uvicorn.run(
-        "review_api:app",
-        host="0.0.0.0",
-        port=8002,
-        reload=True
-    )

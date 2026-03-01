@@ -27,11 +27,9 @@ from typing import Optional, Dict, Any, List
 # 添加项目路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from fastapi import FastAPI, HTTPException, Depends, Query, Body, Header, Request
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, HTTPException, Depends, Query, Body, Header, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field, EmailStr
-import uvicorn
 
 from core.auth.user_manager import UserManager, get_user_manager, User
 from core.auth.jwt_handler import JWTHandler, get_jwt_handler, TokenPair
@@ -47,22 +45,8 @@ from core.auth.permissions import (
 # FastAPI 应用初始化
 # ============================================
 
-app = FastAPI(
-    title="V3 Auth API",
-    description="用户认证与权限管理 API - 提供注册、登录、Token 管理等功能",
-    version="3.0.0",
-    docs_url="/api/v3/auth/docs",
-    redoc_url="/api/v3/auth/redoc"
-)
+router = APIRouter()
 
-# CORS 配置
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # 生产环境应该限制具体域名
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # 安全方案
 security = HTTPBearer(auto_error=False)
@@ -140,12 +124,12 @@ async def get_current_user(
     }
 
 
-async def require_permission(permission: PermissionEnum):
+def require_permission(permission: PermissionEnum):
     """
     权限检查依赖
     
     用法:
-    @app.post("/admin")
+    @router.post("/admin")
     async def admin_action(current_user=Depends(require_permission(PermissionEnum.USER_ADMIN))):
         ...
     """
@@ -240,7 +224,7 @@ class SubscriptionUpgradeRequest(BaseModel):
 
 # ---------- 用户注册/登录 ----------
 
-@app.post("/register", response_model=APIResponse)
+@router.post("/register", response_model=APIResponse)
 async def register(request: RegisterRequest):
     """
     用户注册
@@ -287,7 +271,7 @@ async def register(request: RegisterRequest):
     )
 
 
-@app.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse)
 async def login(request: LoginRequest):
     """
     用户登录
@@ -323,7 +307,7 @@ async def login(request: LoginRequest):
     )
 
 
-@app.post("/logout")
+@router.post("/logout")
 async def logout(current_user: Dict[str, Any] = Depends(get_current_user)):
     """
     用户登出
@@ -338,7 +322,7 @@ async def logout(current_user: Dict[str, Any] = Depends(get_current_user)):
     return APIResponse(message="登出成功")
 
 
-@app.post("/refresh", response_model=TokenResponse)
+@router.post("/refresh", response_model=TokenResponse)
 async def refresh_token(refresh_token: str = Body(..., embed=True)):
     """
     刷新 Token
@@ -367,7 +351,7 @@ async def refresh_token(refresh_token: str = Body(..., embed=True)):
 
 # ---------- 当前用户管理 ----------
 
-@app.get("/me", response_model=APIResponse)
+@router.get("/me", response_model=APIResponse)
 async def get_current_user_info(current_user: Dict[str, Any] = Depends(get_current_user)):
     """获取当前用户信息"""
     return APIResponse(data={
@@ -377,7 +361,7 @@ async def get_current_user_info(current_user: Dict[str, Any] = Depends(get_curre
     })
 
 
-@app.put("/me", response_model=APIResponse)
+@router.put("/me", response_model=APIResponse)
 async def update_current_user(
     request: UpdateUserRequest,
     current_user: Dict[str, Any] = Depends(get_current_user)
@@ -397,7 +381,7 @@ async def update_current_user(
     return APIResponse(data={"user": user.to_dict()}, message="更新成功")
 
 
-@app.post("/change-password", response_model=APIResponse)
+@router.post("/change-password", response_model=APIResponse)
 async def change_password(
     request: ChangePasswordRequest,
     current_user: Dict[str, Any] = Depends(get_current_user)
@@ -420,7 +404,7 @@ async def change_password(
 
 # ---------- 用户配置管理 ----------
 
-@app.get("/config", response_model=APIResponse)
+@router.get("/config", response_model=APIResponse)
 async def get_user_config(current_user: Dict[str, Any] = Depends(get_current_user)):
     """获取当前用户配置"""
     user_manager, jwt_handler, permission_manager = get_services()
@@ -433,7 +417,7 @@ async def get_user_config(current_user: Dict[str, Any] = Depends(get_current_use
     return APIResponse(data={"config": config.to_dict()})
 
 
-@app.put("/config", response_model=APIResponse)
+@router.put("/config", response_model=APIResponse)
 async def update_user_config(
     request: UserConfigUpdate,
     current_user: Dict[str, Any] = Depends(get_current_user)
@@ -454,7 +438,7 @@ async def update_user_config(
 
 # ---------- 订阅管理 ----------
 
-@app.get("/subscription", response_model=APIResponse)
+@router.get("/subscription", response_model=APIResponse)
 async def get_subscription(current_user: Dict[str, Any] = Depends(get_current_user)):
     """获取当前用户订阅信息"""
     user_manager, jwt_handler, permission_manager = get_services()
@@ -474,7 +458,7 @@ async def get_subscription(current_user: Dict[str, Any] = Depends(get_current_us
     })
 
 
-@app.post("/subscription/upgrade", response_model=APIResponse)
+@router.post("/subscription/upgrade", response_model=APIResponse)
 async def upgrade_subscription(
     request: SubscriptionUpgradeRequest,
     current_user: Dict[str, Any] = Depends(get_current_user)
@@ -508,7 +492,7 @@ async def upgrade_subscription(
 
 # ---------- 管理员接口 ----------
 
-@app.get("/users", response_model=APIResponse)
+@router.get("/users", response_model=APIResponse)
 async def list_users(
     role: Optional[str] = Query(None, description="按角色筛选"),
     is_active: Optional[bool] = Query(None, description="按状态筛选"),
@@ -536,7 +520,7 @@ async def list_users(
     )
 
 
-@app.get("/users/stats", response_model=APIResponse)
+@router.get("/users/stats", response_model=APIResponse)
 async def get_user_stats(
     current_user: Dict[str, Any] = Depends(require_permission(PermissionEnum.USER_ADMIN))
 ):
@@ -548,7 +532,7 @@ async def get_user_stats(
     return APIResponse(data=stats)
 
 
-@app.put("/users/{user_id}/role", response_model=APIResponse)
+@router.put("/users/{user_id}/role", response_model=APIResponse)
 async def update_user_role(
     user_id: str,
     role: str = Body(..., embed=True),
@@ -578,7 +562,7 @@ async def update_user_role(
     return APIResponse(message=f"用户角色已更新为 {role}")
 
 
-@app.post("/users/{user_id}/deactivate", response_model=APIResponse)
+@router.post("/users/{user_id}/deactivate", response_model=APIResponse)
 async def deactivate_user(
     user_id: str,
     current_user: Dict[str, Any] = Depends(require_permission(PermissionEnum.USER_ADMIN))
@@ -598,7 +582,7 @@ async def deactivate_user(
     return APIResponse(message="用户已禁用")
 
 
-@app.post("/users/{user_id}/activate", response_model=APIResponse)
+@router.post("/users/{user_id}/activate", response_model=APIResponse)
 async def activate_user(
     user_id: str,
     current_user: Dict[str, Any] = Depends(require_permission(PermissionEnum.USER_ADMIN))
@@ -616,7 +600,7 @@ async def activate_user(
 
 # ---------- 健康检查 ----------
 
-@app.get("/health")
+@router.get("/health")
 async def health_check():
     """健康检查"""
     return {
@@ -630,10 +614,3 @@ async def health_check():
 # 主入口
 # ============================================
 
-if __name__ == "__main__":
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8003,
-        reload=True
-    )

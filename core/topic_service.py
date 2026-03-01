@@ -874,6 +874,36 @@ class TopicService:
             print(f"[TopicService] ❌ 保存选题失败：{e}")
             return False
     
+    def get_topics(
+        self,
+        status: Optional[str] = None,
+        industry: Optional[str] = None,
+        min_score: float = 0,
+        page: int = 1,
+        page_size: int = 20
+    ) -> List[Topic]:
+        """
+        获取选题列表 (API 兼容方法)
+        
+        Args:
+            status: 状态筛选
+            industry: 行业筛选
+            min_score: 最低分数
+            page: 页码
+            page_size: 每页数量
+        
+        Returns:
+            选题列表
+        """
+        topics, _ = self.get_topic_list(
+            status=status,
+            industry=industry,
+            min_score=min_score if min_score > 0 else None,
+            page=page,
+            page_size=page_size
+        )
+        return topics
+    
     def get_topic_list(
         self,
         industry: Optional[str] = None,
@@ -1031,3 +1061,9 @@ def test_topic_service():
 
 if __name__ == "__main__":
     test_topic_service()
+
+
+# 方法别名 (兼容旧调用)
+def get_topics(self, limit: int = 50, offset: int = 0) -> List[Dict]:
+    """获取选题列表 (get_topic_list 的别名)"""
+    return self.get_topic_list(limit, offset)
