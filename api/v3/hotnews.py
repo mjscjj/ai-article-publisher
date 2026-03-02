@@ -163,3 +163,9 @@ async def get_hotnews_trend(item_id: str, hours: int = Query(24, description="�
 async def health_check():
     init_service()
     return {"status": "healthy", "service": "V3 HotNews API", "version": "3.0.0"}
+
+
+@router.get("/health")
+async def health_check():
+    """健康检查"""
+    return {"status": "healthy", "service": "HotNews Center", "version": "3.0.0"}

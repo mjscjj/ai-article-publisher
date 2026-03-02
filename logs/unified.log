@@ -1,8 +1,7 @@
 INFO:     Will watch for changes in these directories: ['/root/.openclaw/workspace-writer/ai-article-publisher']
-WARNING:  "workers" flag is ignored when reloading is enabled.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [1084177] using StatReload
-INFO:     Started server process [1084225]
+INFO:     Started reloader process [1372253] using StatReload
+INFO:     Started server process [1372255]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 [EvaluationService] ✅ 数据库连接成功
@@ -13,9 +12,6 @@ INFO:     Application startup complete.
 [Evaluation API] ✅ 服务初始化成功 (DeepSeek V3)
 [Review API] ✅ 服务初始化成功 (DeepSeek V3)
 [Coordinator API] ✅ 服务初始化成功
-INFO:     127.0.0.1:34370 - "GET /health HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [1084225]
-INFO:     Stopping reloader process [1084177]
+INFO:     127.0.0.1:33212 - "GET /health HTTP/1.1" 200 OK
+[HotNewsService] ✅ 数据库连接成功
+INFO:     127.0.0.1:33224 - "GET /api/v3/hotnews/health HTTP/1.1" 200 OK
